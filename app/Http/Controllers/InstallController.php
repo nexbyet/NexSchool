@@ -196,6 +196,11 @@ class InstallController extends Controller
                 $kernel->call('key:generate', ['--force' => true]);
             }
 
+            // ── Create storage symlink ──
+            if (is_dir(base_path('storage/app/public')) && !file_exists(public_path('storage'))) {
+                $kernel->call('storage:link');
+            }
+
             // ── Run migrations (safe for both fresh/reinstall) ──
             $kernel->call('migrate', ['--force' => true]);
 
