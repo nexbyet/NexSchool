@@ -39,28 +39,21 @@
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-        <h3 class="text-sm font-bold text-gray-800 mb-2">GitHub સેટઅપ ગાઇડ</h3>
+        <h3 class="text-sm font-bold text-gray-800 mb-2">અપડેટ સિસ્ટમ કેવી રીતે કામ કરે છે</h3>
         <div class="text-sm text-gray-600 space-y-2">
-            <p>અપડેટ સિસ્ટમ વાપરવા માટે:</p>
-            <ol class="list-decimal list-inside space-y-1.5">
-                <li>GitHub પર <strong>public કે private</strong> રિપોઝિટરી બનાવો</li>
-                <li><code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">.env</code> માં સેટિંગ્સ ઉમેરો:
-                    <pre class="bg-gray-900 text-gray-100 p-3 rounded-lg text-xs mt-1 overflow-x-auto">GITHUB_REPO_OWNER=your-username
-GITHUB_REPO_NAME=NexSchool
-# Private repo હોય તો Token ઉમેરો:
-# GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxx</pre>
-                </li>
-                <li>દરેક વર્ઝન માટે GitHub Release બનાવો (tag: <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">v1.0.0</code>)</li>
-                <li>Release asset તરીકે <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">nexschool-vX.X.X.zip</code> અપલોડ કરો</li>
-                <li>ZIP ની અંદર <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">update.json</code> ફાઇલ રાખો:</li>
-            </ol>
+            <p><strong>nexbyet/NexSchool</strong> — પબ્લિક રીપો, કોઈ Token કે સેટિંગની જરૂર નથી.</p>
+            <ul class="list-disc list-inside space-y-1.5">
+                <li>GitHub Release ચેક કરે છે → નવું વર્ઝન મળે → ZIP ડાઉનલોડ કરે છે → એક્સટ્રેક્ટ કરે છે → ફાઇલો બદલે છે → માઇગ્રેશન ચલાવે છે → કેશ ક્લિયર કરે છે → વર્ઝન અપડેટ કરે છે</li>
+                <li>દરેક વર્ઝન માટે <strong>GitHub Release</strong> બનાવો (tag: <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">v1.1.0</code>)</li>
+                <li>માત્ર tag પૂરતો છે — GitHub auto-generated ZIP નો ઉપયોગ થાય છે</li>
+                <li>મોટા અપડેટ માટે (નવી માઇગ્રેશન + ફાઇલ ડિલીટ), ZIP સાથે <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">update.json</code> ઉમેરો:</li>
+            </ul>
             <pre class="bg-gray-900 text-gray-100 p-3 rounded-lg text-xs mt-2 overflow-x-auto">{
   "version": "1.1.0",
   "requires": "1.0.0",
   "migrations": ["2026_07_01_xxx.php"],
   "delete_files": ["old/unused.php"]
 }</pre>
-            <p class="text-xs text-amber-600 mt-2"><i class="lni lni-shield mr-1"></i> GitHub ઓનર/રેપો નામ અને Token <code class="px-1 py-0.5 bg-gray-100 rounded">.env</code> માં રાખો — તે git માં commit થતા નથી. Client ને આ માહિતી દેખાતી નથી.</p>
         </div>
     </div>
 </div>
