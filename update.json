@@ -1,0 +1,12 @@
+{
+    "version": "1.0.1",
+    "requires": "1.0.0",
+    "migrations": [
+        "2026_06_05_150000_create_fee_structure_standard_pivot.php"
+    ],
+    "delete_files": [],
+    "post_update_commands": [
+	"php artisan migrate"
+        "php artisan storage:link"
+    ]
+}

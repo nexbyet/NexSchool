@@ -194,8 +194,8 @@
     var currentClassId = '';
     var currentStructures = [];
 
-    var feeTypeColors = {'tuition': 'bg-indigo-100 text-indigo-700', 'transport': 'bg-cyan-100 text-cyan-700', 'other': 'bg-gray-100 text-gray-700'};
-    var feeTypeLabels = {'tuition': 'શાળા ફી', 'transport': 'બસ ફી', 'other': 'અન્ય'};
+    var feeTypeColors = {'tuition': 'bg-indigo-100 text-indigo-700', 'transport': 'bg-cyan-100 text-cyan-700', 'other': 'bg-gray-100 text-gray-700', 'carry_forward': 'bg-orange-100 text-orange-700'};
+    var feeTypeLabels = {'tuition': 'શાળા ફી', 'transport': 'બસ ફી', 'other': 'અન્ય', 'carry_forward': 'કેરી ફોરવર્ડ'};
 
     function getSelectedStructureIds() {
         var ids = [];
@@ -364,7 +364,7 @@
             var feeCount = 0;
             for (var fi = 0; fi < (s.fees || []).length; fi++) {
                 var sf = s.fees[fi];
-                var ft = (sf.fee_structure && sf.fee_structure.type) ? sf.fee_structure.type : 'other';
+                var ft = (!sf.fee_structure) ? 'carry_forward' : (sf.fee_structure.type || 'other');
                 var fl = feeTypeLabels[ft] || ft;
                 var semTxt = sf.semester ? '<sup class="text-[9px] font-bold ml-0.5" style="color:inherit">' + sf.semester + '</sup>' : '';
                 totalCombinedNet += parseFloat(sf.net_amount) || 0;
@@ -390,9 +390,10 @@
             }
             for (var fi2 = 0; fi2 < (s.fees || []).length; fi2++) {
                 var sf2 = s.fees[fi2];
-                var ft2 = (sf2.fee_structure && sf2.fee_structure.type) ? sf2.fee_structure.type : 'other';
-                actionBtn += '<button onclick="editAssignment(' + s.id + ',' + sf2.id + ')" class="px-1.5 py-1 text-xs font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition" title="' + (feeTypeLabels[ft2] || ft2) + ' સુધારો"><i class="lni lni-pencil-1 text-xs"></i></button> ';
-                actionBtn += '<button onclick="unassignStudent(' + s.id + ',' + sf2.id + ')" class="px-1.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition" title="' + (feeTypeLabels[ft2] || ft2) + ' પાછી લો"><i class="lni lni-trash-3 text-xs"></i></button>';
+                var ft2 = (!sf2.fee_structure) ? 'carry_forward' : (sf2.fee_structure.type || 'other');
+                var fl2 = feeTypeLabels[ft2] || ft2;
+                actionBtn += '<button onclick="editAssignment(' + s.id + ',' + sf2.id + ')" class="px-1.5 py-1 text-xs font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition" title="' + fl2 + ' સુધારો"><i class="lni lni-pencil-1 text-xs"></i></button> ';
+                actionBtn += '<button onclick="unassignStudent(' + s.id + ',' + sf2.id + ')" class="px-1.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition" title="' + fl2 + ' પાછી લો"><i class="lni lni-trash-3 text-xs"></i></button>';
             }
             if (actionBtn === '<div class="flex items-center justify-center gap-1">') {
                 actionBtn += '<span class="text-xs text-gray-400">—</span>';

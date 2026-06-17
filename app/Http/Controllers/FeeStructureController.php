@@ -168,10 +168,16 @@ class FeeStructureController extends Controller
                 ? [$data['to_standard_id']]
                 : $source->standards->pluck('id')->toArray();
 
-            $exists = FeeStructure::where('academic_year_id', $data['to_academic_year_id'])
-                ->where('semester', $source->semester)
-                ->where('type', $source->type)
-                ->whereHas('standards', fn($q) => $q->whereIn('standard_id', $destStdIds))
+            $existsQ = FeeStructure::where('academic_year_id', $data['to_academic_year_id'])
+                ->where('type', $source->type);
+
+            if ($source->semester === null) {
+                $existsQ->whereNull('semester');
+            } else {
+                $existsQ->where('semester', $source->semester);
+            }
+
+            $exists = $existsQ->whereHas('standards', fn($q) => $q->whereIn('standard_id', $destStdIds))
                 ->exists();
 
             if ($exists) {
@@ -220,9 +226,15 @@ class FeeStructureController extends Controller
     private function checkStandardOverlap($academicYearId, $type, $semester, $stdIds, $excludeId)
     {
         $query = FeeStructure::where('academic_year_id', $academicYearId)
-            ->where('type', $type)
-            ->where('semester', $semester)
-            ->whereHas('standards', fn($q) => $q->whereIn('standard_id', $stdIds));
+            ->where('type', $type);
+
+        if ($semester === null) {
+            $query->whereNull('semester');
+        } else {
+            $query->where('semester', $semester);
+        }
+
+        $query->whereHas('standards', fn($q) => $q->whereIn('standard_id', $stdIds));
 
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);

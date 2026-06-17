@@ -198,6 +198,10 @@
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('fees.assignments*')) bg-amber-500 @else bg-gray-300 @endif"></span>
                     ફી સોંપણી
                 </a>
+                <a href="{{ route('fees.carry-forward.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('fees.carry-forward*')) bg-red-50 text-red-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('fees.carry-forward*')) bg-red-500 @else bg-gray-300 @endif"></span>
+                    જૂની ફી કેરી ફોરવર્ડ
+                </a>
                 <a href="{{ route('fees.collection.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('fees.collection*')) bg-amber-50 text-amber-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('fees.collection*')) bg-amber-500 @else bg-gray-300 @endif"></span>
                     ફી વસૂલાત

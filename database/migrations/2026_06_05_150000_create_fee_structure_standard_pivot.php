@@ -17,6 +17,10 @@ return new class extends Migration
 
         Schema::table('fee_structures', function (Blueprint $table) {
             $table->dropUnique('fee_structures_year_std_type_sem_unique');
+            $table->dropForeign(['standard_id']);
+        });
+
+        Schema::table('fee_structures', function (Blueprint $table) {
             $table->dropIndex('fee_structures_standard_id_foreign');
             $table->dropColumn('standard_id');
             $table->index(['academic_year_id', 'type', 'semester'], 'fee_structures_year_type_sem_index');

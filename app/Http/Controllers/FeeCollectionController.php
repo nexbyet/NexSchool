@@ -224,6 +224,7 @@ class FeeCollectionController extends Controller
             $sf = $allStudentFees->first(fn($s) => $s->id === $sfId);
             if (!$sf) continue;
             $type = $sf->feeStructure?->type ?? 'other';
+            $isCf = !$sf->fee_structure_id;
             $paidNow = $feePayments->sum('amount_paid');
             $totalPaid = FeePayment::where('student_id', $studentId)
                 ->where('academic_year_id', $academicYearId)
@@ -236,7 +237,7 @@ class FeeCollectionController extends Controller
             $semVal = $sf->feeStructure?->semester;
 
             $typeData[$sf->id] = [
-                'label' => $type === 'tuition' ? 'શાળા ફી' : ($type === 'transport' ? 'બસ ફી' : 'અન્ય'),
+                'label' => $isCf ? 'કેરી ફોરવર્ડ' : ($type === 'tuition' ? 'શાળા ફી' : ($type === 'transport' ? 'બસ ફી' : 'અન્ય')),
                 'payments' => $feePayments,
                 'heads' => $sf->feeStructure?->details ?? collect(),
                 'net_amount' => $netAmount,

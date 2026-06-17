@@ -160,8 +160,29 @@
     var historyContent = document.getElementById('history-content');
 
     var currentYearId = parseInt(yearSelector.value);
-    var feeTypeLabels = {'tuition': 'શાળા ફી', 'transport': 'બસ ફી', 'other': 'અન્ય'};
+    var feeTypeLabels = {'tuition': 'શાળા ફી', 'transport': 'બસ ફી', 'other': 'અન્ય', 'carry_forward': 'કેરી ફોરવર્ડ'};
     var methodLabels = {'cash': 'રોકડા', 'bank': 'બેંક ટ્રાન્સફર', 'cheque': 'ચેક', 'online': 'ઓનલાઇન'};
+
+    function getFeeType(fee) {
+        return !fee.fee_structure ? 'carry_forward' : (fee.fee_structure.type || 'other');
+    }
+    function getFeeTypeLabel(fee) {
+        var t = getFeeType(fee);
+        return t === 'carry_forward' ? 'કેરી ફોરવર્ડ' : (feeTypeLabels[t] || 'અન્ય');
+    }
+    function getFeeTypeColor(fee) {
+        var t = getFeeType(fee);
+        if (t === 'carry_forward') return 'bg-orange-100 text-orange-700';
+        if (t === 'tuition') return 'bg-indigo-100 text-indigo-700';
+        if (t === 'transport') return 'bg-cyan-100 text-cyan-700';
+        return 'bg-gray-100 text-gray-700';
+    }
+    function getSemBadge(fee) {
+        if (!fee.fee_structure) return '';
+        return fee.semester
+            ? '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-700">' + fee.semester + '</span>'
+            : '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">વા</span>';
+    }
 
     payDate.value = new Date().toISOString().split('T')[0];
 
@@ -252,9 +273,9 @@
             } else {
                 for (var j = 0; j < fees.length; j++) {
                     var fee = fees[j];
-                    var fs = fee.fee_structure || {};
-                    var feeType = fs.type || 'other';
-                    var feeTypeLabel = feeTypeLabels[feeType] || 'અન્ય';
+                    var feeType = getFeeType(fee);
+                    var feeTypeLabel = getFeeTypeLabel(fee);
+                    var feeTypeColor = getFeeTypeColor(fee);
                     var netAmt = parseFloat(fee.net_amount) || 0;
                     var paidAmt = parseFloat(fee.paid_amount) || 0;
                     var dueAmt = parseFloat(fee.due_amount) || 0;
@@ -265,10 +286,8 @@
                     html += '<div class="flex items-center justify-between py-2 ' + (j > 0 ? 'border-t border-gray-100' : '') + '">';
                     html += '<div class="flex-1 min-w-0">';
                     html += '<div class="flex items-center gap-2">';
-                    var semBadge = fee.semester
-                        ? '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-700">' + fee.semester + '</span>'
-                        : '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">વા</span>';
-                    html += '<span class="text-sm font-medium text-gray-800">' + feeTypeLabel + semBadge + '</span>';
+                    var semBadge = getSemBadge(fee);
+                    html += '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ' + feeTypeColor + '">' + feeTypeLabel + semBadge + '</span>';
                     if (isWaived) html += '<span class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">માફ</span>';
                     html += '</div>';
                     html += '<div class="flex items-center gap-3 mt-1 flex-wrap">';
@@ -308,21 +327,19 @@
             var feeHtml = '';
             for (var i = 0; i < fees.length; i++) {
                 var fee = fees[i];
-                var fs = fee.fee_structure || {};
-                var feeType = fs.type || 'other';
-                var label = feeTypeLabels[feeType] || 'અન્ય';
+                var feeType = getFeeType(fee);
+                var label = getFeeTypeLabel(fee);
+                var feeTypeColor = getFeeTypeColor(fee);
                 var netAmt = parseFloat(fee.net_amount) || 0;
                 var paidAmt = parseFloat(fee.paid_amount) || 0;
                 var dueAmt = parseFloat(fee.due_amount) || 0;
                 var isWaived = !!fee.is_waived;
                 if (isWaived || dueAmt <= 0) continue;
 
-                var semBadge = fee.semester
-                    ? '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-700">' + fee.semester + '</span>'
-                    : '<span class="ml-1 px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700">વા</span>';
+                var semBadge = getSemBadge(fee);
                 feeHtml += '<div class="border border-gray-200 rounded-lg p-3">';
                 feeHtml += '<div class="flex items-center justify-between mb-2">';
-                feeHtml += '<span class="font-medium text-gray-800 text-sm">' + label + semBadge + '</span>';
+                feeHtml += '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ' + feeTypeColor + '">' + label + semBadge + '</span>';
                 feeHtml += '<span class="text-xs text-gray-500">નિર્ધારિત: ₹' + netAmt.toFixed(2) + '</span>';
                 feeHtml += '</div>';
                 feeHtml += '<div class="flex items-center justify-between text-xs text-gray-500 mb-2">';
@@ -422,9 +439,8 @@
             if (!data.success) { NexSchool.alert.danger(data.message || 'ભૂલ'); return; }
             var payments = data.payments || [];
             var fee = data.fee || {};
-            var fs = fee.fee_structure || {};
-            var feeType = fs.type || '';
-            var feeLabel = feeType ? feeTypeLabels[feeType] || 'અન્ય' : '';
+            var feeType = !fee.fee_structure ? 'carry_forward' : (fee.fee_structure?.type || '');
+            var feeLabel = feeType === 'carry_forward' ? 'કેરી ફોરવર્ડ' : (feeType ? feeTypeLabels[feeType] || 'અન્ય' : '');
             var html = '';
             if (payments.length === 0) {
                 html = '<div class="text-center py-8"><p class="text-gray-500">હજી સુધી કોઈ ચુકવણી નથી</p></div>';

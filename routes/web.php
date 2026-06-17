@@ -31,6 +31,7 @@ use App\Http\Controllers\StudentFeeController;
 use App\Http\Controllers\FeeCollectionController;
 use App\Http\Controllers\FeeReportController;
 use App\Http\Controllers\FeeRegisterController;
+use App\Http\Controllers\FeeCarryForwardController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NoticeController;
@@ -276,6 +277,12 @@ Route::middleware('auth')->group(function () {
         Route::get('reports/print-due-list', [FeeReportController::class, 'printDueList'])->name('reports.print-due-list');
         Route::get('reports/print-collection', [FeeReportController::class, 'printCollectionReport'])->name('reports.print-collection');
         Route::get('reports/print-statement', [FeeReportController::class, 'printStudentStatement'])->name('reports.print-statement');
+
+        // Fee Carry Forward
+        Route::get('carry-forward', [FeeCarryForwardController::class, 'index'])->name('carry-forward.index');
+        Route::post('carry-forward/students', [FeeCarryForwardController::class, 'students'])->name('carry-forward.students');
+        Route::post('carry-forward/store', [FeeCarryForwardController::class, 'store'])->name('carry-forward.store');
+        Route::post('carry-forward/delete/{id}', [FeeCarryForwardController::class, 'destroy'])->name('carry-forward.destroy');
 
         // Fee Register
         Route::get('register', [FeeRegisterController::class, 'index'])->name('register.index');

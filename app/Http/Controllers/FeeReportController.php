@@ -223,7 +223,8 @@ class FeeReportController extends Controller
         $student = Student::findOrFail($data['student_id']);
 
         $feesQuery = StudentFee::where('student_id', $data['student_id'])
-            ->where('academic_year_id', $data['academic_year_id']);
+            ->where('academic_year_id', $data['academic_year_id'])
+            ->whereNotNull('fee_structure_id');
         if ($semester) $feesQuery->where('semester', $semester);
         $studentFees = $feesQuery->with('feeStructure.details.feeHead')->get();
 
@@ -404,7 +405,8 @@ class FeeReportController extends Controller
         $student = Student::findOrFail($data['student_id']);
 
         $feesQuery = StudentFee::where('student_id', $data['student_id'])
-            ->where('academic_year_id', $data['academic_year_id']);
+            ->where('academic_year_id', $data['academic_year_id'])
+            ->whereNotNull('fee_structure_id');
         if ($semester) $feesQuery->where('semester', $semester);
         $studentFees = $feesQuery->with('feeStructure.details.feeHead')->get();
 
