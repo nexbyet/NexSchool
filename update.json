@@ -1,12 +1,9 @@
 {
-    "version": "1.0.1",
+    "version": "1.0.2",
     "requires": "1.0.0",
     "migrations": [
-        "2026_06_05_150000_create_fee_structure_standard_pivot.php"
+        "2026_06_17_131259_remove_unique_constraint_from_fee_structures.php"
     ],
     "delete_files": [],
-    "post_update_commands": [
-	"php artisan migrate"
-        "php artisan storage:link"
-    ]
+    "post_update_commands": []
 }
