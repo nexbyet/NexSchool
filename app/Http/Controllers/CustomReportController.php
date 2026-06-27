@@ -68,14 +68,7 @@ class CustomReportController extends Controller
         $school = SchoolSetting::find(1);
         $fields = $this->availableFields;
 
-        $fieldGroups = [
-            'personal' => ['title_gu' => 'વ્યક્તિગત માહિતી', 'title_en' => 'Personal Info'],
-            'identity' => ['title_gu' => 'ઓળખ', 'title_en' => 'Identity'],
-            'academic' => ['title_gu' => 'શૈક્ષણિક', 'title_en' => 'Academic'],
-            'contact'  => ['title_gu' => 'સંપર્ક', 'title_en' => 'Contact'],
-        ];
-
-        return view('custom-report.index', compact('standards', 'classes', 'activeYear', 'school', 'fields', 'fieldGroups'));
+        return view('custom-report.index', compact('standards', 'classes', 'activeYear', 'school', 'fields'));
     }
 
     public function preview(Request $request)
@@ -83,17 +76,39 @@ class CustomReportController extends Controller
         $data = $request->validate([
             'columns' => 'required|array|min:1',
             'columns.*' => 'string',
+            'column_widths' => 'nullable|array',
+            'column_widths.*' => 'nullable|integer|min:10|max:500',
+            'custom_columns' => 'nullable|array',
+            'custom_columns.*.header_gu' => 'nullable|string|max:255',
+            'custom_columns.*.header_en' => 'nullable|string|max:255',
+            'custom_columns.*.width' => 'nullable|integer|min:10|max:500',
             'standard_id' => 'nullable|exists:standards,id',
             'class_id' => 'nullable|exists:school_classes,id',
             'report_type' => 'required|in:filled,blank',
             'blank_rows' => 'nullable|integer|min:1|max:200',
             'title_gu' => 'nullable|string|max:255',
             'title_en' => 'nullable|string|max:255',
+            'row_height' => 'nullable|integer|min:4|max:50',
         ]);
 
         $columns = $data['columns'];
         $hasSrNo = in_array('sr_no', $columns);
         $columns = array_values(array_filter($columns, fn($c) => $c !== 'sr_no'));
+
+        $columnWidths = $data['column_widths'] ?? [];
+        $customColumns = $data['custom_columns'] ?? [];
+        $rowHeight = (int) ($data['row_height'] ?? 7);
+        $standardName = null;
+        $className = null;
+
+        if (!empty($data['standard_id'])) {
+            $std = Standard::find($data['standard_id']);
+            $standardName = $std?->name;
+        }
+        if (!empty($data['class_id'])) {
+            $cls = SchoolClass::find($data['class_id']);
+            $className = $cls?->name;
+        }
 
         $students = collect();
         $studentCount = 0;
@@ -141,7 +156,10 @@ class CustomReportController extends Controller
         $titleGu = $data['title_gu'] ?? '';
         $titleEn = $data['title_en'] ?? '';
 
-        $html = view('custom-report.print', compact('students', 'columns', 'hasSrNo', 'school', 'titleGu', 'titleEn', 'studentCount'))->render();
+        $html = view('custom-report.print', compact(
+            'students', 'columns', 'hasSrNo', 'school', 'titleGu', 'titleEn', 'studentCount',
+            'columnWidths', 'customColumns', 'rowHeight', 'standardName', 'className'
+        ))->render();
 
         return response()->json(['success' => true, 'html' => $html]);
     }

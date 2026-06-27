@@ -166,6 +166,16 @@
         </div>
     </div>
 
+    {{-- Compact Secondary Stats --}}
+    <div class="flex flex-wrap gap-3 mb-6">
+        <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="w-7 h-7 rounded-md bg-slate-200 flex items-center justify-center">
+                <i class="lni lni-exit text-xs text-slate-600"></i>
+            </div>
+            <span class="text-sm text-slate-600">ભૂતપૂર્વ વિદ્યાર્થીઓ: <strong class="text-slate-800">{{ $stats['alumni'] ?? 0 }}</strong></span>
+        </div>
+    </div>
+
     {{-- Standard × Class × Category Matrix Table --}}
     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-8">
         <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50/50">

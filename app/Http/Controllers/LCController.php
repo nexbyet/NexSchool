@@ -100,7 +100,11 @@ class LCController extends Controller
 
         $student->update($updateData);
 
-        User::where('student_id', $student->id)->update(['active' => false]);
+        try {
+            User::where('student_id', $student->id)->update(['active' => false]);
+        } catch (\Exception $e) {
+            // Column may not exist yet
+        }
 
         return response()->json([
             'success' => true,
@@ -143,7 +147,7 @@ class LCController extends Controller
 
         $students = $query->orderBy('leaving_date')->defaultSort()->get();
         $school = SchoolSetting::find(1);
-        $activeYear = AcademicYear::find($data['academic_year_id']) ?? AcademicYear::getActive();
+        $activeYear = AcademicYear::find($data['academic_year_id'] ?? null) ?? AcademicYear::getActive();
 
         return view('lc.register', compact('students', 'school', 'activeYear', 'data'));
     }

@@ -44,6 +44,16 @@
     transition: opacity 0.15s;
 }
 .column-slot .remove-btn:hover { opacity: 1; }
+.column-slot .width-input {
+    width: 40px;
+    padding: 0 2px;
+    font-size: 0.6875rem;
+    text-align: center;
+    border: 1px solid #d1d5db;
+    border-radius: 3px;
+    outline: none;
+}
+.column-slot .width-input:focus { border-color: #6366f1; }
 .sortable-chosen { border-color: #6366f1; background: #eef2ff; box-shadow: 0 4px 12px rgba(99,102,241,0.15); }
 .sortable-ghost { border: 2px dashed #6366f1; background: #eef2ff; opacity: 0.6; }
 .field-group-toggle { cursor: pointer; }
@@ -58,7 +68,6 @@
 
 @section('content')
 <div class="p-4 md:p-6">
-    {{-- Header --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-violet-700 p-6 mb-6">
         <div class="relative z-10">
             <h1 class="text-2xl font-bold text-white">કસ્ટમ રિપોર્ટ જનરેટર</h1>
@@ -75,7 +84,7 @@
                 <span class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">1</span>
                 વિદ્યાર્થીઓ પસંદ કરો
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-1.5">ધોરણ</label>
                     <select name="standard_id" id="standard_id" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
@@ -101,6 +110,10 @@
                 <div id="blankRowsWrap">
                     <label class="block text-sm font-medium text-gray-600 mb-1.5">ખાલી હરોળ</label>
                     <input type="number" name="blank_rows" id="blank_rows" value="20" min="1" max="200" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">હરોળ ઊંચાઈ (mm)</label>
+                    <input type="number" name="row_height" id="row_height" value="7" min="4" max="50" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
                 </div>
             </div>
         </div>
@@ -146,6 +159,7 @@
                                              data-key="{{ $f['key'] }}"
                                              data-label-gu="{{ $f['label_gu'] }}"
                                              data-label-en="{{ $f['label_en'] }}"
+                                             data-width="{{ $f['width'] }}"
                                              draggable="true">
                                             <i class="lni lni-arrow-all-direction text-gray-300 text-xs"></i>
                                             <span>{{ $f['label_gu'] }}</span>
@@ -155,13 +169,16 @@
                             </div>
                         @endforeach
                     </div>
+                    <button type="button" onclick="openCustomColumnModal()" class="mt-3 w-full px-3 py-2 text-xs font-medium text-violet-700 bg-violet-50 border border-dashed border-violet-200 rounded-lg hover:bg-violet-100 transition flex items-center justify-center gap-1.5">
+                        <i class="lni lni-plus text-sm"></i> કસ્ટમ બ્લેન્ક કૉલમ ઉમેરો
+                    </button>
                 </div>
 
                 {{-- Drop Zone --}}
                 <div class="lg:col-span-2">
                     <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
                         <i class="lni lni-layers-1 text-violet-500"></i> પસંદ કરેલ કૉલમ
-                        <span class="text-xs text-gray-400 font-normal">(ક્રમ બદલવા ખેંચો)</span>
+                        <span class="text-xs text-gray-400 font-normal">(ક્રમ બદલવા ખેંચો, નીચે પહોળાઈ ગોઠવો)</span>
                     </h3>
                     <div class="drop-zone" id="dropZone">
                         <div class="empty-msg">
@@ -170,10 +187,10 @@
                         </div>
                     </div>
 
-                    {{-- Hidden input for selected columns --}}
                     <input type="hidden" name="columns" id="columnsInput" value="">
+                    <input type="hidden" name="column_widths" id="columnWidthsInput" value="">
+                    <input type="hidden" name="custom_columns" id="customColumnsInput" value="">
 
-                    {{-- Quick action buttons --}}
                     <div class="flex flex-wrap gap-2 mt-3">
                         <button type="button" onclick="clearColumns()" class="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition flex items-center gap-1">
                             <i class="lni lni-xmark text-xs"></i> બધા દૂર કરો
@@ -212,6 +229,31 @@
         </div>
     </form>
 
+    {{-- Custom Column Modal --}}
+    <div id="custom-col-modal" class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 hidden" style="opacity:0;transition:opacity 0.2s">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">કસ્ટમ બ્લેન્ક કૉલમ</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">હેડર (ગુજરાતી)</label>
+                    <input type="text" id="custom-header-gu" placeholder="દા.ત. વજન" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">હેડર (English)</label>
+                    <input type="text" id="custom-header-en" placeholder="e.g. Weight" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">પહોળાઈ (px, 10-500)</label>
+                    <input type="number" id="custom-width" value="100" min="10" max="500" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition">
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                <button type="button" onclick="closeCustomColumnModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button>
+                <button type="button" onclick="addCustomColumn()" class="px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition">ઉમેરો</button>
+            </div>
+        </div>
+    </div>
+
     {{-- Preview --}}
     <div id="printPreview" class="mt-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -233,6 +275,11 @@
 @push('scripts')
 <script>
 let selectedColumns = [];
+let customColumns = {};  // key => { header_gu, header_en, width }
+let customColCounter = 0;
+
+// Field data for label lookup
+window.fieldData = @json($fields);
 
 document.addEventListener('DOMContentLoaded', function () {
     const dropZone = document.getElementById('dropZone');
@@ -247,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
             key: el.dataset.key,
             label_gu: el.dataset.labelGu,
             label_en: el.dataset.labelEn,
+            width: el.dataset.width || 100,
         }));
         el.classList.add('dragging');
     });
@@ -274,13 +322,13 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {}
     });
 
-    // SortableJS on drop zone
+    // SortableJS on drop zone (for reordering)
     new Sortable(dropZone, {
         animation: 200,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         onEnd: function () {
-            updateColumnsInput();
+            updateInputs();
         },
     });
 
@@ -326,12 +374,18 @@ function addColumn(key, labelGu, labelEn) {
         NexSchool.alert.warning('આ કૉલમ પહેલેથી પસંદ કરેલ છે');
         return;
     }
-    selectedColumns.push({ key, label_gu: labelGu, label_en: labelEn });
+    // Find width from fieldData
+    const field = window.fieldData ? window.fieldData.find(f => f.key === key) : null;
+    const w = field ? field.width : 100;
+    selectedColumns.push({ key, label_gu: labelGu, label_en: labelEn, width: w });
     renderColumns();
 }
 
 function removeColumn(key) {
     selectedColumns = selectedColumns.filter(c => c.key !== key);
+    if (customColumns[key]) {
+        delete customColumns[key];
+    }
     renderColumns();
 }
 
@@ -339,8 +393,41 @@ function clearColumns() {
     if (selectedColumns.length === 0) return;
     NexSchool.confirm.show('બધી કૉલમ દૂર કરો?', 'શું તમે બધી પસંદ કરેલ કૉલમ દૂર કરવા માંગો છો?', function () {
         selectedColumns = [];
+        customColumns = {};
         renderColumns();
     });
+}
+
+function openCustomColumnModal() {
+    document.getElementById('custom-header-gu').value = '';
+    document.getElementById('custom-header-en').value = '';
+    document.getElementById('custom-width').value = 100;
+    const modal = document.getElementById('custom-col-modal');
+    modal.classList.remove('hidden');
+    setTimeout(function () { modal.style.opacity = '1'; }, 10);
+}
+
+function closeCustomColumnModal() {
+    const modal = document.getElementById('custom-col-modal');
+    modal.style.opacity = '0';
+    setTimeout(function () { modal.classList.add('hidden'); }, 200);
+}
+
+function addCustomColumn() {
+    const headerGu = document.getElementById('custom-header-gu').value.trim();
+    const headerEn = document.getElementById('custom-header-en').value.trim();
+    const width = parseInt(document.getElementById('custom-width').value) || 100;
+    if (!headerGu && !headerEn) {
+        NexSchool.alert.warning('કૃપા કરીને ઓછામાં ઓછું ગુજરાતી હેડર આપો');
+        return;
+    }
+    customColCounter++;
+    const key = 'custom_' + customColCounter;
+    const labelGu = headerGu || headerEn;
+    const labelEn = headerEn || headerGu;
+    customColumns[key] = { header_gu: headerGu, header_en: headerEn, width: width };
+    addColumn(key, labelGu, labelEn);
+    closeCustomColumnModal();
 }
 
 function renderColumns() {
@@ -348,79 +435,99 @@ function renderColumns() {
     if (selectedColumns.length === 0) {
         dropZone.innerHTML = '<div class="empty-msg"><i class="lni lni-arrow-both-direction-horizontal-1 text-2xl text-gray-300 block mb-2"></i>ઉપરથી કૉલમ અહીં ખેંચી લાવો</div>';
         document.getElementById('columnsInput').value = '';
+        document.getElementById('columnWidthsInput').value = '';
+        document.getElementById('customColumnsInput').value = '';
         return;
     }
-    let html = '';
-    selectedColumns.forEach(function (col) {
-        html += '<div class="column-slot" data-key="' + col.key + '">'
-              + '<i class="lni lni-arrow-all-direction text-gray-300 text-xs"></i>'
-              + '<span>' + col.label_gu + '</span>'
-              + '<span class="text-[10px] text-gray-400">| ' + col.label_en + '</span>'
-              + '<span class="remove-btn" onclick="removeColumn(\'' + col.key + '\')">&times;</span>'
-              + '</div>';
-    });
-    dropZone.innerHTML = html;
-    updateColumnsInput();
-}
-
-function updateColumnsInput() {
-    const slots = document.querySelectorAll('#dropZone .column-slot');
-    const cols = [];
-    slots.forEach(function (slot) {
-        const key = slot.dataset.key;
-        if (key) cols.push(key);
-    });
-    // Also add sr_no if first column is not sr_no
-    if (cols.length > 0 && cols[0] !== 'sr_no') {
-        cols.unshift('sr_no');
+    // Auto-add sr_no
+    if (selectedColumns[0] && selectedColumns[0].key !== 'sr_no') {
+        selectedColumns.unshift({ key: 'sr_no', label_gu: 'ક્રમ', label_en: 'Sr No', width: 30 });
     }
-    selectedColumns = cols.map(function (k) {
-        // Find label from original field data
-        const field = window.fieldData ? window.fieldData.find(f => f.key === k) : null;
-        return { key: k, label_gu: field ? field.label_gu : k, label_en: field ? field.label_en : k };
-    });
-    document.getElementById('columnsInput').value = JSON.stringify(cols);
-    // Re-render to show sr_no
-    renderColumnsSilent();
-}
-
-function renderColumnsSilent() {
-    // Re-render without duplicate sr_no
-    const dropZone = document.getElementById('dropZone');
-    if (selectedColumns.length === 0) {
-        dropZone.innerHTML = '<div class="empty-msg"><i class="lni lni-arrow-both-direction-horizontal-1 text-2xl text-gray-300 block mb-2"></i>ઉપરથી કૉલમ અહીં ખેંચી લાવો</div>';
-        return;
-    }
-    // Remove duplicate sr_no
+    // Deduplicate sr_no
     const seen = new Set();
     selectedColumns = selectedColumns.filter(function (c) {
-        if (seen.has(c.key) && c.key === 'sr_no') return false;
-        if (c.key === 'sr_no') seen.add(c.key);
+        if (seen.has(c.key)) return false;
+        seen.add(c.key);
         return true;
     });
     let html = '';
-    selectedColumns.forEach(function (col) {
-        html += '<div class="column-slot" data-key="' + col.key + '">'
+    selectedColumns.forEach(function (col, idx) {
+        const isCustom = col.key.startsWith('custom_');
+        const cc = customColumns[col.key];
+        const w = col.width || (cc ? cc.width : 100);
+        html += '<div class="column-slot" data-key="' + col.key + '" data-idx="' + idx + '">'
               + '<i class="lni lni-arrow-all-direction text-gray-300 text-xs"></i>'
-              + '<span>' + col.label_gu + '</span>'
+              + '<span class="text-xs font-semibold">' + col.label_gu + '</span>'
               + '<span class="text-[10px] text-gray-400">| ' + col.label_en + '</span>'
-              + (col.key !== 'sr_no' ? '<span class="remove-btn" onclick="removeColumn(\'' + col.key + '\')">&times;</span>' : '')
+              + '<input type="number" class="width-input" value="' + w + '" min="10" max="500" title="પહોળાઈ px" onchange="updateColumnWidth(' + idx + ', this.value)" onclick="event.stopPropagation()">'
+              + '<span class="text-[9px] text-gray-400">px</span>'
+              + (col.key !== 'sr_no' ? '<span class="remove-btn" onclick="event.stopPropagation();removeColumn(\'' + col.key + '\')">&times;</span>' : '')
               + '</div>';
     });
     dropZone.innerHTML = html;
+    updateInputs();
 }
 
-// Field data for label lookup
-window.fieldData = @json($fields);
+function updateColumnWidth(idx, val) {
+    if (idx >= 0 && idx < selectedColumns.length) {
+        selectedColumns[idx].width = parseInt(val) || 100;
+        updateInputs();
+    }
+}
+
+function updateInputs() {
+    const slots = document.querySelectorAll('#dropZone .column-slot');
+    const cols = [];
+    const widths = {};
+    slots.forEach(function (slot) {
+        const key = slot.dataset.key;
+        if (key) cols.push(key);
+        const wi = slot.querySelector('.width-input');
+        if (wi && key) {
+            widths[key] = parseInt(wi.value) || 100;
+        }
+    });
+    // Update selectedColumns from DOM order
+    const newCols = [];
+    slots.forEach(function (slot) {
+        const key = slot.dataset.key;
+        if (key) {
+            const existing = selectedColumns.find(c => c.key === key);
+            if (existing) {
+                const wi = slot.querySelector('.width-input');
+                existing.width = wi ? parseInt(wi.value) || 100 : existing.width;
+                newCols.push(existing);
+            }
+        }
+    });
+    if (newCols.length > 0) selectedColumns = newCols;
+
+    document.getElementById('columnsInput').value = JSON.stringify(cols);
+    document.getElementById('columnWidthsInput').value = JSON.stringify(widths);
+    document.getElementById('customColumnsInput').value = JSON.stringify(customColumns);
+}
 
 function generatePreview() {
+    // First update inputs to ensure latest state
+    updateInputs();
+
     const form = document.getElementById('reportForm');
     const formData = new FormData(form);
-    // Send columns as separate array items
     formData.delete('columns');
+    formData.delete('column_widths');
+    formData.delete('custom_columns');
+
     try {
         const cols = JSON.parse(document.getElementById('columnsInput').value || '[]');
         cols.forEach(function (col) { formData.append('columns[]', col); });
+        const widths = JSON.parse(document.getElementById('columnWidthsInput').value || '{}');
+        Object.keys(widths).forEach(function (k) { formData.append('column_widths[' + k + ']', widths[k]); });
+        const custom = JSON.parse(document.getElementById('customColumnsInput').value || '{}');
+        Object.keys(custom).forEach(function (k) {
+            formData.append('custom_columns[' + k + '][header_gu]', custom[k].header_gu || '');
+            formData.append('custom_columns[' + k + '][header_en]', custom[k].header_en || '');
+            formData.append('custom_columns[' + k + '][width]', custom[k].width || 100);
+        });
     } catch (e) {
         formData.append('columns[]', '');
     }

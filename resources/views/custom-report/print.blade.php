@@ -49,6 +49,12 @@ body {
     text-align: center;
     margin-bottom: 8px;
 }
+.report-std-class {
+    font-size: 8pt;
+    color: #4b5563;
+    text-align: center;
+    margin-bottom: 6px;
+}
 table {
     width: 100%;
     border-collapse: collapse;
@@ -113,6 +119,12 @@ tbody tr:nth-child(even) {
     <div class="report-subtitle">{{ $titleEn }}</div>
 @endif
 
+@if($standardName)
+    <div class="report-std-class">
+        ધોરણ: <strong>{{ $standardName }}</strong>@if($className) — વર્ગ: <strong>{{ $className }}</strong>@endif
+    </div>
+@endif
+
 <table>
     <thead>
         <tr>
@@ -121,6 +133,8 @@ tbody tr:nth-child(even) {
             @endif
             @foreach($columns as $col)
                 @php
+                    $w = $columnWidths[$col] ?? null;
+                    $style = $w ? ' style="width:'.$w.'px"' : '';
                     $labels = [
                         'gr_number' => 'GR નંબર',
                         'full_name_gu' => 'પૂરું નામ',
@@ -159,19 +173,36 @@ tbody tr:nth-child(even) {
                         'is_minority' => 'લઘુ.',
                         'admission_under_rte' => 'RTE',
                     ];
+                    $header = $labels[$col] ?? $col;
+                    // check if this key has a custom column header override
+                    if (isset($customColumns[$col]['header_gu']) && $customColumns[$col]['header_gu']) {
+                        $header = $customColumns[$col]['header_gu'];
+                    }
                 @endphp
-                <th>{{ $labels[$col] ?? $col }}</th>
+                <th{!! $style !!}>{{ $header }}</th>
             @endforeach
         </tr>
     </thead>
     <tbody>
+        @php $rh = $rowHeight > 0 ? ' style="height:'.$rowHeight.'mm"' : ''; @endphp
         @forelse($students as $idx => $row)
-            <tr>
+            <tr{!! $rh !!}>
                 @if($hasSrNo)
                     <td>{{ $idx + 1 }}</td>
                 @endif
                 @foreach($columns as $col)
-                    <td>{{ $row[$col] ?? '' }}</td>
+                    @php
+                        $tdStyle = '';
+                        if (isset($columnWidths[$col])) {
+                            $tdStyle = ' style="width:'.$columnWidths[$col].'px"';
+                        }
+                        $val = $row[$col] ?? '';
+                        // If it's a custom blank column and has no value, show blank
+                        if (isset($customColumns[$col])) {
+                            $val = '';
+                        }
+                    @endphp
+                    <td{!! $tdStyle !!}>{{ $val }}</td>
                 @endforeach
             </tr>
         @empty

@@ -18,9 +18,11 @@
         </button>
     </div>
 
-    {{-- Navigation Links --}}
     <nav class="p-3 space-y-0.5">
-        {{-- Dashboard --}}
+
+        {{-- ==================== CORE ==================== --}}
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">મુખ્ય</div>
+
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('dashboard')) bg-indigo-50 text-indigo-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-dashboard-square-1 text-lg @if(request()->routeIs('dashboard')) text-indigo-600 @endif"></i>
@@ -31,119 +33,84 @@
             @endif
         </a>
 
-        {{-- Students --}}
         <a href="{{ route('students.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('students*') && !request()->routeIs('students.import*')) bg-blue-50 text-blue-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-user-multiple-4 text-lg @if(request()->routeIs('students*')) text-blue-600 @endif"></i>
             </span>
             વિદ્યાર્થીઓ
-            @if(request()->routeIs('students*') && !request()->routeIs('students.import*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Teachers --}}
         <a href="{{ route('teachers.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('teachers*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-user-4 text-lg @if(request()->routeIs('teachers*')) text-emerald-600 @endif"></i>
             </span>
             શિક્ષકો
-            @if(request()->routeIs('teachers*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Standards & Classes --}}
         <a href="{{ route('standards.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('standards*')) bg-purple-50 text-purple-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-buildings-1 text-lg @if(request()->routeIs('standards*')) text-purple-600 @endif"></i>
             </span>
             ધોરણ અને વર્ગ
-            @if(request()->routeIs('standards*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-purple-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Subjects --}}
         <a href="{{ route('subjects.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('subjects*')) bg-amber-50 text-amber-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-book-1 text-lg @if(request()->routeIs('subjects*')) text-amber-600 @endif"></i>
             </span>
             વિષયો
-            @if(request()->routeIs('subjects*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-amber-600 rounded-full"></span>
-            @endif
         </a>
 
-        <hr class="my-2 border-gray-100">
-
-        {{-- Class Teacher Assignment --}}
         <a href="{{ route('class-teachers.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('class-teachers*')) bg-indigo-50 text-indigo-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-user-4 text-lg @if(request()->routeIs('class-teachers*')) text-indigo-600 @endif"></i>
             </span>
             વર્ગશિક્ષક
-            @if(request()->routeIs('class-teachers*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Subject-Teacher Assignment --}}
         <a href="{{ route('subject-assignments.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('subject-assignments*')) bg-amber-50 text-amber-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-book-1 text-lg @if(request()->routeIs('subject-assignments*')) text-amber-600 @endif"></i>
             </span>
             વિષય શિક્ષક
-            @if(request()->routeIs('subject-assignments*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-amber-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Academic Years --}}
+        {{-- ==================== SCHEDULE ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">સમયપત્રક</div>
+
         <a href="{{ route('academic-years.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('academic-years*')) bg-pink-50 text-pink-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-calendar-days text-lg @if(request()->routeIs('academic-years*')) text-pink-600 @endif"></i>
             </span>
             શૈક્ષણિક વર્ષો
-            @if(request()->routeIs('academic-years*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-pink-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Time Table --}}
         <a href="{{ route('timetable.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('timetable*')) bg-cyan-50 text-cyan-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-calendar-days text-lg @if(request()->routeIs('timetable*')) text-cyan-600 @endif"></i>
             </span>
             ટાઇમટેબલ
-            @if(request()->routeIs('timetable*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-cyan-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Public Holidays --}}
-        <a href="{{ route('public-holidays.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('public-holidays*')) bg-red-50 text-red-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-calendar-days text-lg @if(request()->routeIs('public-holidays*')) text-red-600 @endif"></i>
-            </span>
-            જાહેર રજાઓ
-            @if(request()->routeIs('public-holidays*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-            @endif
-        </a>
-
-        {{-- Activity Plans --}}
         <a href="{{ route('activity-plans.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('activity-plans*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-book-1 text-lg @if(request()->routeIs('activity-plans*')) text-emerald-600 @endif"></i>
             </span>
             પ્રવૃત્તિઓનું આયોજન
-            @if(request()->routeIs('activity-plans*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Attendance Menu with Submenus --}}
+        <a href="{{ route('public-holidays.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('public-holidays*')) bg-red-50 text-red-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-calendar-days text-lg @if(request()->routeIs('public-holidays*')) text-red-600 @endif"></i>
+            </span>
+            જાહેર રજાઓ
+        </a>
+
+        {{-- ==================== ATTENDANCE ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">હાજરી</div>
+
         <div x-data="{ open: @json(request()->routeIs('roll-number-sort*') || request()->routeIs('attendance-register*') || request()->routeIs('attendance*') || request()->routeIs('daily-stats*')) }">
             <button @click="open = !open" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('roll-number-sort*') || request()->routeIs('attendance-register*') || request()->routeIs('attendance*') || request()->routeIs('daily-stats*')) bg-indigo-50 text-indigo-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
                 <div class="flex items-center gap-3">
@@ -159,13 +126,13 @@
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('attendance.index')) bg-indigo-500 @else bg-gray-300 @endif"></span>
                     દૈનિક હાજરી
                 </a>
-                <a href="{{ route('roll-number-sort.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('roll-number-sort*')) bg-indigo-50 text-indigo-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
-                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('roll-number-sort*')) bg-indigo-500 @else bg-gray-300 @endif"></span>
-                    રોલ નંબર ગોઠવણી
-                </a>
                 <a href="{{ route('attendance-register.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('attendance-register*')) bg-indigo-50 text-indigo-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('attendance-register*')) bg-indigo-500 @else bg-gray-300 @endif"></span>
                     હાજરી પત્રક પ્રિન્ટ
+                </a>
+                <a href="{{ route('roll-number-sort.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('roll-number-sort*')) bg-indigo-50 text-indigo-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('roll-number-sort*')) bg-indigo-500 @else bg-gray-300 @endif"></span>
+                    રોલ નંબર ગોઠવણી
                 </a>
                 <a href="{{ route('daily-stats.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('daily-stats*')) bg-amber-50 text-amber-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('daily-stats*')) bg-amber-500 @else bg-gray-300 @endif"></span>
@@ -174,7 +141,10 @@
             </div>
         </div>
 
-        {{-- Fees Management --}}
+        {{-- ==================== FEES ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">ફી</div>
+
         <div x-data="{ open: @json(request()->routeIs('fees*')) }">
             <button @click="open = !open" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('fees*')) bg-amber-50 text-amber-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
                 <div class="flex items-center gap-3">
@@ -217,7 +187,10 @@
             </div>
         </div>
 
-        {{-- Transport Module --}}
+        {{-- ==================== TRANSPORT ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">વાહન</div>
+
         <div x-data="{ open: @json(request()->routeIs('transport*')) }">
             <button @click="open = !open" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('transport*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
                 <div class="flex items-center gap-3">
@@ -252,14 +225,42 @@
             </div>
         </div>
 
-        {{-- Frontsite / Website --}}
+        {{-- ==================== DOCUMENTS ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">દસ્તાવેજો</div>
+
+        <a href="{{ route('lc.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('lc*')) bg-slate-50 text-slate-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-exit text-lg @if(request()->routeIs('lc*')) text-slate-600 @endif"></i>
+            </span>
+            LC — શાળા છોડવાનું પ્રમાણપત્ર
+        </a>
+
+        <a href="{{ route('certificates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('certificates*')) bg-teal-50 text-teal-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-certificate-badge-1 text-lg @if(request()->routeIs('certificates*')) text-teal-600 @endif"></i>
+            </span>
+            બોનાફાઈડ પ્રમાણપત્ર
+        </a>
+
+        <a href="{{ route('custom-report.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('custom-report*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-layers-1 text-lg @if(request()->routeIs('custom-report*')) text-violet-600 @endif"></i>
+            </span>
+            કસ્ટમ રિપોર્ટ
+        </a>
+
+        {{-- ==================== WEBSITE ==================== --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">વેબસાઇટ</div>
+
         <div x-data="{ open: @json(request()->routeIs('pages*') || request()->routeIs('menus*') || request()->routeIs('notice-board*') || request()->routeIs('sliders*') || request()->routeIs('galleries*') || request()->routeIs('homepage-sections*') || request()->routeIs('admission-inquiries*')) }">
             <button @click="open = !open" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('pages*') || request()->routeIs('menus*') || request()->routeIs('notice-board*') || request()->routeIs('sliders*') || request()->routeIs('galleries*') || request()->routeIs('homepage-sections*') || request()->routeIs('admission-inquiries*')) bg-sky-50 text-sky-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
                 <div class="flex items-center gap-3">
                     <span class="flex items-center justify-center w-5 h-5">
                         <i class="lni lni-globe-1 text-lg @if(request()->routeIs('pages*') || request()->routeIs('menus*') || request()->routeIs('notice-board*') || request()->routeIs('sliders*') || request()->routeIs('galleries*') || request()->routeIs('homepage-sections*') || request()->routeIs('admission-inquiries*')) text-sky-600 @endif"></i>
                     </span>
-                    વેબસાઇટ
+                    વેબસાઇટ વ્યવસ્થાપન
                 </div>
                 <i class="lni lni-chevron-down text-xs transition-transform duration-200" :class="open ? 'rotate-0' : '-rotate-90'"></i>
             </button>
@@ -300,98 +301,50 @@
             </div>
         </div>
 
+        {{-- ==================== SETTINGS ==================== --}}
         <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1">સેટિંગ્સ</div>
 
-        {{-- LC — School Leaving Certificate --}}
-        <a href="{{ route('lc.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('lc*')) bg-slate-50 text-slate-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-exit text-lg @if(request()->routeIs('lc*')) text-slate-600 @endif"></i>
-            </span>
-            LC — શાળા છોડવાનું પ્રમાણપત્ર
-        </a>
-
-        {{-- Custom Report --}}
-        <a href="{{ route('custom-report.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('custom-report*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-layers-1 text-lg @if(request()->routeIs('custom-report*')) text-violet-600 @endif"></i>
-            </span>
-            કસ્ટમ રિપોર્ટ
-        </a>
-
-        {{-- Certificates --}}
-        <a href="{{ route('certificates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('certificates*')) bg-teal-50 text-teal-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-certificate-badge-1 text-lg @if(request()->routeIs('certificates*')) text-teal-600 @endif"></i>
-            </span>
-            બોનાફાઈડ પ્રમાણપત્ર
-        </a>
-
-        <hr class="my-2 border-gray-100">
-
-        {{-- Settings / School Info --}}
         <a href="{{ route('settings.school-info') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.school-info')) bg-gray-100 text-gray-800 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-gear-1 text-lg @if(request()->routeIs('settings.school-info')) text-gray-700 @endif"></i>
             </span>
             શાળા માહિતી
-            @if(request()->routeIs('settings.school-info'))
-                <span class="ml-auto w-1.5 h-1.5 bg-gray-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Settings / Site --}}
         <a href="{{ route('settings.site') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.site')) bg-gray-100 text-gray-800 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-globe-1 text-lg @if(request()->routeIs('settings.site')) text-gray-700 @endif"></i>
             </span>
             સાઇટ સેટિંગ્સ
-            @if(request()->routeIs('settings.site'))
-                <span class="ml-auto w-1.5 h-1.5 bg-gray-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Settings / License --}}
-        <a href="{{ route('settings.license') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.license*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-shield-2 text-lg @if(request()->routeIs('settings.license*')) text-violet-600 @endif"></i>
-            </span>
-            લાઇસન્સ
-            @if(request()->routeIs('settings.license*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-violet-600 rounded-full"></span>
-            @endif
-        </a>
-
-        {{-- Settings / Updates --}}
-        <a href="{{ route('settings.updates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.updates*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
-            <span class="flex items-center justify-center w-5 h-5">
-                <i class="lni lni-cloud text-lg @if(request()->routeIs('settings.updates*')) text-emerald-600 @endif"></i>
-            </span>
-            અપડેટ્સ
-            @if(request()->routeIs('settings.updates*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-emerald-600 rounded-full"></span>
-            @endif
-        </a>
-
-        {{-- Settings / Dropdowns --}}
         <a href="{{ route('settings.dropdowns.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.dropdowns*')) bg-gray-100 text-gray-800 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-check-square-2 text-lg @if(request()->routeIs('settings.dropdowns*')) text-gray-700 @endif"></i>
             </span>
             ડ્રોપડાઉન વિકલ્પો
-            @if(request()->routeIs('settings.dropdowns*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-gray-600 rounded-full"></span>
-            @endif
         </a>
 
-        {{-- Settings / Frontsite Theme --}}
         <a href="{{ route('settings.theme.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.theme*')) bg-gray-100 text-gray-800 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">
                 <i class="lni lni-paint-roller-1 text-lg @if(request()->routeIs('settings.theme*')) text-gray-700 @endif"></i>
             </span>
             ફ્રન્ટસાઇટ થીમ
-            @if(request()->routeIs('settings.theme*'))
-                <span class="ml-auto w-1.5 h-1.5 bg-gray-600 rounded-full"></span>
-            @endif
+        </a>
+
+        <a href="{{ route('settings.license') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.license*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-shield-2 text-lg @if(request()->routeIs('settings.license*')) text-violet-600 @endif"></i>
+            </span>
+            લાઇસન્સ
+        </a>
+
+        <a href="{{ route('settings.updates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.updates*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-cloud text-lg @if(request()->routeIs('settings.updates*')) text-emerald-600 @endif"></i>
+            </span>
+            અપડેટ્સ
         </a>
 
         {{-- Logout --}}
