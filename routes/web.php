@@ -47,6 +47,8 @@ use App\Http\Controllers\SiteSettingController;
 use App\Http\Controllers\FrontsiteNoticeController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\LCController;
+use App\Http\Controllers\CustomReportController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\StudentRouteController;
 use App\Http\Controllers\BusAttendanceController;
@@ -208,6 +210,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/certificates/search-by-class', [CertificateController::class, 'searchByClass'])->name('certificates.search-by-class');
     Route::get('/certificates/bonafied/preview/{student}/{lang}', [CertificateController::class, 'preview'])->name('certificates.preview');
     Route::get('/certificates/bonafied/print/{student}/{lang}', [CertificateController::class, 'print'])->name('certificates.print');
+
+    // LC — School Leaving Certificate (શાળા છોડવાનું પ્રમાણપત્ર)
+    Route::get('/lc', [LCController::class, 'index'])->name('lc.index');
+    Route::get('/lc/search', [LCController::class, 'search'])->name('lc.search');
+    Route::post('/lc/store', [LCController::class, 'store'])->name('lc.store');
+    Route::get('/lc/register', [LCController::class, 'register'])->name('lc.register');
+    Route::get('/lc/classes/{standard}', [LCController::class, 'getClasses'])->name('lc.classes');
+
+    // Custom Report Generator (Admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/reports/custom', [CustomReportController::class, 'index'])->name('custom-report.index');
+        Route::post('/reports/custom/preview', [CustomReportController::class, 'preview'])->name('custom-report.preview');
+        Route::get('/reports/custom/classes/{standard}', [CustomReportController::class, 'getClasses'])->name('custom-report.classes');
+    });
 
     // School Settings (Admin only)
     Route::middleware(['role:admin', 'license'])->group(function () {

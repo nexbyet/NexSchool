@@ -218,6 +218,7 @@ class StudentController extends Controller
             'current_standard_id' => 'required|exists:standards,id',
             'current_class_id' => 'nullable|exists:school_classes,id',
             'date_of_admission' => 'required|date_format:d/m/Y',
+            'previous_attendance_days' => 'nullable|integer|min:0|max:365',
             'student_name_gu' => 'required|string|max:255',
             'student_name_en' => 'required|string|max:255',
             'father_name_gu' => 'required|string|max:255',

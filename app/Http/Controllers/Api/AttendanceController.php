@@ -28,13 +28,13 @@ class AttendanceController extends Controller
 
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->where('date_of_admission', '<=', $date)
             ->where(function ($q) use ($date) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $date);
             })
-            ->orderBy('gr_number')
-            ->get(['id', 'gr_number', 'student_name_gu', 'student_name_en',
+            ->defaultSort()
+            ->get(['id', 'gr_number', 'full_name_gu', 'full_name_en',
                 'sharirik_jaati', 'date_of_birth', 'category_gu', 'category_en']);
 
         $existingAttendance = Attendance::whereIn('student_id', $students->pluck('id'))
@@ -48,7 +48,7 @@ class AttendanceController extends Controller
             return [
                 'id' => $s->id,
                 'gr_number' => $s->gr_number,
-                'name' => $lang === 'gu' ? $s->student_name_gu : $s->student_name_en,
+                'name' => $lang === 'gu' ? $s->full_name_gu : $s->full_name_en,
                 'sharirik_jaati' => $s->sharirik_jaati,
                 'date_of_birth' => $s->date_of_birth ? Carbon::parse($s->date_of_birth)->format('d/m/Y') : null,
                 'category' => $lang === 'gu' ? $s->category_gu : $s->category_en,

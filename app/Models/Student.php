@@ -14,6 +14,7 @@ class Student extends Model
         'admission_standard_id', 'admission_class_id',
         'current_standard_id', 'current_class_id',
         'date_of_admission',
+        'previous_attendance_days',
         'student_name_gu', 'student_name_en',
         'father_name_gu', 'father_name_en',
         'surname_gu', 'surname_en',
@@ -41,6 +42,8 @@ class Student extends Model
         'leaving_date',
         'leaving_standard_id',
         'lc_number',
+        'lc_issue_date',
+        'attendance_days',
         'leaving_remarks',
         'status',
     ];

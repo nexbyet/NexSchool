@@ -8,13 +8,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     @page {
-        size: Legal landscape;
-        margin: 10mm 12mm 10mm 12mm;
+        size: 356mm 216mm landscape;
+        margin: 12mm 15mm 12mm 15mm;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Anek Gujarati', 'DejaVu Sans', sans-serif;
-        font-size: 8pt;
+        font-size: 9pt;
         color: #000;
         line-height: 1.3;
     }
@@ -31,24 +31,24 @@
     }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #000; padding: 1.5px 1px; text-align: center; vertical-align: middle; }
-    th { background: #e8e8e8; font-weight: 600; font-size: 6.5pt; }
+    th { background: #e8e8e8; font-weight: 600; font-size: 7pt; }
     thead tr:first-child th { border-bottom: 2px solid #000; }
     td { font-size: 7pt; }
-    td.name-cell { text-align: left; padding-left: 4px; font-size: 7pt; width: 44mm; }
-    td.sr-cell { font-size: 6.5pt; width: 7mm; }
-    td.gr-cell { font-size: 6pt; width: 12mm; }
-    td.dob-cell { font-size: 6pt; width: 12mm; }
-    td.cat-cell { font-size: 6pt; width: 10mm; }
-    td.date-cell { font-size: 6pt; min-width: 4.8mm; max-width: 5mm; height: 13px; }
-    td.sum-cell { font-size: 6pt; width: 12mm; }
+    td.name-cell { text-align: left; padding-left: 4px; font-size: 8pt; width: 40mm; }
+    td.sr-cell { font-size: 7pt; width: 6mm; }
+    td.gr-cell { font-size: 6.5pt; width: 10mm; }
+    td.dob-cell { font-size: 6.5pt; width: 10mm; }
+    td.cat-cell { font-size: 6.5pt; width: 8mm; }
+    td.date-cell { font-size: 6.5pt; min-width: 4.2mm; max-width: 4.5mm; height: 13px; }
+    td.sum-cell { font-size: 6.5pt; width: 10mm; }
     .student-row td { padding: 1.5px 1px; }
     .student-row:nth-child(even) { background: #f7f8fa; }
     .name-kumari { color: #c00; }
     .blank td { height: 14px; }
-    .summary-row td { font-size: 6.5pt; text-align: left; padding: 2px 5px; font-weight: 500; }
+    .summary-row td { font-size: 7.5pt; text-align: left; padding: 2px 5px; font-weight: 500; }
     .summary-row .sr-cell { text-align: center; font-weight: 700; }
     .summary-row td.sum-cell { text-align: center; font-weight: 600; }
-    .section-label { font-size: 7pt; text-align: left !important; padding-left: 6px !important; }
+    .section-label { font-size: 8pt; text-align: left !important; padding-left: 6px !important; }
     .summary-divider { border-top: 2px solid #000; }
     .summary-subtotal { border-top: 1px solid #000; border-bottom: 1px solid #000; background: #f0f3f7; }
     .summary-total { border-top: 2px solid #000; background: #e8ecf2; }
@@ -134,9 +134,9 @@
                 @php
                     $thClass = $date['isSunday'] || $date['isHoliday'] ? 'th-hol' : '';
                 @endphp
-                <th class="{{ $thClass }}" style="font-size:5.5pt;padding:1px 0">
+                <th class="{{ $thClass }}" style="font-size:6pt;padding:1px 0">
                     <div class="date-label">{{ $date['day'] }}</div>
-                    <div style="font-size:5pt;font-weight:400">{{ $date['dayName'] }}</div>
+                    <div style="font-size:5.5pt;font-weight:400">{{ $date['dayName'] }}</div>
                 </th>
             @endforeach
         </tr>
@@ -147,7 +147,7 @@
             <tr class="student-row">
                 <td class="sr-cell">{{ $idx + 1 }}</td>
                 <td class="gr-cell">{{ $student->gr_number }}</td>
-                <td class="name-cell{{ $student->sharirik_jaati === 'kumari' ? ' name-kumari' : '' }}">{{ $lang === 'gu' ? $student->student_name_gu : $student->student_name_en }}</td>
+                <td class="name-cell{{ $student->sharirik_jaati === 'kumari' ? ' name-kumari' : '' }}">{{ $lang === 'gu' ? $student->full_name_gu : $student->full_name_en }}</td>
                 <td class="dob-cell">{{ $student->date_of_birth ? \Carbon\Carbon::parse($student->date_of_birth)->format('d/m/Y') : '' }}</td>
                 <td class="cat-cell">{{ $lang === 'gu' ? $student->category_gu : $student->category_en }}</td>
                 @foreach($dates as $d2)

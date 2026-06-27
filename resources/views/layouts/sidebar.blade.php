@@ -302,6 +302,22 @@
 
         <hr class="my-2 border-gray-100">
 
+        {{-- LC — School Leaving Certificate --}}
+        <a href="{{ route('lc.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('lc*')) bg-slate-50 text-slate-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-exit text-lg @if(request()->routeIs('lc*')) text-slate-600 @endif"></i>
+            </span>
+            LC — શાળા છોડવાનું પ્રમાણપત્ર
+        </a>
+
+        {{-- Custom Report --}}
+        <a href="{{ route('custom-report.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('custom-report*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5">
+                <i class="lni lni-layers-1 text-lg @if(request()->routeIs('custom-report*')) text-violet-600 @endif"></i>
+            </span>
+            કસ્ટમ રિપોર્ટ
+        </a>
+
         {{-- Certificates --}}
         <a href="{{ route('certificates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('certificates*')) bg-teal-50 text-teal-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5">

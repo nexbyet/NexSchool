@@ -80,13 +80,25 @@ class DashboardController extends Controller
             'obc_min_total'   => $classStats->sum('obc_min_total'),
         ];
 
-        // Today's birthdays (active students only)
-        $todayBirthdays = Student::where('status', 'active')
-            ->whereRaw('MONTH(date_of_birth) = ?', [now()->month])
-            ->whereRaw('DAY(date_of_birth) = ?', [now()->day])
+        // Upcoming 10 days birthdays (active students only)
+        $start = now();
+        $end = now()->addDays(10);
+        $allActive = Student::where('status', 'active')
             ->with(['currentStandard', 'currentClass'])
-            ->defaultSort()
-            ->get();
+            ->get(['id', 'gr_number', 'student_name_gu', 'student_name_en', 'full_name_gu', 'full_name_en', 'date_of_birth', 'sharirik_jaati', 'photo', 'current_standard_id', 'current_class_id']);
+        $upcomingBirthdays = $allActive->filter(function ($s) use ($start, $end) {
+            $dob = \Carbon\Carbon::parse($s->date_of_birth);
+            $next = $dob->copy()->year($start->year);
+            if ($next->lt($start)) $next->addYear();
+            return $next->between($start, $end);
+        })->sortBy(function ($s) {
+            $dob = \Carbon\Carbon::parse($s->date_of_birth);
+            $next = $dob->copy()->year(now()->year);
+            if ($next->lt(now())) $next->addYear();
+            return $next->format('md');
+        })->values();
+        $birthdayBoys = $upcomingBirthdays->where('sharirik_jaati', 'kumar');
+        $birthdayGirls = $upcomingBirthdays->where('sharirik_jaati', 'kumari');
 
         // Upcoming activities and holidays (next 10 days)
         $today = now()->format('Y-m-d');
@@ -101,6 +113,6 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'activeYear', 'todayBirthdays', 'upcomingPlans', 'upcomingHolidays'));
+        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays'));
     }
 }

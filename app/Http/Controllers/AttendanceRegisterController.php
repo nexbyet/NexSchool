@@ -58,12 +58,12 @@ class AttendanceRegisterController extends Controller
 
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->where('date_of_admission', '<=', $monthEnd)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart);
             })
-            ->orderBy('gr_number')
+            ->defaultSort()
             ->get();
 
         $holidays = PublicHoliday::where('academic_year_id', $academicYear->id)
@@ -99,7 +99,14 @@ class AttendanceRegisterController extends Controller
 
             foreach ($students as $stu) {
                 $stuPresent = $allPresent->get($stu->id, collect());
-                $prevTotal = $stuPresent->filter(fn($a) => $a->date->format('Y-m-d') <= $prevEndStr)->count();
+                $admissionMonth = Carbon::parse($stu->date_of_admission)->month;
+                $admissionYear = Carbon::parse($stu->date_of_admission)->year;
+                $isFirstMonth = ($admissionMonth == $data['month'] && $admissionYear == $data['year']);
+                if ($isFirstMonth && $stu->previous_attendance_days !== null) {
+                    $prevTotal = $stu->previous_attendance_days;
+                } else {
+                    $prevTotal = $stuPresent->filter(fn($a) => $a->date->format('Y-m-d') <= $prevEndStr)->count();
+                }
                 $currentTotal = $stuPresent->filter(fn($a) => $a->date->format('Y-m-d') >= $monthStartStr)->count();
                 $studentTotals[$stu->id] = [
                     'prev' => $prevTotal,
@@ -245,12 +252,12 @@ class AttendanceRegisterController extends Controller
 
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->where('date_of_admission', '<=', $monthEnd)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart);
             })
-            ->orderBy('gr_number')
+            ->defaultSort()
             ->get();
 
         $studentsKumar = $students->where('sharirik_jaati', 'kumar');
@@ -446,7 +453,7 @@ class AttendanceRegisterController extends Controller
 
         $enrolledBeforeStart = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->where('date_of_admission', '<=', $dayBeforeMonthStart)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart->format('Y-m-d'));
@@ -460,7 +467,7 @@ class AttendanceRegisterController extends Controller
         // Row 2: નવા દાખલ થયા — admitted during this month
         $monthAdmitted = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->whereBetween('date_of_admission', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])
             ->get();
 
@@ -476,7 +483,7 @@ class AttendanceRegisterController extends Controller
         // Row 4: ઉઠી જનારની સંખ્યા — left during this month
         $monthLeft = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'alumni'])
             ->whereNotNull('leaving_date')
             ->whereBetween('leaving_date', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])
             ->get();

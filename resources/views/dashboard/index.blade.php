@@ -20,42 +20,84 @@
         </div>
     </div>
 
-    {{-- ==================== TODAY'S BIRTHDAYS ==================== --}}
-    @if($todayBirthdays->count())
-    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-500 p-6 sm:p-8 mb-8 shadow-lg">
-        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px); background-size: 30px 30px;"></div>
-        <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full"></div>
-        <div class="absolute -bottom-6 -left-6 w-24 h-24 bg-white/10 rounded-full"></div>
-        <div class="relative z-10">
-            <div class="flex items-center gap-2 mb-4">
-                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                    <i class="lni lni-cake-1 text-xl text-white"></i>
+    {{-- ==================== UPCOMING 10 DAYS BIRTHDAYS ==================== --}}
+    @if($upcomingBirthdays->count())
+    <div class="mb-8">
+        <div class="flex items-center gap-2 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-sm">
+                <i class="lni lni-cake-1 text-sm text-white"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900">આગામી ૧૦ દિવસ — જન્મદિવસ</h2>
+            <span class="text-xs bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-medium ml-auto">
+                {{ now()->format('d/m/Y') }} થી {{ now()->addDays(10)->format('d/m/Y') }}
+            </span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {{-- રાજા (Boys) --}}
+            <div class="bg-white rounded-xl border border-blue-200 overflow-hidden shadow-sm">
+                <div class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-50 to-blue-100/50 border-b border-blue-100">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shadow-sm">
+                        <i class="lni lni-crown-1 text-sm text-white"></i>
+                    </div>
+                    <span class="font-semibold text-blue-800">રાજા</span>
+                    <span class="text-xs bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full ml-auto">{{ $birthdayBoys->count() }}</span>
                 </div>
-                <div>
-                    <h2 class="text-lg font-bold text-white">આજના જન્મદિવસ</h2>
-                    <p class="text-sm text-pink-100">{{ now()->format('d F, Y') }} — {{ $todayBirthdays->count() }} વિદ્યાર્થી</p>
+                <div class="divide-y divide-gray-50">
+                    @forelse($birthdayBoys as $b)
+                    <a href="{{ route('students.show', $b->id) }}" class="flex items-center gap-3 px-5 py-3 hover:bg-blue-50/50 transition group">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            @if($b->photo)
+                                <img src="{{ asset('storage/' . $b->photo) }}" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-sm font-bold text-blue-600">{{ mb_substr($b->student_name_gu ?? 'S', 0, 1) }}</span>
+                            @endif
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-700 truncate">{{ $b->full_name_gu }}</p>
+                            <p class="text-xs text-gray-400">{{ $b->currentStandard?->name ?? '' }}{{ $b->currentClass?->name ? ' - ' . $b->currentClass->name : '' }} | GR: {{ $b->gr_number }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="text-[10px] text-gray-400">જન્મ</p>
+                            <p class="text-sm font-bold text-blue-600">{{ \Carbon\Carbon::parse($b->date_of_birth)->format('d/m') }}</p>
+                        </div>
+                    </a>
+                    @empty
+                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ રાજાનો જન્મદિવસ નથી</div>
+                    @endforelse
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                @foreach($todayBirthdays as $b)
-                <a href="{{ route('students.show', $b->id) }}" class="group flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/25 transition">
-                    <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/30 group-hover:ring-white/50 transition">
-                        @if($b->photo)
-                            <img src="{{ asset('storage/' . $b->photo) }}" class="w-full h-full object-cover">
-                        @else
-                            <span class="text-lg font-bold text-white">{{ substr($b->student_name_gu ?? 'S', 0, 1) }}</span>
-                        @endif
+            {{-- કાર્યક્રમ (Girls) --}}
+            <div class="bg-white rounded-xl border border-rose-200 overflow-hidden shadow-sm">
+                <div class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-50 to-pink-100/50 border-b border-rose-100">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500 flex items-center justify-center shadow-sm">
+                        <i class="lni lni-star-1 text-sm text-white"></i>
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-white truncate">{{ $b->student_name_gu }}</p>
-                        <p class="text-[11px] text-pink-200 truncate">{{ $b->currentStandard?->name ?? '' }}{{ $b->currentClass?->name ? ' - ' . $b->currentClass->name : '' }} | {{ $b->gr_number }}</p>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <p class="text-[10px] text-pink-200">જન્મ</p>
-                        <p class="text-xs font-semibold text-white">{{ \Carbon\Carbon::parse($b->date_of_birth)->format('d/m') }}</p>
-                    </div>
-                </a>
-                @endforeach
+                    <span class="font-semibold text-rose-800">કાર્યક્રમ</span>
+                    <span class="text-xs bg-rose-200 text-rose-700 px-2 py-0.5 rounded-full ml-auto">{{ $birthdayGirls->count() }}</span>
+                </div>
+                <div class="divide-y divide-gray-50">
+                    @forelse($birthdayGirls as $b)
+                    <a href="{{ route('students.show', $b->id) }}" class="flex items-center gap-3 px-5 py-3 hover:bg-rose-50/50 transition group">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-100 to-pink-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            @if($b->photo)
+                                <img src="{{ asset('storage/' . $b->photo) }}" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-sm font-bold text-rose-600">{{ mb_substr($b->student_name_gu ?? 'S', 0, 1) }}</span>
+                            @endif
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-gray-800 group-hover:text-rose-700 truncate">{{ $b->full_name_gu }}</p>
+                            <p class="text-xs text-gray-400">{{ $b->currentStandard?->name ?? '' }}{{ $b->currentClass?->name ? ' - ' . $b->currentClass->name : '' }} | GR: {{ $b->gr_number }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="text-[10px] text-gray-400">જન્મ</p>
+                            <p class="text-sm font-bold text-rose-600">{{ \Carbon\Carbon::parse($b->date_of_birth)->format('d/m') }}</p>
+                        </div>
+                    </a>
+                    @empty
+                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ કાર્યક્રમનો જન્મદિવસ નથી</div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>

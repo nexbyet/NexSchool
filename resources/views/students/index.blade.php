@@ -126,7 +126,7 @@
                             </div>
                         @endif
                     </td>
-                    <td class="px-4 py-3 font-medium text-gray-800">{{ $s->student_name_gu }}</td>
+                    <td class="px-4 py-3 font-medium text-gray-800">{{ $s->full_name_gu }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $s->father_name_gu }}</td>
                     <td class="px-4 py-3 font-mono text-gray-600">{{ $s->date_of_birth ? \Carbon\Carbon::parse($s->date_of_birth)->format('d/m/Y') : '—' }}</td>
                     <td class="px-4 py-3">
@@ -463,6 +463,11 @@
                                 <option value="0">ના (No)</option>
                                 <option value="1">હા (Yes)</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">અગાઉની શાળાના હાજરી દિવસો</label>
+                            <input type="number" id="previous_attendance_days" name="previous_attendance_days" min="0" max="365" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            <p class="text-xs text-gray-400 mt-1">બીજી શાળામાંથી આવેલ હોય તો જ ભરો</p>
                         </div>
                     </div>
                 </fieldset>
@@ -855,7 +860,7 @@ function renderTable(students) {
         return `<tr class="hover:bg-gray-50 transition" ${rowBg}>
             <td class="px-4 py-3 font-mono font-medium">${s.gr_number}</td>
             <td class="px-4 py-3">${photoHtml}</td>
-            <td class="px-4 py-3">${s.student_name_gu || ''}</td>
+            <td class="px-4 py-3">${s.full_name_gu || ''}</td>
             <td class="px-4 py-3">${s.father_name_gu || ''}</td>
             <td class="px-4 py-3 font-mono">${dob}</td>
             <td class="px-4 py-3 font-mono text-gray-500">${age}</td>
