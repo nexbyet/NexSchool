@@ -94,16 +94,21 @@ class TimetableController extends Controller
         ];
         $dayEn = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday'];
 
+        $readOnly = auth()->user()->role !== 'admin';
+
         return view('timetable.index', compact(
             'academicYears', 'academicYearId', 'activeYear',
             'standards', 'slots', 'allTeachers', 'allEntries',
             'standardSubjects', 'standardSubjectsJs', 'subjectAssignmentsJs',
-            'conflicts', 'days', 'dayEn'
+            'conflicts', 'days', 'dayEn', 'readOnly'
         ));
     }
 
     public function storeSlot(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ પીરિયડ ઉમેરી શકે છે.'], 403);
+        }
         $validated = $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'name_en' => 'required|string|max:100',
@@ -129,6 +134,9 @@ class TimetableController extends Controller
 
     public function updateSlot(Request $request, TimetableSlot $slot)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ પીરિયડ સંપાદિત કરી શકે છે.'], 403);
+        }
         $validated = $request->validate([
             'name_en' => 'required|string|max:100',
             'name_gu' => 'required|string|max:100',
@@ -147,6 +155,9 @@ class TimetableController extends Controller
 
     public function deleteSlot(TimetableSlot $slot)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ પીરિયડ કાઢી શકે છે.'], 403);
+        }
         $slot->delete();
         return response()->json(['success' => true, 'message' => 'પીરિયડ કાઢી નાખ્યો.']);
     }
@@ -165,6 +176,9 @@ class TimetableController extends Controller
 
     public function reorderSlots(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ ક્રમ બદલી શકે છે.'], 403);
+        }
         $request->validate([
             'slots' => 'required|array',
             'slots.*.id' => 'required|exists:timetable_slots,id',
@@ -180,6 +194,9 @@ class TimetableController extends Controller
 
     public function updateEntry(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ ટાઇમટેબલ બદલી શકે છે.'], 403);
+        }
         $validated = $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'timetable_slot_id' => 'required|exists:timetable_slots,id',
@@ -223,6 +240,9 @@ class TimetableController extends Controller
 
     public function copyToAllDays(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ કોપી કરી શકે છે.'], 403);
+        }
         $validated = $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'from_day' => 'required|integer|between:1,6',
@@ -273,6 +293,9 @@ class TimetableController extends Controller
 
     public function clearEntries(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ ટાઇમટેબલ સાફ કરી શકે છે.'], 403);
+        }
         $validated = $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'standard_id' => 'nullable|exists:standards,id',

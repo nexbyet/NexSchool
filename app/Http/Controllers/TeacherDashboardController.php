@@ -9,27 +9,50 @@ use App\Models\Subject;
 use App\Models\AcademicYear;
 use Illuminate\Support\Facades\DB;
 
-class DashboardController extends Controller
+class TeacherDashboardController extends Controller
 {
     public function index()
     {
         $user = auth()->user();
-        if ($user->role === 'teacher') {
-            return redirect()->route('teacher.dashboard');
-        }
-        if ($user->role === 'student') {
-            return redirect()->route('student.dashboard');
-        }
+        $teacher = $user->teacher;
 
         $activeYear = AcademicYear::getActive();
 
+        // Teacher's assigned classes (class teacher)
+        $myClasses = SchoolClass::where('teacher_id', $teacher?->id)->with('standard')->get();
+
+        // Students count in teacher's classes
+        $studentIds = collect();
+        if ($myClasses->count()) {
+            $classIds = $myClasses->pluck('id');
+            $studentIds = Student::whereIn('current_class_id', $classIds)
+                ->where('status', 'active')
+                ->pluck('id');
+        }
+
         $stats = [
-            'students' => Student::where('status', 'active')->count(),
-            'alumni' => Student::where('status', 'alumni')->count(),
-            'teachers' => Teacher::count(),
-            'classes' => SchoolClass::count(),
-            'subjects' => Subject::count(),
+            'students' => $studentIds->count(),
+            'classes' => $myClasses->count(),
         ];
+
+        // Teacher's subjects via subject assignments
+        $mySubjects = $teacher?->subjects ?? collect();
+
+        // Today's attendance for teacher's classes
+        $todayAttendance = [];
+        if ($studentIds->count()) {
+            $today = now()->format('Y-m-d');
+            $presentCount = DB::table('attendance')
+                ->whereIn('student_id', $studentIds)
+                ->where('date', $today)
+                ->where('status', 'present')
+                ->count();
+            $todayAttendance = [
+                'present' => $presentCount,
+                'total' => $studentIds->count(),
+                'date' => $today,
+            ];
+        }
 
         // Standard × Class × Category matrix (active students only)
         $classStats = DB::table('students')
@@ -67,7 +90,6 @@ class DashboardController extends Controller
             ->orderBy('school_classes.name')
             ->get();
 
-        // Summary totals across all standards
         $summaryTotals = (object) [
             'total_boys'      => $classStats->sum('total_boys'),
             'total_girls'     => $classStats->sum('total_girls'),
@@ -122,6 +144,12 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays'));
+        return view('teacher.dashboard', compact(
+            'user', 'teacher', 'activeYear', 'stats',
+            'myClasses', 'mySubjects', 'todayAttendance',
+            'classStats', 'summaryTotals',
+            'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls',
+            'upcomingPlans', 'upcomingHolidays'
+        ));
     }
 }

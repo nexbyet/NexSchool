@@ -5,8 +5,9 @@
 <title>ફી સારાંશ — {{ $academicYear->year }}</title>
 <style>
 @page { size: A4 portrait; margin: 15mm 12mm; }
-body { font-family: 'Anek Gujarati', sans-serif; font-size: 10px; color: #1f2937; margin: 0; padding: 0; }
-h1 { font-size: 16px; text-align: center; margin: 0 0 4px; }
+body { font-family: 'Anek Gujarati', sans-serif; font-size: 12px; color: #1f2937; margin: 0; padding: 0; }
+.school-name { text-align: center; font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+h1 { font-size: 16px; text-align: center; margin: 0 0 4px; font-weight: 600; }
 .subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 12px; }
 table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
 th { background: #f3f4f6; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: left; border: 1px solid #d1d5db; }
@@ -27,6 +28,7 @@ td { padding: 5px 8px; border: 1px solid #d1d5db; text-align: left; }
 <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="school-name">{{ $school->school_name_gu ?? $school->school_name_en ?? 'NexSchool' }}</div>
 <h1>ફી સારાંશ — {{ $academicYear->year }}</h1>
 <p class="subtitle">{{ $semLabel }} | {{ date('d/m/Y') }}</p>
 

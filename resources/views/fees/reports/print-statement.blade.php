@@ -4,29 +4,20 @@
 <meta charset="UTF-8">
 <title>વિદ્યાર્થી સ્ટેટમેન્ટ — {{ $student->full_name_gu ?? $student->full_name_en }}</title>
 <style>
-@page { size: A4 portrait; margin: 15mm 12mm; }
-body { font-family: 'Anek Gujarati', sans-serif; font-size: 10px; color: #1f2937; margin: 0; padding: 0; }
-h1 { font-size: 14px; text-align: center; margin: 0 0 4px; }
-.student-info { text-align: center; font-size: 11px; margin-bottom: 4px; }
-.subtitle { text-align: center; font-size: 10px; color: #6b7280; margin-bottom: 12px; }
+@page { size: A4 portrait; margin: 12mm; }
+body { font-family: 'Anek Gujarati', sans-serif; font-size: 12px; color: #1f2937; margin: 0; padding: 0; }
+.school-name { text-align: center; font-size: 18px; font-weight: 700; margin: 0 0 2px; }
+h1 { font-size: 15px; text-align: center; margin: 0 0 4px; font-weight: 600; }
+.student-info { text-align: center; font-size: 12px; margin-bottom: 4px; }
+.subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 12px; }
 table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-th { background: #f3f4f6; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; text-align: left; border: 1px solid #d1d5db; }
-td { padding: 5px 8px; border: 1px solid #d1d5db; }
-.text-right { text-align: right; }
-.font-bold { font-weight: 700; }
-.text-green { color: #059669; }
-.text-red { color: #dc2626; }
-.text-amber { color: #d97706; }
-.footer { text-align: center; font-size: 8px; color: #9ca3af; margin-top: 10px; border-top: 1px solid #e5e7eb; padding-top: 6px; }
-.section-title { font-size: 11px; font-weight: 700; margin: 8px 0 4px; }
-.summary-grid { display: flex; gap: 8px; margin-bottom: 10px; }
-.summary-item { flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px; text-align: center; }
-.summary-item .label { font-size: 8px; color: #6b7280; }
-.summary-item .value { font-size: 13px; font-weight: 700; }
+th { background: #f3f4f6; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; padding: 7px 9px; text-align: left; border: 1px solid #d1d5db; }
+td { font-size: 12px; padding: 6px 9px; border: 1px solid #d1d5db; }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="school-name">{{ $school->school_name_gu ?? $school->school_name_en ?? 'NexSchool' }}</div>
 <h1>વિદ્યાર્થી ફી સ્ટેટમેન્ટ</h1>
 <p class="student-info">{{ $student->full_name_gu ?? $student->full_name_en }} (GR: {{ $student->gr_number }})</p>
 <p class="subtitle">{{ $academicYear->year }} — {{ $semLabel }} | {{ date('d/m/Y') }}</p>

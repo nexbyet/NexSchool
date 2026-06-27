@@ -57,9 +57,11 @@
                     </div>
                     <p class="text-gray-500 font-medium">કોઈ પીરિયડ ઉમેરાયા નથી.</p>
                     <p class="text-sm text-gray-400 mt-1 mb-4">પહેલા નવા પીરિયડ ઉમેરો.</p>
+                    @if(!$readOnly)
                     <button onclick="openSlotModal()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg text-sm font-medium hover:from-cyan-600 hover:to-cyan-700 transition shadow-sm inline-flex items-center gap-2">
                         <i class="lni lni-plus text-sm"></i> નવો પીરિયડ ઉમેરો
                     </button>
+                    @endif
                 </div>
             @else
                 {{-- Day Tabs --}}
@@ -78,6 +80,7 @@
                         <span class="flex items-center gap-1"><span class="w-3 h-3 rounded border-2 border-dashed border-amber-300 bg-amber-50"></span> ખાલી</span>
                         <span class="flex items-center gap-1"><span class="w-3 h-3 rounded border-2 border-dashed border-gray-300 bg-white"></span> કોઈ વિષય નથી</span>
                     </div>
+                    @if(!$readOnly)
                     <div class="flex items-center gap-2">
                         <button id="copyDayBtn" class="px-3 py-1.5 text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-lg hover:bg-cyan-100 transition flex items-center gap-1.5">
                             <i class="lni lni-copy text-[10px]"></i> બધા દિવસોમાં કોપી કરો
@@ -86,6 +89,7 @@
                             <i class="lni lni-trash-3 text-[10px]"></i> બધું સાફ કરો
                         </button>
                     </div>
+                    @endif
                 </div>
 
                 {{-- Master Timetable Table --}}
@@ -149,36 +153,38 @@
                                                                 <span class="text-[11px] text-amber-400 font-medium">— વિરામ —</span>
                                                             </div>
                                                         @else
-                                                             <div class="cell-entry min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border cursor-pointer transition-all duration-150 px-2 py-2 relative
-                                                                 @if($entry) border-cyan-200 bg-white shadow-sm hover:shadow-md hover:border-cyan-400 hover:bg-cyan-50/80
-                                                                 @elseif($stdSubj->count()) border-dashed border-amber-200 bg-amber-50/30 hover:shadow-sm hover:border-amber-400 hover:bg-amber-50/80
-                                                                 @else border-dashed border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 @endif
-                                                                 @if($isConflict) !border-2 !border-solid !border-red-300 !bg-red-50 hover:!bg-red-100/80 hover:!shadow-sm @endif"
-                                                                 onclick="openCellEditor(this, {{ $dayNum }}, {{ $slot->id }}, {{ $std->id }}, {{ $cls->id }})"
-                                                                 data-entry='@json($entry, JSON_HEX_APOS)'>
-                                                                 @if($entry)
-                                                                     <span class="text-[11px] font-bold text-gray-800 leading-tight text-center px-1.5 py-0.5 bg-white rounded-md shadow-xs">{{ $entry->subject?->name ?? '—' }}</span>
-                                                                     <span class="text-[10px] text-gray-500 flex items-center gap-1 leading-tight">
-                                                                         <i class="lni lni-user-4 text-[9px]"></i>
-                                                                         {{ $entry->teacher?->name ?? '—' }}
+                                                              <div class="cell-entry min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl border transition-all duration-150 px-2 py-2 relative
+                                                                  @if($entry) border-cyan-200 bg-white shadow-sm @if(!$readOnly) cursor-pointer hover:shadow-md hover:border-cyan-400 hover:bg-cyan-50/80 @endif
+                                                                  @elseif($stdSubj->count()) border-dashed border-amber-200 bg-amber-50/30 @if(!$readOnly) hover:shadow-sm hover:border-amber-400 hover:bg-amber-50/80 cursor-pointer @endif
+                                                                  @else border-dashed border-gray-200 bg-white @if(!$readOnly) hover:bg-gray-50 hover:border-gray-300 cursor-pointer @endif
+                                                                  @endif
+                                                                  @if($isConflict) !border-2 !border-solid !border-red-300 !bg-red-50 @if(!$readOnly) hover:!bg-red-100/80 hover:!shadow-sm @endif @endif"
+                                                                  @if(!$readOnly) onclick="openCellEditor(this, {{ $dayNum }}, {{ $slot->id }}, {{ $std->id }}, {{ $cls->id }})" @endif
+                                                                  data-entry='@json($entry, JSON_HEX_APOS)'>
+                                                                  @if($entry)
+                                                                      <span class="text-[11px] font-bold text-gray-800 leading-tight text-center px-1.5 py-0.5 bg-white rounded-md shadow-xs">{{ $entry->subject?->name ?? '—' }}</span>
+                                                                      <span class="text-[10px] text-gray-500 flex items-center gap-1 leading-tight">
+                                                                          <i class="lni lni-user-4 text-[9px]"></i>
+                                                                          {{ $entry->teacher?->name ?? '—' }}
+                                                                      </span>
+                                                                      @if($isConflict)
+                                                                          <span class="text-[8px] text-red-500 font-semibold mt-0.5 flex items-center gap-0.5">
+                                                                              <i class="lni lni-ban-2 text-[9px]"></i> સમય વિરોધાભાસ
+                                                                          </span>
+                                                                      @endif
+                                                                      @if(!$readOnly)
+                                                                      <button type="button" onclick="event.stopPropagation(); clearCell({{ $dayNum }}, {{ $slot->id }}, {{ $std->id }}, {{ $cls->id }})" class="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-white border border-red-200 text-red-500 rounded-full shadow-sm hover:bg-red-50 hover:border-red-400 hover:text-red-700 transition z-10" title="આ સેલ સાફ કરો">
+                                                                          <i class="lni lni-trash-3 text-[9px]"></i>
+                                                                      </button>
+                                                                      @endif
+                                                                  @elseif($stdSubj->count() && !$readOnly)
+                                                                     <span class="text-[11px] text-amber-500 font-medium flex items-center gap-1">
+                                                                         <i class="lni lni-plus text-xs"></i> ઉમેરો
                                                                      </span>
-                                                                     @if($isConflict)
-                                                                         <span class="text-[8px] text-red-500 font-semibold mt-0.5 flex items-center gap-0.5">
-                                                                             <i class="lni lni-ban-2 text-[9px]"></i> સમય વિરોધાભાસ
-                                                                         </span>
-                                                                     @endif
-                                                                     {{-- Direct clear button on cell --}}
-                                                                     <button type="button" onclick="event.stopPropagation(); clearCell({{ $dayNum }}, {{ $slot->id }}, {{ $std->id }}, {{ $cls->id }})" class="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-white border border-red-200 text-red-500 rounded-full shadow-sm hover:bg-red-50 hover:border-red-400 hover:text-red-700 transition z-10" title="આ સેલ સાફ કરો">
-                                                                         <i class="lni lni-trash-3 text-[9px]"></i>
-                                                                     </button>
-                                                                 @elseif($stdSubj->count())
-                                                                    <span class="text-[11px] text-amber-500 font-medium flex items-center gap-1">
-                                                                        <i class="lni lni-plus text-xs"></i> ઉમેરો
-                                                                    </span>
-                                                                @else
-                                                                    <span class="text-[11px] text-gray-300">—</span>
-                                                                @endif
-                                                            </div>
+                                                                 @else
+                                                                     <span class="text-[11px] text-gray-300">—</span>
+                                                                 @endif
+                                                             </div>
                                                         @endif
                                                     </td>
                                                 @empty
@@ -212,9 +218,11 @@
                             <p class="text-lg font-bold text-amber-500">{{ $slots->where('is_break', true)->count() }}</p>
                         </div>
                     </div>
+                    @if(!$readOnly)
                     <button onclick="openSlotModal()" class="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg text-sm font-medium hover:from-cyan-600 hover:to-cyan-700 transition shadow-sm flex items-center gap-2">
                         <i class="lni lni-plus text-sm"></i> નવો પીરિયડ
                     </button>
+                    @endif
                 </div>
 
                 {{-- Periods Table --}}
@@ -229,13 +237,13 @@
                                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">સમય</th>
                                         <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">શનિવાર</th>
                                         <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">પ્રકાર</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">ક્રિયા</th>
+                                        @if(!$readOnly)<th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">ક્રિયા</th>@endif
                                     </tr>
                                 </thead>
                                 <tbody id="slotTableBody" class="divide-y divide-gray-100">
                                     @foreach($slots as $idx => $slot)
                                         <tr class="hover:bg-gray-50 transition slot-row @if($slot->is_break) bg-amber-50/30 @endif" data-id="{{ $slot->id }}">
-                                            <td class="px-4 py-3 text-sm text-gray-500 drag-handle cursor-grab">
+                                            <td class="px-4 py-3 text-sm text-gray-500 drag-handle @if(!$readOnly) cursor-grab @endif">
                                                 <i class="lni lni-arrow-all-direction text-gray-300 text-base"></i>
                                                 <span class="ml-1 font-medium">{{ $idx + 1 }}</span>
                                             </td>
@@ -260,6 +268,7 @@
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700"><i class="lni lni-book-1 text-[10px] mr-1"></i> પીરિયડ</span>
                                                 @endif
                                             </td>
+                                            @if(!$readOnly)
                                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                                 <button onclick="editSlot({{ $slot->id }})" class="p-1.5 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="સંપાદિત કરો">
                                                     <i class="lni lni-pencil-1 text-sm"></i>
@@ -268,6 +277,7 @@
                                                     <i class="lni lni-trash-3 text-sm"></i>
                                                 </button>
                                             </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -490,7 +500,7 @@
     });
 
     // SortableJS for slot reorder
-    @if($slots->count() > 1)
+    @if($slots->count() > 1 && !$readOnly)
     const slotBody = document.getElementById('slotTableBody');
     if (slotBody) {
         new Sortable(slotBody, {

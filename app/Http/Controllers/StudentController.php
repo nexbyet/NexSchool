@@ -171,6 +171,9 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json(['success' => false, 'message' => 'ફક્ત એડમિન જ વિદ્યાર્થી કાઢી શકે છે.'], 403);
+        }
         if ($student->photo) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($student->photo);
         }

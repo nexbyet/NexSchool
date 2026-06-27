@@ -25,6 +25,13 @@ class LoginController extends Controller
 
         if (Auth::attempt([$field => $login, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            if ($user->role === 'teacher') {
+                return redirect()->intended('/teacher/dashboard');
+            }
+            if ($user->role === 'student') {
+                return redirect()->intended('/student/dashboard');
+            }
             return redirect()->intended('/dashboard');
         }
 

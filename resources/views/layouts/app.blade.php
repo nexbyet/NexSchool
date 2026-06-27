@@ -68,8 +68,6 @@
         </div>
     </div>
 
-    @stack('styles')
-
     {{-- NexSchool Global Alert & Confirm (Pure JS, no Alpine dependency) --}}
     <script>
         window.NexSchool = window.NexSchool || {};

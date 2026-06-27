@@ -30,7 +30,6 @@ body {
 .school-name {
     font-size: 14pt;
     font-weight: 700;
-    color: #1e40af;
 }
 .school-address {
     font-size: 8pt;
@@ -39,7 +38,6 @@ body {
 .report-title {
     font-size: 11pt;
     font-weight: 600;
-    color: #374151;
     margin: 6px 0;
     text-align: center;
 }
@@ -51,7 +49,6 @@ body {
 }
 .report-std-class {
     font-size: 8pt;
-    color: #4b5563;
     text-align: center;
     margin-bottom: 6px;
 }
@@ -61,25 +58,21 @@ table {
     font-size: 8pt;
 }
 thead th {
-    background: #1e3a5f;
-    color: #fff;
+    background: transparent;
+    color: #000;
     padding: 5px 4px;
     font-weight: 600;
     text-align: center;
-    border: 1px solid #1e3a5f;
+    border: 1px solid #000;
     font-size: 7.5pt;
 }
 tbody td {
     padding: 4px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #000;
     text-align: center;
     vertical-align: middle;
 }
-tbody tr:nth-child(even) {
-    background: #f9fafb;
-}
 .sr-col { width: 30px; }
-.empty-row td { height: 22px; }
 .footer {
     margin-top: 20px;
     display: flex;
@@ -91,15 +84,13 @@ tbody tr:nth-child(even) {
 .footer .sign-line {
     display: inline-block;
     width: 150px;
-    border-top: 1px solid #374151;
+    border-top: 1px solid #000;
     padding-top: 3px;
     text-align: center;
     font-size: 7pt;
 }
 @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    thead th { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    tbody tr:nth-child(even) { background: #f9fafb !important; }
 }
 </style>
 </head>

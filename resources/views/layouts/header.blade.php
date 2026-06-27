@@ -56,10 +56,12 @@
                     <i class="lni lni-user-4 text-base text-gray-400"></i>
                     પ્રોફાઇલ
                 </a>
+                @if(auth()->user()->role === 'admin')
                 <a href="{{ route('settings.school-info') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                     <i class="lni lni-gear-1 text-base text-gray-400"></i>
                     શાળા માહિતી
                 </a>
+                @endif
                 <div class="border-t border-gray-100 mt-1 pt-1">
                     <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
                         <i class="lni lni-exit text-base"></i>

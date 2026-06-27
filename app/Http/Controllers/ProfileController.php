@@ -51,37 +51,56 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-        ];
+        $rules = [];
+
+        if ($user->role !== 'student') {
+            $rules['name'] = 'required|string|max:255';
+            $rules['email'] = ['required', 'email', Rule::unique('users')->ignore($user->id)];
+        }
 
         if ($user->role === 'teacher' && $user->teacher) {
             $rules['phone'] = 'nullable|string|max:20';
             $rules['address'] = 'nullable|string|max:500';
         }
 
+        if ($user->role === 'student') {
+            $rules['phone'] = 'nullable|string|max:20';
+            $rules['whatsapp'] = 'nullable|string|max:20';
+        }
+
         $validated = $request->validate($rules);
 
-        $userData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ];
-        $user->update($userData);
+        $userData = [];
+        if (isset($validated['name'])) {
+            $userData['name'] = $validated['name'];
+        }
+        if (isset($validated['email'])) {
+            $userData['email'] = $validated['email'];
+        }
+        if (!empty($userData)) {
+            $user->update($userData);
+        }
 
         if ($user->role === 'teacher' && $user->teacher) {
             $user->teacher->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
+                'name' => $validated['name'] ?? $user->teacher->name,
+                'email' => $validated['email'] ?? $user->teacher->email,
                 'phone' => $validated['phone'] ?? $user->teacher->phone,
                 'address' => $validated['address'] ?? $user->teacher->address,
             ]);
         }
 
         if ($user->role === 'student' && $user->student) {
-            $user->student->update([
-                'mobile' => $validated['phone'] ?? $user->student->mobile,
-            ]);
+            $studentData = [];
+            if (isset($validated['phone'])) {
+                $studentData['mobile'] = $validated['phone'];
+            }
+            if (isset($validated['whatsapp'])) {
+                $studentData['whatsapp_mobile'] = $validated['whatsapp'];
+            }
+            if (!empty($studentData)) {
+                $user->student->update($studentData);
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'પ્રોફાઇલ અપડેટ થઈ.']);

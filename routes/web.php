@@ -54,6 +54,8 @@ use App\Http\Controllers\StudentRouteController;
 use App\Http\Controllers\BusAttendanceController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\TeacherDashboardController;
+use App\Http\Controllers\StudentDashboardController;
 
 // ─── Installer (no auth, no guest, accessible before .env/DB exist) ─
 Route::prefix('install')->name('install.')->group(function () {
@@ -84,6 +86,8 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes - require login session
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'index'])->name('teacher.dashboard')->middleware('role:teacher');
+    Route::get('/student/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard')->middleware('role:student');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // Profile

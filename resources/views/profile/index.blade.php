@@ -5,7 +5,7 @@
     editModal: false,
     passwordModal: false,
     loading: false,
-    form: { name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $profile?->phone ?? $profile?->mobile ?? '' }}', address: '{{ $profile?->address ?? '' }}' },
+    form: { name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $profile?->phone ?? $profile?->mobile ?? '' }}', whatsapp: '{{ $profile?->whatsapp_mobile ?? '' }}', address: '{{ $profile?->address ?? '' }}' },
     passForm: { current_password: '', password: '', password_confirmation: '' }
 }">
     {{-- ==================== HERO SECTION ==================== --}}
@@ -37,9 +37,11 @@
                     </span>
                 </div>
             </div>
+            @if($user->role !== 'student')
             <button @click="editModal = true" class="shrink-0 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-medium transition backdrop-blur-sm flex items-center gap-1.5">
                 <i class="lni lni-pencil-1 text-xs"></i> એડિટ
             </button>
+            @endif
         </div>
     </div>
 
@@ -66,9 +68,11 @@
                 <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
                     <i class="lni lni-user-4 text-indigo-500"></i> મૂળભૂત માહિતી
                 </h2>
+                @if($user->role !== 'student')
                 <button @click="editModal = true" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1">
                     <i class="lni lni-pencil-1 text-[10px]"></i> એડિટ
                 </button>
+                @endif
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
@@ -278,6 +282,7 @@
                     NexSchool.alert.danger('સર્વર ભૂલ: ' + err.message);
                 }).finally(() => { loading = false; });
             " class="p-5 space-y-4">
+                @if($user->role !== 'student')
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">નામ</label>
                     <input type="text" x-model="form.name" required class="w-full text-sm border-gray-300 rounded-xl px-4 py-2.5 focus:ring-indigo-500 focus:border-indigo-500 transition">
@@ -286,11 +291,20 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">ઈમેલ</label>
                     <input type="email" x-model="form.email" required class="w-full text-sm border-gray-300 rounded-xl px-4 py-2.5 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 </div>
+                @else
+                <p class="text-sm text-gray-500 bg-gray-50 rounded-xl p-3">વિદ્યાર્થી તરીકે તમે ફક્ત ફોન અને WhatsApp નંબર જ એડિટ કરી શકો છો.</p>
+                @endif
                 @if($profile)
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">ફોન</label>
                     <input type="text" x-model="form.phone" class="w-full text-sm border-gray-300 rounded-xl px-4 py-2.5 focus:ring-indigo-500 focus:border-indigo-500 transition">
                 </div>
+                @if($user->role === 'student')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp નંબર</label>
+                    <input type="text" x-model="form.whatsapp" class="w-full text-sm border-gray-300 rounded-xl px-4 py-2.5 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                @endif
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">સરનામું</label>
                     <textarea x-model="form.address" rows="2" class="w-full text-sm border-gray-300 rounded-xl px-4 py-2.5 focus:ring-indigo-500 focus:border-indigo-500 transition"></textarea>

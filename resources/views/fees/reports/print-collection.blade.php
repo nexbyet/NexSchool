@@ -4,21 +4,19 @@
 <meta charset="UTF-8">
 <title>વસૂલાત રિપોર્ટ — {{ $academicYear->year }}</title>
 <style>
-@page { size: A4 landscape; margin: 12mm; }
-body { font-family: 'Anek Gujarati', sans-serif; font-size: 9px; color: #1f2937; margin: 0; padding: 0; }
-h1 { font-size: 14px; text-align: center; margin: 0 0 4px; }
-.subtitle { text-align: center; font-size: 10px; color: #6b7280; margin-bottom: 10px; }
+@page { size: A4 landscape; margin: 8mm; }
+body { font-family: 'Anek Gujarati', sans-serif; font-size: 12px; color: #1f2937; margin: 0; padding: 0; }
+.school-name { text-align: center; font-size: 18px; font-weight: 700; margin: 0 0 2px; }
+h1 { font-size: 15px; text-align: center; margin: 0 0 3px; font-weight: 600; }
+.subtitle { text-align: center; font-size: 11px; color: #6b7280; margin-bottom: 10px; }
 table { width: 100%; border-collapse: collapse; }
-th { background: #f3f4f6; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; padding: 5px 6px; text-align: left; border: 1px solid #d1d5db; }
-td { padding: 4px 6px; border: 1px solid #d1d5db; }
-.text-right { text-align: right; }
-.font-bold { font-weight: 700; }
-.text-green { color: #059669; }
-.footer { text-align: center; font-size: 8px; color: #9ca3af; margin-top: 10px; border-top: 1px solid #e5e7eb; padding-top: 6px; }
+th { background: #f3f4f6; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; padding: 6px 7px; text-align: left; border: 1px solid #d1d5db; }
+td { font-size: 12px; padding: 5px 7px; border: 1px solid #d1d5db; }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="school-name">{{ $school->school_name_gu ?? $school->school_name_en ?? 'NexSchool' }}</div>
 <h1>વસૂલાત રિપોર્ટ — {{ $academicYear->year }}</h1>
 <p class="subtitle">{{ $semLabel }} | {{ request('from_date') }} થી {{ request('to_date') }} | {{ date('d/m/Y') }}</p>
 

@@ -1,9 +1,7 @@
 {
-    "version": "1.0.5",
-    "requires": "1.0.4",
-    "migrations": [
-        "2026_06_27_061450_add_active_to_users_table"
-    ],
+    "version": "1.0.6",
+    "requires": "1.0.5",
+    "migrations": [],
     "delete_files": [],
     "post_update_commands": [
         "php artisan optimize:clear",

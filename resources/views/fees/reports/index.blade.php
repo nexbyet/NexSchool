@@ -330,14 +330,35 @@
                 content.innerHTML = '<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><p class="text-gray-500 font-medium">કોઈ બાકી વિદ્યાર્થી નથી</p></div>';
                 return;
             }
-            var html = '<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">ક્રમ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">GR નંબર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">નામ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">પિતાનું નામ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">ધોરણ-વર્ગ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">ફી પ્રકાર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સત્ર</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">કુલ ફી</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">ચૂકવેલ</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">બાકી</th></tr></thead><tbody class="divide-y divide-gray-100">';
+            // Build column order: sorted by semester then fee type
+            var typeOrder = ['tuition', 'transport', 'other'];
+            var cols = [];
+            for (var ti = 0; ti < typeOrder.length; ti++) {
+                var t = typeOrder[ti];
+                if (data.fee_types.indexOf(t) !== -1) {
+                    for (var si = 0; si < data.semesters.length; si++) {
+                        var s = data.semesters[si];
+                        cols.push({ key: 'sem_' + s + '_' + t, label: 'સત્ર ' + s + ' - ' + (data.type_labels[t] || t) });
+                    }
+                }
+            }
+            var html = '<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50">';
+            html += '<tr><th class="px-3 py-2.5 text-left text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">ક્રમ</th><th class="px-3 py-2.5 text-left text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">GR</th><th class="px-3 py-2.5 text-left text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">નામ</th><th class="px-3 py-2.5 text-left text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">પિતાનું નામ</th><th class="px-3 py-2.5 text-left text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">ધોરણ-વર્ગ</th><th class="px-3 py-2.5 text-center text-gray-600 text-xs font-semibold uppercase tracking-wider" colspan="' + cols.length + '">બાકી ફી (ફી પ્રકાર મુજબ)</th><th class="px-3 py-2.5 text-right text-gray-600 text-xs font-semibold uppercase tracking-wider" rowspan="2">કુલ બાકી</th></tr>';
+            html += '<tr>';
+            for (var ci = 0; ci < cols.length; ci++) {
+                html += '<th class="px-3 py-2.5 text-right text-gray-600 text-xs font-semibold uppercase tracking-wider" style="min-width:90px">' + cols[ci].label + '</th>';
+            }
+            html += '</tr></thead><tbody class="divide-y divide-gray-100">';
             for (var i = 0; i < students.length; i++) {
                 var s = students[i];
                 var stdName = s.student && s.student.current_standard ? s.student.current_standard.name : '';
                 var clsName = s.student && s.student.current_class ? s.student.current_class.name : '';
-                var feeType = (s.fee_structure && s.fee_structure.type) ? (feeTypeLabels[s.fee_structure.type] || s.fee_structure.type) : '—';
-                var semHtml = s.semester ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">સત્ર ' + s.semester + '</span>' : '<span class="text-gray-400">—</span>';
-                html += '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-gray-500">' + (i + 1) + '</td><td class="px-4 py-3 font-mono text-gray-900">' + (s.gr_number || '') + '</td><td class="px-4 py-3 font-medium text-gray-900">' + (s.full_name_gu || s.full_name_en || '') + '</td><td class="px-4 py-3 text-gray-600">' + (s.father_name_gu || s.father_name_en || '') + '</td><td class="px-4 py-3 text-gray-600">' + stdName + ' - ' + clsName + '</td><td class="px-4 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">' + feeType + '</span></td><td class="px-4 py-3">' + semHtml + '</td><td class="px-4 py-3 text-right text-gray-900">₹' + (parseFloat(s.net_amount) || 0).toFixed(2) + '</td><td class="px-4 py-3 text-right text-emerald-700">₹' + (parseFloat(s.paid_amount) || 0).toFixed(2) + '</td><td class="px-4 py-3 text-right font-bold text-red-700">₹' + (parseFloat(s.due_amount) || 0).toFixed(2) + '</td></tr>';
+                html += '<tr class="hover:bg-gray-50"><td class="px-3 py-2.5 text-gray-500">' + (i + 1) + '</td><td class="px-3 py-2.5 font-mono text-gray-900">' + (s.gr_number || '') + '</td><td class="px-3 py-2.5 font-medium text-gray-900">' + (s.full_name_gu || s.full_name_en || '') + '</td><td class="px-3 py-2.5 text-gray-600">' + (s.father_name_gu || s.father_name_en || '') + '</td><td class="px-3 py-2.5 text-gray-600">' + stdName + ' - ' + clsName + '</td>';
+                for (var ci = 0; ci < cols.length; ci++) {
+                    var entry = s.entries && s.entries[cols[ci].key] ? s.entries[cols[ci].key] : null;
+                    html += '<td class="px-3 py-2.5 text-right text-gray-900">' + (entry ? '₹' + entry.due_amount.toFixed(2) : '—') + '</td>';
+                }
+                html += '<td class="px-3 py-2.5 text-right font-bold text-red-700">₹' + (s.total_due || 0).toFixed(2) + '</td></tr>';
             }
             html += '</tbody></table></div></div>';
             content.innerHTML = html;

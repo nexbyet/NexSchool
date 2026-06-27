@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.lineicons.com/5.1/line/lineicons.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @php $__fav = $school && $school->favicon ? asset('storage/'.$school->favicon) : null; @endphp
     @if($__fav)
     <link rel="icon" type="image/png" href="{{ $__fav }}">
@@ -80,21 +81,23 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var mobBtn = document.getElementById('mobile-menu-btn');
+        var mobClose = document.getElementById('mobile-close-btn');
         var mobMenu = document.getElementById('mobile-menu');
         var mobOverlay = document.getElementById('mobile-overlay');
-        var hamburgerIcon = document.getElementById('hamburger-icon');
 
         function toggleMobile(open) {
             if (mobOverlay) { mobOverlay.classList.toggle('hidden', !open); setTimeout(function(){mobOverlay.classList.toggle('opacity-100', open);mobOverlay.classList.toggle('opacity-0', !open);}, 10); }
-            if (mobMenu) { mobMenu.classList.toggle('translate-x-full', !open); }
+            if (mobMenu) { mobMenu.classList.toggle('translate-x-full', !open); mobMenu.classList.toggle('translate-x-0', open); }
             document.body.classList.toggle('overflow-hidden', open);
-            if (hamburgerIcon) { hamburgerIcon.className = open ? 'lni lni-xmark-circle text-xl' : 'lni lni-menu-hamburger-1 text-xl'; }
         }
 
         if (mobBtn && mobMenu) {
             mobBtn.addEventListener('click', function() {
                 toggleMobile(mobMenu.classList.contains('translate-x-full'));
             });
+        }
+        if (mobClose && mobMenu) {
+            mobClose.addEventListener('click', function() { toggleMobile(false); });
         }
         if (mobOverlay) {
             mobOverlay.addEventListener('click', function() { toggleMobile(false); });

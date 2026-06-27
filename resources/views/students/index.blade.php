@@ -95,8 +95,14 @@
         </button>
     </div>
 
-    {{-- Student Table --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+    {{--學生 Table --}}
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm relative" id="student-table-wrap">
+        <div id="table-preloader" class="absolute inset-0 bg-white/70 flex items-center justify-center z-10 hidden">
+            <div class="flex items-center gap-3 px-5 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
+                <i class="lni lni-spinner-3 text-indigo-600 text-xl spin"></i>
+                <span class="text-sm font-medium text-gray-600">લોડ થાય છે...</span>
+            </div>
+        </div>
         <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
@@ -157,7 +163,9 @@
                         <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                             <a href="{{ url('students') }}/{{ $s->id }}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye"></i></a>
                             <button onclick="editStudent({{ $s->id }})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="સુધારો"><i class="lni lni-pencil-1"></i></button>
+                            @if(auth()->user()->role === 'admin')
                             <button onclick="deleteStudent({{ $s->id }})" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="કાઢી નાખો"><i class="lni lni-trash-3"></i></button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -178,20 +186,36 @@
     </div>
 
     {{-- Pagination --}}
-    <div class="mt-4 flex items-center justify-between" id="pagination-wrap">
+    <div class="mt-5 mb-2 flex flex-col sm:flex-row items-center justify-between gap-3" id="pagination-wrap">
         <p class="text-sm text-gray-500" id="pagination-info">
-            કુલ <span id="pagination-total">{{ $students->total() }}</span> માંથી 
-            @if($students->total() > 0){{ $students->firstItem() }} થી {{ $students->lastItem() }}@else—@endif બતાવ્યા
+            કુલ <strong id="pagination-total">{{ $students->total() }}</strong> માંથી
+            @if($students->total() > 0) <strong>{{ $students->firstItem() }}</strong> થી <strong>{{ $students->lastItem() }}</strong>@else—@endif બતાવ્યા
         </p>
-        <div class="flex items-center gap-1" id="pagination-links">
+        <div class="flex items-center gap-1 flex-wrap" id="pagination-links">
             @if ($students->lastPage() > 1)
-                @for ($i = 1; $i <= $students->lastPage(); $i++)
-                    <button onclick="goToPage({{ $i }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($i == $students->currentPage()) bg-indigo-600 text-white @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif">{{ $i }}</button>
+                @php
+                    $maxVisible = 7;
+                    $half = floor($maxVisible / 2);
+                    $start = max(1, $students->currentPage() - $half);
+                    $end = min($students->lastPage(), $start + $maxVisible - 1);
+                    if ($end - $start + 1 < $maxVisible) $start = max(1, $end - $maxVisible + 1);
+                @endphp
+                <button onclick="goToPage({{ $students->currentPage() - 1 }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($students->currentPage() <= 1) bg-gray-50 text-gray-300 cursor-not-allowed @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif" @if($students->currentPage() <= 1) disabled @endif><i class="lni lni-chevron-left text-xs"></i></button>
+                @if($start > 1)
+                    <button onclick="goToPage(1)" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">1</button>
+                    @if($start > 2)<span class="px-1 text-gray-400 text-xs">...</span>@endif
+                @endif
+                @for ($i = $start; $i <= $end; $i++)
+                    <button onclick="goToPage({{ $i }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($i == $students->currentPage()) bg-indigo-600 text-white shadow-sm @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif">{{ $i }}</button>
                 @endfor
+                @if($end < $students->lastPage())
+                    @if($end < $students->lastPage() - 1)<span class="px-1 text-gray-400 text-xs">...</span>@endif
+                    <button onclick="goToPage({{ $students->lastPage() }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">{{ $students->lastPage() }}</button>
+                @endif
+                <button onclick="goToPage({{ $students->currentPage() + 1 }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($students->currentPage() >= $students->lastPage()) bg-gray-50 text-gray-300 cursor-not-allowed @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif" @if($students->currentPage() >= $students->lastPage()) disabled @endif><i class="lni lni-chevron-right text-xs"></i></button>
             @endif
         </div>
     </div>
-</div>
 
 {{-- Create/Edit Modal --}}
 <div id="student-modal" class="fixed inset-0 z-[9998] flex items-start justify-center bg-black/40 backdrop-blur-sm p-4 hidden" style="opacity:0;transition:opacity 0.2s;overflow-y:auto">
@@ -677,6 +701,8 @@ function updateDobText() {
 }
 document.getElementById('date_of_birth').addEventListener('input', updateDobText);
 
+window.isAdmin = @json(auth()->user()->role === 'admin');
+
 // Auto-format date: digits only → dd/mm/yyyy
 function autoFormatDate(input) {
     let v = input.value.replace(/\D/g, '');
@@ -727,7 +753,7 @@ form.addEventListener('submit', function(e) {
         if (res.success) {
             NexSchool.alert.success(res.message);
             closeModal();
-            setTimeout(() => location.reload(), 400);
+            setTimeout(() => loadStudents(currentPage), 400);
         } else {
             NexSchool.alert.danger(res.message || 'ભૂલ આવી.');
         }
@@ -809,7 +835,7 @@ function deleteStudent(id) {
         .then(res => {
             if (res.success) {
                 NexSchool.alert.success(res.message);
-                setTimeout(() => location.reload(), 400);
+                setTimeout(() => loadStudents(currentPage), 400);
             } else {
                 NexSchool.alert.danger(res.message || 'ભૂલ આવી.');
             }
@@ -824,6 +850,8 @@ let currentPage = 1;
 
 function loadStudents(page) {
     currentPage = page || 1;
+    const preloader = document.getElementById('table-preloader');
+    if (preloader) preloader.classList.remove('hidden');
     const stdId = document.getElementById('filter-standard').value;
     const clsId = document.getElementById('filter-class').value;
     const search = document.getElementById('filter-search').value.trim();
@@ -840,7 +868,10 @@ function loadStudents(page) {
         if (data.pagination) renderPagination(data.pagination);
         if (data.stats) updateStats(data.stats);
     })
-    .catch(err => NexSchool.alert.danger('ડેટા મેળવવામાં ભૂલ: ' + err.message));
+    .catch(err => NexSchool.alert.danger('ડેટા મેળવવામાં ભૂલ: ' + err.message))
+    .finally(function () {
+        if (preloader) preloader.classList.add('hidden');
+    });
 }
 
 function renderTable(students) {
@@ -855,22 +886,24 @@ function renderTable(students) {
         const rowBg = s.sharirik_jaati === 'kumar' ? 'style="border-left: 4px solid #10b981;"' : s.sharirik_jaati === 'kumari' ? 'style="border-left: 4px solid #f87171;"' : '';
         const dob = s.date_of_birth ? formatDate(s.date_of_birth) : '—';
         const age = s.date_of_birth ? calcAge(s.date_of_birth) + ' વર્ષ' : '—';
-        let photoHtml = '<div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">—</div>';
-        if (s.photo) photoHtml = '<img src="{{ asset("storage") }}/' + s.photo + '" class="w-9 h-9 rounded-full object-cover border border-gray-200" alt="photo">';
-        return `<tr class="hover:bg-gray-50 transition" ${rowBg}>
-            <td class="px-4 py-3 font-mono font-medium">${s.gr_number}</td>
+        let photoHtml = '<div class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-sm"><i class="lni lni-user-4 text-gray-400 text-xs"></i></div>';
+        if (s.photo) photoHtml = '<img src="{{ asset("storage") }}/' + s.photo + '" class="w-9 h-9 rounded-full object-cover border-2 border-gray-200 shadow-sm" alt="photo">';
+        return `<tr class="hover:bg-gray-50 transition group" ${rowBg}>
+            <td class="px-4 py-3 font-mono font-medium text-gray-900">${s.gr_number}</td>
             <td class="px-4 py-3">${photoHtml}</td>
-            <td class="px-4 py-3">${s.full_name_gu || ''}</td>
-            <td class="px-4 py-3">${s.father_name_gu || ''}</td>
-            <td class="px-4 py-3 font-mono">${dob}</td>
-            <td class="px-4 py-3 font-mono text-gray-500">${age}</td>
-            <td class="px-4 py-3">${s.current_standard ? s.current_standard.name : ''}</td>
-            <td class="px-4 py-3 font-mono">${s.mobile || ''}</td>
-            <td class="px-4 py-3"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${statusLabel}</span></td>
+            <td class="px-4 py-3 font-medium text-gray-800">${s.full_name_gu || ''}</td>
+            <td class="px-4 py-3 text-gray-600">${s.father_name_gu || ''}</td>
+            <td class="px-4 py-3 font-mono text-gray-600">${dob}</td>
+            <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-md text-xs font-medium text-gray-600"><i class="lni lni-calendar-days text-xs"></i> ${age}</span></td>
+            <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 rounded-md text-xs font-medium text-indigo-700"><i class="lni lni-buildings-1 text-xs"></i> ${s.current_standard ? s.current_standard.name : ''}</span></td>
+            <td class="px-4 py-3 font-mono text-gray-600">${s.mobile || ''}</td>
+            <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}"><i class="lni lni-${statusIcon(s.status)} text-xs"></i> ${statusLabel}</span></td>
             <td class="px-4 py-3 text-center">
-                <a href="/students/${s.id}" class="p-1.5 text-cyan-600 hover:bg-cyan-50 rounded-lg inline-block transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye text-lg"></i></a>
-                <button onclick="editStudent(${s.id})" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="સુધારો"><i class="lni lni-pencil-1 text-lg"></i></button>
-                <button onclick="deleteStudent(${s.id})" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition" title="કાઢી નાખો"><i class="lni lni-trash-3 text-lg"></i></button>
+                <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
+                    <a href="/students/${s.id}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye"></i></a>
+                    <button onclick="editStudent(${s.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="સુધારો"><i class="lni lni-pencil-1"></i></button>
+                    ${window.isAdmin ? `<button onclick="deleteStudent(${s.id})" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="કાઢી નાખો"><i class="lni lni-trash-3"></i></button>` : ''}
+                </div>
             </td>
         </tr>`;
     }).join('');
@@ -883,16 +916,33 @@ function renderPagination(pg) {
     if (!elTotal || !elInfo) return;
     elTotal.textContent = pg.total;
     if (pg.total > 0) {
-        elInfo.textContent = 'કુલ ' + pg.total + ' માંથી 1 થી ' + Math.min(pg.per_page, pg.total) + ' બતાવ્યા';
+        const from = (pg.current_page - 1) * pg.per_page + 1;
+        const to = Math.min(pg.current_page * pg.per_page, pg.total);
+        elInfo.innerHTML = 'કુલ <strong>' + pg.total + '</strong> માંથી <strong>' + from + '</strong> થી <strong>' + to + '</strong> બતાવ્યા';
     } else {
-        elInfo.textContent = 'કુલ 0 માંથી — બતાવ્યા';
+        elInfo.innerHTML = 'કુલ 0 માંથી — બતાવ્યા';
     }
     if (!elLinks) return;
     let html = '';
     if (pg.last_page > 1) {
-        for (let i = 1; i <= pg.last_page; i++) {
-            html += '<button onclick="goToPage(' + i + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (i === pg.current_page ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">' + i + '</button>';
+        html += '<button onclick="goToPage(' + (pg.current_page - 1) + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (pg.current_page <= 1 ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '" ' + (pg.current_page <= 1 ? 'disabled' : '') + '><i class="lni lni-chevron-left text-xs"></i></button>';
+        const maxVisible = 7;
+        const half = Math.floor(maxVisible / 2);
+        let start = Math.max(1, pg.current_page - half);
+        let end = Math.min(pg.last_page, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+        if (start > 1) {
+            html += '<button onclick="goToPage(1)" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">1</button>';
+            if (start > 2) html += '<span class="px-1 text-gray-400 text-xs">...</span>';
         }
+        for (let i = start; i <= end; i++) {
+            html += '<button onclick="goToPage(' + i + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (i === pg.current_page ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '">' + i + '</button>';
+        }
+        if (end < pg.last_page) {
+            if (end < pg.last_page - 1) html += '<span class="px-1 text-gray-400 text-xs">...</span>';
+            html += '<button onclick="goToPage(' + pg.last_page + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">' + pg.last_page + '</button>';
+        }
+        html += '<button onclick="goToPage(' + (pg.current_page + 1) + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (pg.current_page >= pg.last_page ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '" ' + (pg.current_page >= pg.last_page ? 'disabled' : '') + '><i class="lni lni-chevron-right text-xs"></i></button>';
     }
     elLinks.innerHTML = html;
 }
@@ -910,6 +960,10 @@ function goToPage(page) {
 
 function applyFilters() {
     loadStudents(1);
+}
+
+function statusIcon(status) {
+    return { active: 'check-circle-1', inactive: 'ban-2', alumni: 'exit' }[status] || 'ban-2';
 }
 
 function formatDate(dateStr) {

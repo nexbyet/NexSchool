@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use App\Models\FeeCarryForward;
 use App\Models\FeePayment;
+use App\Models\SchoolSetting;
 use App\Models\Standard;
 use App\Models\Student;
 use App\Models\StudentFee;
@@ -108,7 +109,10 @@ class FeeReportController extends Controller
             'semester' => 'nullable|in:1,2',
         ]);
 
-        $query = StudentFee::where('student_fees.academic_year_id', $data['academic_year_id'])
+        $yearId = $data['academic_year_id'];
+
+        $query = StudentFee::with('feeStructure')
+            ->where('student_fees.academic_year_id', $yearId)
             ->join('students', 'student_fees.student_id', '=', 'students.id')
             ->where('students.status', '!=', 'alumni');
 
@@ -124,7 +128,7 @@ class FeeReportController extends Controller
             $query->where('students.current_class_id', $data['class_id']);
         }
 
-        $results = $query->select(
+        $rows = $query->select(
             'student_fees.*',
             'students.gr_number',
             'students.full_name_gu',
@@ -133,23 +137,82 @@ class FeeReportController extends Controller
             'students.father_name_en',
             'students.current_standard_id',
             'students.current_class_id'
-        )->get()->map(function ($sf) {
+        )->get();
+
+        // Group by student_id, then by semester, then by fee type
+        $grouped = [];
+        $feeTypes = [];
+        $semestersFound = [];
+
+        foreach ($rows as $sf) {
+            $sid = $sf->student_id;
+            $sem = $sf->semester ?? 1;
+            $type = $sf->feeStructure?->type ?? 'other';
+
+            $feeTypes[$type] = true;
+            $semestersFound[$sem] = true;
+
+            if (!isset($grouped[$sid])) {
+                $grouped[$sid] = [
+                    'id' => $sf->student_id,
+                    'gr_number' => $sf->gr_number,
+                    'full_name_gu' => $sf->full_name_gu,
+                    'full_name_en' => $sf->full_name_en,
+                    'father_name_gu' => $sf->father_name_gu,
+                    'father_name_en' => $sf->father_name_en,
+                    'current_standard_id' => $sf->current_standard_id,
+                    'current_class_id' => $sf->current_class_id,
+                    'entries' => [],
+                    'total_due' => 0,
+                ];
+            }
+
             $paid = FeePayment::where('student_id', $sf->student_id)
-                ->where('academic_year_id', $sf->academic_year_id)
+                ->where('academic_year_id', $yearId)
                 ->where('student_fee_id', $sf->id)
                 ->sum('amount_paid');
-            $sf->paid_amount = $paid;
-            $sf->due_amount = max(0, $sf->net_amount - $paid);
-            return $sf;
-        })->filter(function ($sf) {
-            return $sf->due_amount > 0;
-        })->sortByDesc('due_amount')->values();
 
-        $results->load('student.currentStandard', 'student.currentClass', 'feeStructure');
+            $due = max(0, $sf->net_amount - $paid);
+
+            $grouped[$sid]['entries']["sem_{$sem}_{$type}"] = [
+                'net_amount' => (float) $sf->net_amount,
+                'paid_amount' => (float) $paid,
+                'due_amount' => (float) $due,
+            ];
+            $grouped[$sid]['total_due'] += $due;
+        }
+
+        // Load student relations
+        $studentIds = array_keys($grouped);
+        $students = \App\Models\Student::whereIn('id', $studentIds)
+            ->with('currentStandard', 'currentClass')
+            ->get()->keyBy('id');
+
+        $studentsData = [];
+        foreach ($grouped as $sid => $g) {
+            $stu = $students->get($sid);
+            $g['student'] = $stu ? [
+                'current_standard' => $stu->currentStandard,
+                'current_class' => $stu->currentClass,
+            ] : null;
+            $studentsData[] = $g;
+        }
+
+        // Sort by total_due descending
+        usort($studentsData, fn($a, $b) => $b['total_due'] <=> $a['total_due']);
+
+        // Determine which semester-type combos exist
+        $typeList = array_keys($feeTypes);
+        $semList = array_keys($semestersFound);
+        sort($semList);
+        $typeLabels = ['tuition' => 'શાળા ફી', 'transport' => 'બસ ફી', 'other' => 'અન્ય'];
 
         return response()->json([
             'success' => true,
-            'students' => $results,
+            'students' => $studentsData,
+            'fee_types' => $typeList,
+            'semesters' => $semList,
+            'type_labels' => $typeLabels,
         ]);
     }
 
@@ -320,10 +383,11 @@ class FeeReportController extends Controller
         });
 
         $semLabel = $semester ? "સત્ર $semester" : 'બધા સત્ર';
+        $school = SchoolSetting::find(1);
 
         return view('fees.reports.print-summary', compact(
             'academicYear', 'semester', 'semLabel', 'totalAssigned', 'totalCollected', 'totalDue', 'totalConcession',
-            'byType', 'perStandard', 'typeLabels'
+            'byType', 'perStandard', 'typeLabels', 'school'
         ));
     }
 
@@ -338,8 +402,10 @@ class FeeReportController extends Controller
 
         $academicYear = AcademicYear::findOrFail($data['academic_year_id']);
         $semester = $data['semester'] ?? null;
+        $yearId = $data['academic_year_id'];
 
-        $query = StudentFee::where('student_fees.academic_year_id', $data['academic_year_id'])
+        $query = StudentFee::with('feeStructure')
+            ->where('student_fees.academic_year_id', $yearId)
             ->join('students', 'student_fees.student_id', '=', 'students.id')
             ->where('students.status', '!=', 'alumni');
 
@@ -347,23 +413,84 @@ class FeeReportController extends Controller
         if (!empty($data['standard_id'])) $query->where('students.current_standard_id', $data['standard_id']);
         if (!empty($data['class_id'])) $query->where('students.current_class_id', $data['class_id']);
 
-        $results = $query->select('student_fees.*', 'students.gr_number', 'students.full_name_gu', 'students.full_name_en',
-            'students.father_name_gu', 'students.father_name_en', 'students.current_standard_id', 'students.current_class_id'
-        )->get()->map(function ($sf) {
+        $rows = $query->select(
+            'student_fees.*',
+            'students.gr_number', 'students.full_name_gu', 'students.full_name_en',
+            'students.father_name_gu', 'students.father_name_en',
+            'students.current_standard_id', 'students.current_class_id'
+        )->get();
+
+        // Group by student
+        $grouped = [];
+        $feeTypes = [];
+        $semestersFound = [];
+
+        foreach ($rows as $sf) {
+            $sid = $sf->student_id;
+            $sem = $sf->semester ?? 1;
+            $type = $sf->feeStructure?->type ?? 'other';
+
+            $feeTypes[$type] = true;
+            $semestersFound[$sem] = true;
+
+            if (!isset($grouped[$sid])) {
+                $grouped[$sid] = [
+                    'id' => $sf->student_id,
+                    'gr_number' => $sf->gr_number,
+                    'full_name_gu' => $sf->full_name_gu,
+                    'full_name_en' => $sf->full_name_en,
+                    'father_name_gu' => $sf->father_name_gu,
+                    'father_name_en' => $sf->father_name_en,
+                    'current_standard_id' => $sf->current_standard_id,
+                    'current_class_id' => $sf->current_class_id,
+                    'entries' => [],
+                    'total_due' => 0,
+                ];
+            }
+
             $paid = FeePayment::where('student_id', $sf->student_id)
-                ->where('academic_year_id', $sf->academic_year_id)
+                ->where('academic_year_id', $yearId)
                 ->where('student_fee_id', $sf->id)
                 ->sum('amount_paid');
-            $sf->paid_amount = $paid;
-            $sf->due_amount = max(0, $sf->net_amount - $paid);
-            return $sf;
-        })->filter(fn($sf) => $sf->due_amount > 0)->sortByDesc('due_amount')->values();
 
-        $results->load('student.currentStandard', 'student.currentClass', 'feeStructure');
+            $due = max(0, $sf->net_amount - $paid);
+
+            $grouped[$sid]['entries']["sem_{$sem}_{$type}"] = [
+                'net_amount' => (float) $sf->net_amount,
+                'paid_amount' => (float) $paid,
+                'due_amount' => (float) $due,
+            ];
+            $grouped[$sid]['total_due'] += $due;
+        }
+
+        // Load student relations
+        $studentIds = array_keys($grouped);
+        $students = \App\Models\Student::whereIn('id', $studentIds)
+            ->with('currentStandard', 'currentClass')
+            ->get()->keyBy('id');
+
+        $studentsData = [];
+        foreach ($grouped as $sid => $g) {
+            $stu = $students->get($sid);
+            $g['student'] = $stu ? [
+                'current_standard' => $stu->currentStandard,
+                'current_class' => $stu->currentClass,
+            ] : null;
+            $studentsData[] = (object) $g;
+        }
+
+        usort($studentsData, fn($a, $b) => $b->total_due <=> $a->total_due);
+
+        $typeList = array_keys($feeTypes);
+        $semList = array_keys($semestersFound);
+        sort($semList);
         $semLabel = $semester ? "સત્ર $semester" : 'બધા સત્ર';
         $typeLabels = ['tuition' => 'શાળા ફી', 'transport' => 'બસ ફી', 'other' => 'અન્ય'];
+        $school = SchoolSetting::find(1);
 
-        return view('fees.reports.print-due-list', compact('academicYear', 'semester', 'semLabel', 'results', 'typeLabels'));
+        return view('fees.reports.print-due-list', compact(
+            'academicYear', 'semester', 'semLabel', 'studentsData', 'typeList', 'semList', 'typeLabels', 'school'
+        ));
     }
 
     public function printCollectionReport(Request $request)
@@ -388,8 +515,9 @@ class FeeReportController extends Controller
         $payments = $query->orderBy('payment_date')->get();
         $totalAmount = $payments->sum('amount_paid');
         $semLabel = $semester ? "સત્ર $semester" : 'બધા સત્ર';
+        $school = SchoolSetting::find(1);
 
-        return view('fees.reports.print-collection', compact('academicYear', 'semester', 'semLabel', 'payments', 'totalAmount'));
+        return view('fees.reports.print-collection', compact('academicYear', 'semester', 'semLabel', 'payments', 'totalAmount', 'school'));
     }
 
     public function printStudentStatement(Request $request)
@@ -425,10 +553,11 @@ class FeeReportController extends Controller
         $totalNetFee = $studentFees->sum('net_amount') + $totalCarryForward;
         $dueAmount = max(0, $totalNetFee - $totalPaid);
         $semLabel = $semester ? "સત્ર $semester" : 'બધા સત્ર';
+        $school = SchoolSetting::find(1);
 
         return view('fees.reports.print-statement', compact(
             'academicYear', 'semester', 'semLabel', 'student', 'studentFees', 'payments',
-            'carryForwards', 'totalPaid', 'totalCarryForward', 'totalNetFee', 'dueAmount'
+            'carryForwards', 'totalPaid', 'totalCarryForward', 'totalNetFee', 'dueAmount', 'school'
         ));
     }
 }
