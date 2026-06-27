@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const clsSelect = document.getElementById('class_id');
         clsSelect.innerHTML = '<option value="">બધા વર્ગ</option>';
         if (!stdId) return;
-        fetch('{{ route("custom-report.classes", "") }}/' + stdId)
+        fetch('{{ url("reports/custom/classes") }}/' + stdId)
             .then(r => r.json())
             .then(data => {
                 data.forEach(c => {

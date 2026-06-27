@@ -1,9 +1,7 @@
 {
-    "version": "1.0.3",
-    "requires": "1.0.2",
+    "version": "1.0.4",
+    "requires": "1.0.3",
     "migrations": [
-        "2026_06_17_131259_remove_unique_constraint_from_fee_structures.php",
-        "2026_06_27_034150_add_previous_attendance_days_to_students_table.php",
         "2026_06_27_042952_add_lc_fields_to_students_table.php"
     ],
     "delete_files": [],

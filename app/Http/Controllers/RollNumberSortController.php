@@ -31,12 +31,12 @@ class RollNumberSortController extends Controller
             'fields.*' => 'required|string',
         ]);
 
-        $setting = SchoolSetting::find(1);
+        $setting = SchoolSetting::first();
         if (!$setting) {
             return response()->json(['success' => false, 'message' => 'શાળા સેટિંગ મળી નથી.'], 404);
         }
 
-        $setting->student_default_sort = $request->fields;
+        $setting->student_default_sort = $request->input('fields');
         $setting->save();
 
         return response()->json(['success' => true, 'message' => 'રોલ નંબર ગોઠવણી સાચવાઈ.']);

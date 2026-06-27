@@ -30,25 +30,25 @@
         font-weight: 600; font-size: 8pt;
     }
     table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #000; padding: 1.5px 1px; text-align: center; vertical-align: middle; }
-    th { background: #e8e8e8; font-weight: 600; font-size: 7pt; }
+    th, td { border: 1px solid #000; padding: 2px 1.5px; text-align: center; vertical-align: middle; }
+    th { background: #e8e8e8; font-weight: 600; font-size: 7.5pt; }
     thead tr:first-child th { border-bottom: 2px solid #000; }
-    td { font-size: 7pt; }
-    td.name-cell { text-align: left; padding-left: 4px; font-size: 8pt; width: 40mm; }
-    td.sr-cell { font-size: 7pt; width: 6mm; }
-    td.gr-cell { font-size: 6.5pt; width: 10mm; }
-    td.dob-cell { font-size: 6.5pt; width: 10mm; }
-    td.cat-cell { font-size: 6.5pt; width: 8mm; }
-    td.date-cell { font-size: 6.5pt; min-width: 4.2mm; max-width: 4.5mm; height: 13px; }
-    td.sum-cell { font-size: 6.5pt; width: 10mm; }
-    .student-row td { padding: 1.5px 1px; }
+    td { font-size: 7.5pt; }
+    td.name-cell { text-align: left; padding-left: 4px; font-size: 9pt; width: 36mm; }
+    td.sr-cell { font-size: 7.5pt; width: 5mm; }
+    td.gr-cell { font-size: 7pt; width: 9mm; }
+    td.dob-cell { font-size: 7pt; width: 9mm; }
+    td.cat-cell { font-size: 7pt; width: 7mm; }
+    td.date-cell { font-size: 7pt; min-width: 4mm; max-width: 4.2mm; height: 15px; }
+    td.sum-cell { font-size: 7pt; width: 9mm; }
+    .student-row td { padding: 2px 1.5px; }
     .student-row:nth-child(even) { background: #f7f8fa; }
     .name-kumari { color: #c00; }
-    .blank td { height: 14px; }
-    .summary-row td { font-size: 7.5pt; text-align: left; padding: 2px 5px; font-weight: 500; }
+    .blank td { height: 16px; }
+    .summary-row td { font-size: 8pt; text-align: left; padding: 2.5px 5px; font-weight: 500; }
     .summary-row .sr-cell { text-align: center; font-weight: 700; }
     .summary-row td.sum-cell { text-align: center; font-weight: 600; }
-    .section-label { font-size: 8pt; text-align: left !important; padding-left: 6px !important; }
+    .section-label { font-size: 8.5pt; text-align: left !important; padding-left: 6px !important; }
     .summary-divider { border-top: 2px solid #000; }
     .summary-subtotal { border-top: 1px solid #000; border-bottom: 1px solid #000; background: #f0f3f7; }
     .summary-total { border-top: 2px solid #000; background: #e8ecf2; }

@@ -33,13 +33,13 @@
             </span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {{-- રાજા (Boys) --}}
+            {{-- કુમાર (Boys) --}}
             <div class="bg-white rounded-xl border border-blue-200 overflow-hidden shadow-sm">
                 <div class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-50 to-blue-100/50 border-b border-blue-100">
                     <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shadow-sm">
                         <i class="lni lni-crown-1 text-sm text-white"></i>
                     </div>
-                    <span class="font-semibold text-blue-800">રાજા</span>
+                    <span class="font-semibold text-blue-800">કુમાર</span>
                     <span class="text-xs bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full ml-auto">{{ $birthdayBoys->count() }}</span>
                 </div>
                 <div class="divide-y divide-gray-50">
@@ -62,17 +62,17 @@
                         </div>
                     </a>
                     @empty
-                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ રાજાનો જન્મદિવસ નથી</div>
+                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ કુમારનો જન્મદિવસ નથી</div>
                     @endforelse
                 </div>
             </div>
-            {{-- કાર્યક્રમ (Girls) --}}
+            {{-- કુમારી (Girls) --}}
             <div class="bg-white rounded-xl border border-rose-200 overflow-hidden shadow-sm">
                 <div class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-50 to-pink-100/50 border-b border-rose-100">
                     <div class="w-8 h-8 rounded-lg bg-rose-500 flex items-center justify-center shadow-sm">
                         <i class="lni lni-star-1 text-sm text-white"></i>
                     </div>
-                    <span class="font-semibold text-rose-800">કાર્યક્રમ</span>
+                    <span class="font-semibold text-rose-800">કુમારી</span>
                     <span class="text-xs bg-rose-200 text-rose-700 px-2 py-0.5 rounded-full ml-auto">{{ $birthdayGirls->count() }}</span>
                 </div>
                 <div class="divide-y divide-gray-50">
@@ -95,7 +95,7 @@
                         </div>
                     </a>
                     @empty
-                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ કાર્યક્રમનો જન્મદિવસ નથી</div>
+                    <div class="px-5 py-6 text-center text-gray-400 text-sm">આગામી ૧૦ દિવસમાં કોઈ કુમારીનો જન્મદિવસ નથી</div>
                     @endforelse
                 </div>
             </div>

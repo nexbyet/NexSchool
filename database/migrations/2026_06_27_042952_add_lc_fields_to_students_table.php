@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('students', function (Blueprint $table) {
-            $table->date('lc_issue_date')->nullable()->after('lc_number');
-            $table->integer('attendance_days')->nullable()->after('lc_issue_date');
+            $table->date('lc_issue_date')->nullable();
+            $table->integer('attendance_days')->nullable();
         });
     }
 
