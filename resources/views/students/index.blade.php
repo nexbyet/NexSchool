@@ -96,15 +96,15 @@
     </div>
 
     {{--學生 Table --}}
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm relative" id="student-table-wrap">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm relative" id="student-table-wrap">
         <div id="table-preloader" class="absolute inset-0 bg-white/70 flex items-center justify-center z-10 hidden">
             <div class="flex items-center gap-3 px-5 py-3 bg-white rounded-xl shadow-lg border border-gray-100">
                 <i class="lni lni-spinner-3 text-indigo-600 text-xl spin"></i>
                 <span class="text-sm font-medium text-gray-600">લોડ થાય છે...</span>
             </div>
         </div>
-        <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto rounded-xl">
+        <table class="w-full text-sm whitespace-nowrap">
             <thead>
                 <tr class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white text-xs uppercase tracking-wider">
                     <th class="text-left px-4 py-3.5 font-semibold">GR નં.</th>
@@ -186,7 +186,7 @@
     </div>
 
     {{-- Pagination --}}
-    <div class="mt-5 mb-2 flex flex-col sm:flex-row items-center justify-between gap-3" id="pagination-wrap">
+    <div class="px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3" id="pagination-wrap">
         <p class="text-sm text-gray-500" id="pagination-info">
             કુલ <strong id="pagination-total">{{ $students->total() }}</strong> માંથી
             @if($students->total() > 0) <strong>{{ $students->firstItem() }}</strong> થી <strong>{{ $students->lastItem() }}</strong>@else—@endif બતાવ્યા

@@ -99,8 +99,8 @@
             @endforelse
         </div>
         <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
-            <button onclick="resetSort()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">ડિફૉલ્ટ પર રીસેટ કરો</button>
-            <button onclick="saveSort()" class="px-5 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg focus:ring-4 focus:ring-rose-200 transition flex items-center gap-2">
+            <button id="btn-reset-sort" onclick="resetSort()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">ડિફૉલ્ટ પર રીસેટ કરો</button>
+            <button id="btn-save-sort" onclick="saveSort()" class="px-5 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg focus:ring-4 focus:ring-rose-200 transition flex items-center gap-2">
                 <i class="lni lni-check text-base"></i> સાચવો
             </button>
         </div>
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
             group: { name: 'sort', pull: true, put: true },
             animation: 200,
             ghostClass: 'opacity-30',
-            dragClass: 'shadow-xl scale-105',
+            dragClass: ['shadow-xl', 'scale-105'],
             forceFallback: true,
             fallbackClass: 'sortable-fallback',
             fallbackOnBody: false,
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
             group: { name: 'sort', pull: true, put: true },
             animation: 200,
             ghostClass: 'opacity-30',
-            dragClass: 'shadow-xl scale-105',
+            dragClass: ['shadow-xl', 'scale-105'],
             forceFallback: true,
             fallbackClass: 'sortable-fallback',
             fallbackOnBody: false,
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var fields = [];
         items.forEach(function(el) { fields.push(el.dataset.key); });
         if (fields.length === 0) { NexSchool.alert.danger('ઓછામાં ઓછો એક વિકલ્પ રાખો.'); return; }
-        var btn = document.querySelector('button[onclick="saveSort()"]');
+        var btn = document.getElementById('btn-save-sort');
         btn.disabled = true; btn.innerHTML = '<i class="lni lni-spinner-3 text-base animate-spin"></i> સાચવાઈ રહ્યું છે...';
         fetch('{{ route('roll-number-sort.update') }}', {
             method: 'POST',
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.resetSort = function() {
         NexSchool.confirm.show('રીસેટ કરો', 'શું તમે ડિફૉલ્ટ સૉર્ટિંગ પર પાછા જવા માંગો છો?', 'warning')
         .then(function() {
-            var btn = document.querySelector('button[onclick="resetSort()"]');
+            var btn = document.getElementById('btn-reset-sort');
             btn.disabled = true; btn.textContent = 'રીસેટ થાય છે...';
             fetch('{{ route('roll-number-sort.update') }}', {
                 method: 'POST',

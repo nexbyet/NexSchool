@@ -1,6 +1,6 @@
 {
-    "version": "1.0.6",
-    "requires": "1.0.5",
+    "version": "1.0.7",
+    "requires": "1.0.6",
     "migrations": [],
     "delete_files": [],
     "post_update_commands": [

@@ -180,10 +180,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">વિદ્યાર્થી શોધો</label>
-                    <select id="stmt-student" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition">
-                        <option value="">— નામ / GR પસંદ કરો —</option>
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">GR અથવા નામ શોધો</label>
+                    <div class="relative">
+                        <input type="text" id="stmt-search" autocomplete="off" placeholder="GR / નામ લખો..." class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition">
+                        <input type="hidden" id="stmt-student" value="">
+                        <div id="stmt-search-results" class="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden"></div>
+                    </div>
                 </div>
                 <div class="flex items-end">
                     <button onclick="loadStatement()" class="px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition flex items-center gap-2">
@@ -418,43 +420,27 @@
 
     window.loadCollectionReport = loadCollectionReport;
 
-    var studentsLoaded = false;
     var stmtSearchTimeout = null;
+    var stmtSelectedId = null;
+    var stmtSearchInput = document.getElementById('stmt-search');
+    var stmtHiddenInput = document.getElementById('stmt-student');
+    var stmtResults = document.getElementById('stmt-search-results');
+
     document.getElementById('stmt-year').addEventListener('change', function() {
-        studentsLoaded = false;
-        document.getElementById('stmt-student').innerHTML = '<option value="">— નામ / GR પસંદ કરો —</option>';
+        stmtSearchInput.value = '';
+        stmtHiddenInput.value = '';
+        stmtResults.classList.add('hidden');
+        stmtResults.innerHTML = '';
     });
 
-    document.getElementById('stmt-student').addEventListener('focus', function() {
-        if (studentsLoaded) return;
-        var sel = this;
-        fetch('{{ route("fees.reports.search-students") }}', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ search: '' }),
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-            if (!data.success) return;
-            var students = data.students || [];
-            sel.innerHTML = '<option value="">— નામ / GR પસંદ કરો —</option>';
-            for (var i = 0; i < students.length; i++) {
-                if (!students[i].id) continue;
-                var opt = document.createElement('option');
-                opt.value = students[i].id;
-                opt.textContent = (students[i].full_name_gu || students[i].full_name_en || '') + ' [' + students[i].gr_number + ']';
-                sel.appendChild(opt);
-            }
-            studentsLoaded = true;
-        })
-        .catch(function() {});
-    });
-
-    document.getElementById('stmt-student').addEventListener('input', function() {
-        var sel = this;
-        var val = sel.value;
-        if (val.length < 2) return;
+    stmtSearchInput.addEventListener('input', function() {
+        var val = this.value.trim();
+        stmtHiddenInput.value = '';
         clearTimeout(stmtSearchTimeout);
+        if (val.length < 1) {
+            stmtResults.classList.add('hidden');
+            return;
+        }
         stmtSearchTimeout = setTimeout(function() {
             fetch('{{ route("fees.reports.search-students") }}', {
                 method: 'POST',
@@ -465,24 +451,48 @@
             .then(function(data) {
                 if (!data.success) return;
                 var students = data.students || [];
-                sel.innerHTML = '<option value="">— નામ / GR પસંદ કરો —</option>';
-                for (var i = 0; i < students.length; i++) {
-                    if (!students[i].id) continue;
-                    var opt = document.createElement('option');
-                    opt.value = students[i].id;
-                    opt.textContent = (students[i].full_name_gu || students[i].full_name_en || '') + ' [' + students[i].gr_number + ']';
-                    sel.appendChild(opt);
+                if (students.length === 0) {
+                    stmtResults.innerHTML = '<div class="px-3 py-2 text-sm text-gray-400">કોઈ વિદ્યાર્થી મળ્યો નથી</div>';
+                    stmtResults.classList.remove('hidden');
+                    return;
                 }
+                var html = '';
+                for (var i = 0; i < students.length; i++) {
+                    var s = students[i];
+                    html += '<div class="stmt-result-item px-3 py-2 text-sm cursor-pointer hover:bg-rose-50 hover:text-rose-700 border-b border-gray-100 last:border-0 flex items-center justify-between" data-id="' + s.id + '" data-name="' + (s.full_name_gu || s.full_name_en || '') + '" data-gr="' + (s.gr_number || '') + '">';
+                    html += '<span>' + (s.full_name_gu || s.full_name_en || '') + '</span>';
+                    html += '<span class="text-xs text-gray-400 font-mono">' + (s.gr_number || '') + '</span>';
+                    html += '</div>';
+                }
+                stmtResults.innerHTML = html;
+                stmtResults.classList.remove('hidden');
+                stmtResults.querySelectorAll('.stmt-result-item').forEach(function(el) {
+                    el.addEventListener('click', function() {
+                        stmtSearchInput.value = this.dataset.name + ' [' + this.dataset.gr + ']';
+                        stmtHiddenInput.value = this.dataset.id;
+                        stmtResults.classList.add('hidden');
+                    });
+                });
             })
             .catch(function() {});
         }, 300);
+    });
+
+    stmtSearchInput.addEventListener('blur', function() {
+        setTimeout(function() { stmtResults.classList.add('hidden'); }, 200);
+    });
+
+    stmtSearchInput.addEventListener('focus', function() {
+        if (stmtResults.innerHTML && this.value.trim().length >= 1) {
+            stmtResults.classList.remove('hidden');
+        }
     });
 
     var loadStatement = function() {
         var yearId = parseInt(document.getElementById('stmt-year').value);
         var sem = document.getElementById('stmt-semester').value || null;
         var studentId = document.getElementById('stmt-student').value;
-        if (!studentId) { NexSchool.alert.danger('કૃપા કરીને વિદ્યાર્થી પસંદ કરો.'); return; }
+        if (!studentId) { NexSchool.alert.danger('કૃપા કરીને GR / નામ લખી વિદ્યાર્થી પસંદ કરો.'); return; }
         var content = document.getElementById('stmt-content');
         content.innerHTML = '<div class="text-center py-8"><i class="lni lni-spinner-3 text-2xl animate-spin text-rose-500"></i></div>';
         fetch('{{ route("fees.reports.statement") }}', {
