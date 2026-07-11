@@ -24,9 +24,10 @@ class StudentController extends Controller
         $totalActive = (clone $query)->count();
         $totalBoys = (clone $query)->where('sharirik_jaati', 'kumar')->count();
         $totalGirls = (clone $query)->where('sharirik_jaati', 'kumari')->count();
+        $totalUnregistered = Student::where('is_registered', false)->count();
         $students = $query->defaultSort()->paginate(20);
 
-        return view('students.index', compact('students', 'standards', 'classes', 'totalActive', 'totalBoys', 'totalGirls'));
+        return view('students.index', compact('students', 'standards', 'classes', 'totalActive', 'totalBoys', 'totalGirls', 'totalUnregistered'));
     }
 
     public function fetchData(Request $request)
@@ -56,6 +57,7 @@ class StudentController extends Controller
         $totalActive = (clone $query)->count();
         $totalBoys = (clone $query)->where('sharirik_jaati', 'kumar')->count();
         $totalGirls = (clone $query)->where('sharirik_jaati', 'kumari')->count();
+        $totalUnregistered = Student::where('is_registered', false)->count();
         $students = $query->defaultSort()->paginate(20);
 
         return response()->json([
@@ -70,8 +72,18 @@ class StudentController extends Controller
                 'total_boys' => $totalBoys,
                 'total_girls' => $totalGirls,
                 'total_active' => $totalActive,
+                'total_unregistered' => $totalUnregistered,
             ],
         ]);
+    }
+
+    protected function generateUrNumber(): string
+    {
+        $maxUr = Student::where('gr_number', 'LIKE', 'UR-%')
+            ->orderByRaw('LENGTH(gr_number) DESC, gr_number DESC')
+            ->value('gr_number');
+        $num = $maxUr ? (int) substr($maxUr, 3) + 1 : 1;
+        return 'UR-' . str_pad($num, 4, '0', STR_PAD_LEFT);
     }
 
     public function store(Request $request)
@@ -82,7 +94,12 @@ class StudentController extends Controller
         $data['date_of_birth'] = $dob->format('Y-m-d');
         $data['is_minority'] = $request->boolean('is_minority');
         $data['admission_under_rte'] = $request->boolean('admission_under_rte');
+        $data['is_registered'] = $request->boolean('is_registered');
         $this->generateDobText($data, $dob);
+
+        if (!$data['is_registered']) {
+            $data['gr_number'] = $this->generateUrNumber();
+        }
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
@@ -150,6 +167,7 @@ class StudentController extends Controller
         $data['date_of_birth'] = $dob->format('Y-m-d');
         $data['is_minority'] = $request->boolean('is_minority');
         $data['admission_under_rte'] = $request->boolean('admission_under_rte');
+        $data['is_registered'] = $request->boolean('is_registered');
         $this->generateDobText($data, $dob);
 
         // Handle photo upload — delete old if new uploaded
@@ -160,7 +178,17 @@ class StudentController extends Controller
             $data['photo'] = $request->file('photo')->store('photos/students', 'public');
         }
 
+        // Restore original GR on update if switching from unregistered to registered
+        if ($data['is_registered'] && str_starts_with($student->gr_number, 'UR-')) {
+            $data['gr_number'] = $request->input('gr_number');
+        }
+
         $student->update($data);
+
+        // Update user login gr_number if changed
+        if ($student->user) {
+            $student->user->update(['username' => $data['gr_number'] ?? $student->gr_number]);
+        }
 
         return response()->json([
             'success' => true,
@@ -213,9 +241,10 @@ class StudentController extends Controller
 
     private function validateStudent(Request $request, $ignoreId = null)
     {
+        $isRegistered = $request->boolean('is_registered');
         $unique = $ignoreId ? 'unique:students,gr_number,' . $ignoreId : 'unique:students,gr_number';
         return $request->validate([
-            'gr_number' => 'required|numeric|' . $unique,
+            'gr_number' => $isRegistered ? 'required|numeric|' . $unique : 'nullable|string',
             'admission_standard_id' => 'required|exists:standards,id',
             'admission_class_id' => 'nullable|exists:school_classes,id',
             'current_standard_id' => 'required|exists:standards,id',
@@ -239,6 +268,8 @@ class StudentController extends Controller
             'birth_place_en' => 'nullable|string|max:255',
             'native_place_gu' => 'nullable|string|max:255',
             'native_place_en' => 'nullable|string|max:255',
+            'gaam' => 'nullable|string|max:255',
+            'gaam_en' => 'nullable|string|max:255',
             'religion_gu' => 'nullable|in:હિન્દુ,મુસ્લિમ,શીખ,બૌદ્ધ,ઈસાઈ,પારસી',
             'religion_en' => 'nullable|in:Hindu,Muslim,Sikh,Buddhist,Christian,Parsi',
             'cast_gu' => 'nullable|string|max:255',

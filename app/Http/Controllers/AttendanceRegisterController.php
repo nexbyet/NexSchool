@@ -59,6 +59,7 @@ class AttendanceRegisterController extends Controller
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->whereIn('status', ['active', 'alumni'])
+            ->where('is_registered', true)
             ->where('date_of_admission', '<=', $monthEnd)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart);
@@ -253,6 +254,7 @@ class AttendanceRegisterController extends Controller
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->whereIn('status', ['active', 'alumni'])
+            ->where('is_registered', true)
             ->where('date_of_admission', '<=', $monthEnd)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart);
@@ -454,6 +456,7 @@ class AttendanceRegisterController extends Controller
         $enrolledBeforeStart = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->whereIn('status', ['active', 'alumni'])
+            ->where('is_registered', true)
             ->where('date_of_admission', '<=', $dayBeforeMonthStart)
             ->where(function ($q) use ($monthStart) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $monthStart->format('Y-m-d'));
@@ -468,6 +471,7 @@ class AttendanceRegisterController extends Controller
         $monthAdmitted = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->whereIn('status', ['active', 'alumni'])
+            ->where('is_registered', true)
             ->whereBetween('date_of_admission', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])
             ->get();
 
@@ -484,6 +488,7 @@ class AttendanceRegisterController extends Controller
         $monthLeft = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->whereIn('status', ['active', 'alumni'])
+            ->where('is_registered', true)
             ->whereNotNull('leaving_date')
             ->whereBetween('leaving_date', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])
             ->get();

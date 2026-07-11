@@ -84,7 +84,17 @@
                 <span class="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">1</span>
                 વિદ્યાર્થીઓ પસંદ કરો
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="mb-4 flex items-center gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="selection_mode" value="filter" checked onchange="toggleSelectionMode()" class="text-violet-600 focus:ring-violet-500">
+                    <span class="text-sm font-medium text-gray-700">ધોરણ/વર્ગ ફિલ્ટર</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="selection_mode" value="manual" onchange="toggleSelectionMode()" class="text-violet-600 focus:ring-violet-500">
+                    <span class="text-sm font-medium text-gray-700">વિદ્યાર્થી પસંદ કરો</span>
+                </label>
+            </div>
+            <div id="filter-mode-fields" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-1.5">ધોરણ</label>
                     <select name="standard_id" id="standard_id" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
@@ -116,6 +126,24 @@
                     <input type="number" name="row_height" id="row_height" value="7" min="4" max="50" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
                 </div>
             </div>
+            <div class="mt-2 flex items-center gap-2">
+                <input type="checkbox" id="include_unregistered" name="include_unregistered" value="1" class="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
+                <label for="include_unregistered" class="text-sm text-gray-600 cursor-pointer">અનબોર્ડ (નોંધાયેલ ન હોય તેવા) વિદ્યાર્થીઓ પણ સામેલ કરો</label>
+            </div>
+            <div id="manual-mode-fields" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium text-gray-600">વિદ્યાર્થીઓ પસંદ કરો</label>
+                    <span id="student-select-count" class="text-xs text-gray-400">0 પસંદ</span>
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                    <button type="button" onclick="selectAllStudents()" class="px-3 py-1 text-xs font-medium text-violet-700 bg-violet-50 border border-violet-200 rounded-lg hover:bg-violet-100 transition">બધા પસંદ કરો</button>
+                    <button type="button" onclick="deselectAllStudents()" class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition">બધા અનપસંદ કરો</button>
+                </div>
+                <div id="student-list-container" class="border border-gray-200 rounded-lg max-h-60 overflow-y-auto bg-white">
+                    <div class="text-center py-6 text-sm text-gray-400">પહેલા ધોરણ અને વર્ગ પસંદ કરો</div>
+                </div>
+                <input type="hidden" name="student_ids" id="student_ids" value="">
+            </div>
         </div>
 
         {{-- Step 2: Columns --}}
@@ -138,11 +166,12 @@
                                 'system' => ['title_gu' => 'સિસ્ટમ', 'color' => 'gray'],
                                 'student' => ['title_gu' => 'વિદ્યાર્થી માહિતી', 'color' => 'indigo'],
                                 'relation' => ['title_gu' => 'સંબંધિત', 'color' => 'emerald'],
+                                'fee' => ['title_gu' => 'ફી માહિતી', 'color' => 'rose'],
                                 'computed' => ['title_gu' => 'ગણતરી કરેલ', 'color' => 'amber'],
                             ];
                             $grouped = [];
                             foreach ($fields as $f) {
-                                $g = $f['type'] === 'system' ? 'system' : ($f['type'] === 'student' ? 'student' : ($f['type'] === 'relation' ? 'relation' : 'computed'));
+                                $g = $f['type'] === 'system' ? 'system' : ($f['type'] === 'student' ? 'student' : ($f['type'] === 'relation' ? 'relation' : ($f['type'] === 'fee' ? 'fee' : 'computed')));
                                 $grouped[$g][] = $f;
                             }
                         @endphp
@@ -195,6 +224,22 @@
                         <button type="button" onclick="clearColumns()" class="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition flex items-center gap-1">
                             <i class="lni lni-xmark text-xs"></i> બધા દૂર કરો
                         </button>
+                    </div>
+
+                    {{-- Sort by column --}}
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                            <i class="lni lni-sort-alpha-asc text-violet-500"></i> કૉલમ મુજબ સૉર્ટ કરો
+                        </h4>
+                        <div class="flex items-center gap-3">
+                            <select id="sort_column" name="sort_column" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                                <option value="">— સૉર્ટ ન કરો —</option>
+                            </select>
+                            <select id="sort_direction" name="sort_direction" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                                <option value="asc">ઉતરતા (A-Z)</option>
+                                <option value="desc">ચડતા (Z-A)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -274,17 +319,41 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 let selectedColumns = [];
 let customColumns = {};  // key => { header_gu, header_en, width }
 let customColCounter = 0;
+let selectedStudentIds = [];
 
 // Field data for label lookup
 window.fieldData = @json($fields);
 
+function toggleSelectionMode() {
+    const mode = document.querySelector('input[name="selection_mode"]:checked').value;
+    document.getElementById('filter-mode-fields').classList.toggle('hidden', mode === 'manual');
+    document.getElementById('manual-mode-fields').classList.toggle('hidden', mode !== 'manual');
+    if (mode === 'manual' && typeof loadStudentList === 'function') {
+        loadStudentList();
+    }
+}
+
+function populateSortColumns() {
+    const sel = document.getElementById('sort_column');
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">— સૉર્ટ ન કરો —</option>';
+    selectedColumns.forEach(function (col) {
+        if (col.key === 'sr_no') return;
+        const opt = document.createElement('option');
+        opt.value = col.key;
+        opt.textContent = col.label_gu;
+        sel.appendChild(opt);
+    });
+    if (currentVal) sel.value = currentVal;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const dropZone = document.getElementById('dropZone');
-    const columnsInput = document.getElementById('columnsInput');
     const availableFields = document.getElementById('availableFields');
 
     // Drag start on available fields
@@ -368,6 +437,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Auto-close blank rows for filled type
     document.getElementById('blankRowsWrap').style.display = 'none';
+
+    // Standard/Class change -> load student list in manual mode
+    function loadStudentList() {
+        var mode = document.querySelector('input[name="selection_mode"]:checked').value;
+        if (mode !== 'manual') return;
+        var stdId = document.getElementById('standard_id').value;
+        var clsId = document.getElementById('class_id').value;
+        var container = document.getElementById('student-list-container');
+        if (!stdId && !clsId) {
+            container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">પહેલા ધોરણ અને વર્ગ પસંદ કરો</div>';
+            return;
+        }
+        container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400"><i class="lni lni-spinner-3 animate-spin"></i> લોડ થાય છે...</div>';
+        fetch('{{ route("custom-report.students-by-filter") }}', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ standard_id: stdId || null, class_id: clsId || null }),
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (!data.success || !data.students || data.students.length === 0) {
+                container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">કોઈ વિદ્યાર્થી મળ્યો નથી</div>';
+                return;
+            }
+            var html = '';
+            for (var si = 0; si < data.students.length; si++) {
+                var st = data.students[si];
+                var checked = selectedStudentIds.indexOf(st.id) !== -1;
+                html += '<label class="student-check-item flex items-center gap-3 px-3 py-2 hover:bg-violet-50 cursor-pointer border-b border-gray-100 last:border-0">'
+                      + '<input type="checkbox" class="student-checkbox text-violet-600 focus:ring-violet-500 rounded" data-id="' + st.id + '" ' + (checked ? 'checked' : '') + ' onchange="toggleStudent(' + st.id + ')">'
+                      + '<span class="text-sm font-medium text-gray-700">' + (st.full_name_gu || st.full_name_en || '') + '</span>'
+                      + '<span class="text-xs text-gray-400 font-mono ml-auto">' + (st.gr_number || '') + '</span>'
+                      + '</label>';
+            }
+            container.innerHTML = html;
+            updateStudentCount();
+        })
+        .catch(function () {
+            container.innerHTML = '<div class="text-center py-6 text-sm text-red-500">વિદ્યાર્થીઓ લોડ કરવામાં ભૂલ</div>';
+        });
+    }
+
+    document.getElementById('standard_id').addEventListener('change', function () {
+        loadStudentList();
+    });
+    document.getElementById('class_id').addEventListener('change', function () {
+        loadStudentList();
+    });
 });
 
 function addColumn(key, labelGu, labelEn) {
@@ -375,11 +492,11 @@ function addColumn(key, labelGu, labelEn) {
         NexSchool.alert.warning('આ કૉલમ પહેલેથી પસંદ કરેલ છે');
         return;
     }
-    // Find width from fieldData
     const field = window.fieldData ? window.fieldData.find(f => f.key === key) : null;
     const w = field ? field.width : 100;
     selectedColumns.push({ key, label_gu: labelGu, label_en: labelEn, width: w });
     renderColumns();
+    populateSortColumns();
 }
 
 function removeColumn(key) {
@@ -388,6 +505,7 @@ function removeColumn(key) {
         delete customColumns[key];
     }
     renderColumns();
+    populateSortColumns();
 }
 
 function clearColumns() {
@@ -396,7 +514,47 @@ function clearColumns() {
         selectedColumns = [];
         customColumns = {};
         renderColumns();
+        populateSortColumns();
     });
+}
+
+function updateStudentCount() {
+    var count = selectedStudentIds.length;
+    var el = document.getElementById('student-select-count');
+    if (el) el.textContent = count + ' પસંદ';
+    var input = document.getElementById('student_ids');
+    if (input) input.value = JSON.stringify(selectedStudentIds);
+}
+
+function toggleStudent(id) {
+    var idx = selectedStudentIds.indexOf(id);
+    if (idx === -1) {
+        selectedStudentIds.push(id);
+    } else {
+        selectedStudentIds.splice(idx, 1);
+    }
+    updateStudentCount();
+}
+
+function selectAllStudents() {
+    var checkboxes = document.querySelectorAll('.student-checkbox');
+    checkboxes.forEach(function (cb) {
+        var id = parseInt(cb.dataset.id);
+        if (selectedStudentIds.indexOf(id) === -1) {
+            selectedStudentIds.push(id);
+        }
+        cb.checked = true;
+    });
+    updateStudentCount();
+}
+
+function deselectAllStudents() {
+    var checkboxes = document.querySelectorAll('.student-checkbox');
+    checkboxes.forEach(function (cb) {
+        cb.checked = false;
+    });
+    selectedStudentIds = [];
+    updateStudentCount();
 }
 
 function openCustomColumnModal() {
@@ -509,8 +667,13 @@ function updateInputs() {
 }
 
 function generatePreview() {
-    // First update inputs to ensure latest state
     updateInputs();
+
+    var mode = document.querySelector('input[name="selection_mode"]:checked').value;
+    if (mode === 'manual' && selectedStudentIds.length === 0) {
+        NexSchool.alert.error('કૃપા કરીને ઓછામાં ઓછો એક વિદ્યાર્થી પસંદ કરો');
+        return;
+    }
 
     const form = document.getElementById('reportForm');
     const formData = new FormData(form);
@@ -531,6 +694,19 @@ function generatePreview() {
         });
     } catch (e) {
         formData.append('columns[]', '');
+    }
+
+    // Add sort
+    var sortCol = document.getElementById('sort_column').value;
+    var sortDir = document.getElementById('sort_direction').value;
+    if (sortCol) {
+        formData.append('sort_column', sortCol);
+        formData.append('sort_direction', sortDir);
+    }
+
+    // Add student IDs for manual mode
+    if (mode === 'manual') {
+        selectedStudentIds.forEach(function (sid) { formData.append('student_ids[]', sid); });
     }
 
     const btn = document.getElementById('generateBtn');

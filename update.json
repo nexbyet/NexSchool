@@ -1,7 +1,13 @@
 {
-    "version": "1.0.7",
-    "requires": "1.0.6",
-    "migrations": [],
+    "version": "1.0.8",
+    "requires": "1.0.7",
+    "migrations": [
+        "2026_07_11_100000_add_gaam_to_students_table",
+        "2026_07_11_200000_add_is_registered_to_students_table",
+        "2026_07_11_210000_create_bus_only_students_table",
+        "2026_07_11_210001_create_bus_only_fee_payments_table",
+        "2026_07_11_210002_add_bus_only_student_id_to_bus_attendances"
+    ],
     "delete_files": [],
     "post_update_commands": [
         "php artisan optimize:clear",

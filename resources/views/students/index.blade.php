@@ -37,7 +37,7 @@
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-5">
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
                 <i class="lni lni-user-multiple-4 text-indigo-600 text-lg"></i>
@@ -63,6 +63,15 @@
             <div>
                 <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">કુમારી</p>
                 <p class="text-xl font-bold text-red-600" id="stat-girls">{{ $totalGirls }}</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <i class="lni lni-cross-circle text-amber-600 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">અનબોર્ડ</p>
+                <p class="text-xl font-bold text-amber-700" id="stat-unregistered">{{ $totalUnregistered ?? 0 }}</p>
             </div>
         </div>
     </div>
@@ -116,6 +125,7 @@
                     <th class="text-left px-4 py-3.5 font-semibold">હાલનું ધોરણ</th>
                     <th class="text-left px-4 py-3.5 font-semibold">મોબાઇલ</th>
                     <th class="text-left px-4 py-3.5 font-semibold">સ્થિતિ</th>
+                    <th class="text-left px-4 py-3.5 font-semibold">નોંધણી</th>
                     <th class="text-center px-4 py-3.5 font-semibold">ક્રિયા</th>
                 </tr>
             </thead>
@@ -159,6 +169,13 @@
                             {{ $statusLabel[$s->status] ?? $s->status }}
                         </span>
                     </td>
+                    <td class="px-4 py-3">
+                        @if($s->is_registered)
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700"><i class="lni lni-check-circle-1 text-xs"></i> હા</span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-cross-circle text-xs"></i> અનબોર્ડ</span>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-center">
                         <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                             <a href="{{ url('students') }}/{{ $s->id }}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye"></i></a>
@@ -171,7 +188,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10" class="px-4 py-16 text-center">
+                    <td colspan="11" class="px-4 py-16 text-center">
                         <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl flex items-center justify-center shadow-sm">
                             <i class="lni lni-user-multiple-4 text-3xl text-indigo-400"></i>
                         </div>
@@ -235,6 +252,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">GR નંબર <span class="text-red-500">*</span></label>
                             <input type="text" id="gr_number" name="gr_number" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition font-mono">
+                            <p id="ur-preview" class="text-xs text-amber-600 font-medium mt-1 hidden">UR ઓટો જનરેટ થશે</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
+                            <label class="inline-flex items-center gap-2 cursor-pointer pt-1">
+                                <input type="checkbox" id="is_registered" name="is_registered" value="1" checked onchange="toggleRegistered(this)" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <span class="text-sm text-gray-700">નોંધાયેલ વિદ્યાર્થી</span>
+                            </label>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">પ્રવેશ ધોરણ <span class="text-red-500">*</span></label>
@@ -378,6 +403,16 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">વતન (English)</label>
                                 <input type="text" id="native_place_en" name="native_place_en" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            </div>
+                        </div>
+                        <div class="dual-lang">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ગામ (ગુજરાતી)</label>
+                                <input type="text" id="gaam" name="gaam" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ગામ (English)</label>
+                                <input type="text" id="gaam_en" name="gaam_en" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
                             </div>
                         </div>
                     </div>
@@ -725,9 +760,33 @@ document.getElementById('category_gu').addEventListener('change', function() {
     document.getElementById('minority-group').classList.toggle('hidden', this.value !== 'બક્ષીપંચ');
 });
 
-// Auto-digit-only for numeric fields
-['gr_number','mobile','whatsapp','apaar_id','uid_no','pen_no','aadhar_no'].forEach(id => {
+// Toggle registered/unregistered
+function toggleRegistered(cb) {
+    const grInput = document.getElementById('gr_number');
+    const urPreview = document.getElementById('ur-preview');
+    if (cb.checked) {
+        grInput.required = true;
+        grInput.disabled = false;
+        grInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+        urPreview.classList.add('hidden');
+    } else {
+        grInput.required = false;
+        grInput.disabled = true;
+        grInput.value = 'UR-XXXX';
+        grInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+        urPreview.classList.remove('hidden');
+    }
+}
+
+// Auto-digit-only for numeric fields (skip gr_number — it can be UR- for unregistered)
+['mobile','whatsapp','apaar_id','uid_no','pen_no','aadhar_no'].forEach(id => {
     document.getElementById(id).addEventListener('input', function() { this.value = this.value.replace(/\D/g,''); });
+});
+
+// UR number auto-digit — allow UR- prefix
+document.getElementById('gr_number').addEventListener('input', function() {
+    if (!document.getElementById('is_registered').checked) return;
+    this.value = this.value.replace(/\D/g,'');
 });
 
 // ===== CRUD Operations =====
@@ -800,6 +859,8 @@ function editStudent(id) {
         updateFullName();
         updateDobText();
         document.getElementById('category_gu').dispatchEvent(new Event('change'));
+        const regCb = document.getElementById('is_registered');
+        if (regCb) toggleRegistered(regCb);
         // Photo preview
         const preview = document.getElementById('photo-preview');
         if (data.photo) {
@@ -877,7 +938,7 @@ function loadStudents(page) {
 function renderTable(students) {
     const tbody = document.getElementById('student-table-body');
     if (!students.length) {
-        tbody.innerHTML = '<tr><td colspan="10" class="px-4 py-10 text-center text-gray-400">કોઈ વિદ્યાર્થી મળ્યા નહીં</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-10 text-center text-gray-400">કોઈ વિદ્યાર્થી મળ્યા નહીં</td></tr>';
         return;
     }
     tbody.innerHTML = students.map(s => {
@@ -898,6 +959,9 @@ function renderTable(students) {
             <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 rounded-md text-xs font-medium text-indigo-700"><i class="lni lni-buildings-1 text-xs"></i> ${s.current_standard ? s.current_standard.name : ''}</span></td>
             <td class="px-4 py-3 font-mono text-gray-600">${s.mobile || ''}</td>
             <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}"><i class="lni lni-${statusIcon(s.status)} text-xs"></i> ${statusLabel}</span></td>
+            <td class="px-4 py-3">${s.is_registered
+                ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700"><i class="lni lni-check-circle-1 text-xs"></i> હા</span>'
+                : '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-cross-circle text-xs"></i> અનબોર્ડ</span>'}</td>
             <td class="px-4 py-3 text-center">
                 <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                     <a href="/students/${s.id}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye"></i></a>
@@ -952,6 +1016,7 @@ function updateStats(stats) {
     if (el('stat-total')) el('stat-total').textContent = stats.total_active;
     if (el('stat-boys')) el('stat-boys').textContent = stats.total_boys;
     if (el('stat-girls')) el('stat-girls').textContent = stats.total_girls;
+    if (el('stat-unregistered')) el('stat-unregistered').textContent = stats.total_unregistered;
 }
 
 function goToPage(page) {

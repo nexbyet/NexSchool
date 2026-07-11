@@ -21,13 +21,27 @@ class StudentController extends Controller
         );
     }
 
+    protected function generateUrNumber(): string
+    {
+        $maxUr = Student::where('gr_number', 'LIKE', 'UR-%')
+            ->orderByRaw('LENGTH(gr_number) DESC, gr_number DESC')
+            ->value('gr_number');
+        $num = $maxUr ? (int) substr($maxUr, 3) + 1 : 1;
+        return 'UR-' . str_pad($num, 4, '0', STR_PAD_LEFT);
+    }
+
     public function store(Request $request)
     {
         $data = $this->validateStudent($request);
         $data['date_of_admission'] = Carbon::createFromFormat('d/m/Y', $data['date_of_admission'])->format('Y-m-d');
         $dob = Carbon::createFromFormat('d/m/Y', $data['date_of_birth']);
         $data['date_of_birth'] = $dob->format('Y-m-d');
+        $data['is_registered'] = $request->boolean('is_registered');
         $this->generateDobText($data, $dob);
+
+        if (!$data['is_registered']) {
+            $data['gr_number'] = $this->generateUrNumber();
+        }
 
         if ($request->hasFile('photo')) {
             $data['photo'] = $request->file('photo')->store('photos/students', 'public');
@@ -73,6 +87,7 @@ class StudentController extends Controller
         $data['date_of_admission'] = Carbon::createFromFormat('d/m/Y', $data['date_of_admission'])->format('Y-m-d');
         $dob = Carbon::createFromFormat('d/m/Y', $data['date_of_birth']);
         $data['date_of_birth'] = $dob->format('Y-m-d');
+        $data['is_registered'] = $request->boolean('is_registered');
         $this->generateDobText($data, $dob);
 
         if ($request->hasFile('photo')) {
@@ -82,7 +97,15 @@ class StudentController extends Controller
             $data['photo'] = $request->file('photo')->store('photos/students', 'public');
         }
 
+        if ($data['is_registered'] && str_starts_with($student->gr_number, 'UR-')) {
+            $data['gr_number'] = $request->input('gr_number');
+        }
+
         $student->update($data);
+
+        if ($student->user) {
+            $student->user->update(['username' => $data['gr_number'] ?? $student->gr_number]);
+        }
 
         return response()->json($student->load(['admissionStandard', 'admissionClass', 'currentStandard', 'currentClass']));
     }
@@ -120,9 +143,10 @@ class StudentController extends Controller
 
     private function validateStudent(Request $request, $ignoreId = null)
     {
+        $isRegistered = $request->boolean('is_registered');
         $unique = $ignoreId ? 'unique:students,gr_number,' . $ignoreId : 'unique:students,gr_number';
         return $request->validate([
-            'gr_number' => 'required|numeric|' . $unique,
+            'gr_number' => $isRegistered ? 'required|numeric|' . $unique : 'nullable|string',
             'admission_standard_id' => 'required|exists:standards,id',
             'admission_class_id' => 'nullable|exists:school_classes,id',
             'current_standard_id' => 'required|exists:standards,id',
@@ -145,6 +169,8 @@ class StudentController extends Controller
             'birth_place_en' => 'nullable|string|max:255',
             'native_place_gu' => 'nullable|string|max:255',
             'native_place_en' => 'nullable|string|max:255',
+            'gaam' => 'nullable|string|max:255',
+            'gaam_en' => 'nullable|string|max:255',
             'religion_gu' => 'nullable|in:હિન્દુ,મુસ્લિમ,શીખ,બૌદ્ધ,ઈસાઈ,પારસી',
             'religion_en' => 'nullable|in:Hindu,Muslim,Sikh,Buddhist,Christian,Parsi',
             'cast_gu' => 'nullable|string|max:255',

@@ -29,6 +29,7 @@
     .col-sr { width: 6mm; font-size: 7pt; }
     .col-mobile { font-size: 6.5pt; text-align: center !important; }
     .col-name { text-align: left !important; padding-left: 4px !important; min-width: 32mm; font-size: 8pt; }
+    .col-type { width: 8mm; font-size: 6.5pt; font-weight: 600; }
     .col-shift { width: 10mm; font-size: 6.5pt; font-weight: 600; }
     .col-date { width: 8mm; font-size: 7pt; }
     .morning { background: #f0f7ff; }
@@ -38,6 +39,9 @@
     .leave { font-weight: 600; color: #d97706; font-size: 8pt; }
     .shift-label-m { color: #1e40af; }
     .shift-label-e { color: #be123c; }
+    .type-regular { color: #1e40af; }
+    .type-unregistered { color: #d97706; }
+    .type-bus-only { color: #0d9488; }
 
     .blank td { height: 16px; }
 
@@ -92,9 +96,10 @@
     <thead>
         <tr>
             <th class="col-sr" rowspan="2">ક્રમ</th>
-            <th rowspan="2" style="min-width:12mm">GR</th>
+            <th rowspan="2" style="min-width:10mm">GR</th>
             <th rowspan="2" class="col-name">{{ $lang === 'gu' ? 'નામ' : 'Name' }}</th>
             <th rowspan="2" class="col-mobile">{{ $lang === 'gu' ? 'મોબાઇલ' : 'Mobile' }}</th>
+            <th rowspan="2" class="col-type">{{ $lang === 'gu' ? 'પ્રકાર' : 'Type' }}</th>
             <th rowspan="2" class="col-shift">{{ $lang === 'gu' ? 'પાળી' : 'Shift' }}</th>
             <th colspan="{{ $workingDays }}" style="font-size:6.5pt">{{ $monthName }} {{ $data['year'] }}</th>
         </tr>
@@ -106,16 +111,26 @@
     </thead>
     <tbody>
         @foreach($students as $index => $student)
+        @php
+            $typeClass = match($student['type']) {
+                'regular' => 'type-regular',
+                'unregistered' => 'type-unregistered',
+                'bus_only' => 'type-bus-only',
+                default => '',
+            };
+            $typeLabel = $student['type_label'] ?? $student['type'];
+        @endphp
         {{-- Morning row --}}
-        <tr class="morning" style="{{ $index % 2 === 0 ? '' : '' }}">
+        <tr class="morning">
             <td class="col-sr" rowspan="2" style="vertical-align:middle">{{ $index + 1 }}</td>
-            <td rowspan="2" style="vertical-align:middle;font-size:7pt">{{ $student->gr_number }}</td>
-            <td class="col-name" rowspan="2" style="vertical-align:middle">{{ $student->full_name_gu ?: $student->full_name_en }}</td>
-            <td class="col-mobile" rowspan="2" style="vertical-align:middle">{{ $student->mobile ?? ($student->whatsapp ?? '') }}</td>
+            <td rowspan="2" style="vertical-align:middle;font-size:7pt">{{ $student['gr_number'] }}</td>
+            <td class="col-name" rowspan="2" style="vertical-align:middle">{{ $student['name'] }}</td>
+            <td class="col-mobile" rowspan="2" style="vertical-align:middle">{{ $student['mobile'] }}</td>
+            <td rowspan="2" style="vertical-align:middle" class="{{ $typeClass }}">{{ $typeLabel }}</td>
             <td class="col-shift shift-label-m">{{ $lang === 'gu' ? 'આવક' : 'AM' }}</td>
             @foreach($workingDates as $d)
                 @php
-                    $key = $student->id . '-' . $d['dateKey'];
+                    $key = $student['display_id'] . '-' . $d['dateKey'];
                     $att = $attendances->get($key);
                     $val = $att ? $att->morning_status : null;
                 @endphp
@@ -131,11 +146,11 @@
             @endforeach
         </tr>
         {{-- Evening row --}}
-        <tr class="evening" style="{{ $index % 2 === 0 ? '' : '' }}">
+        <tr class="evening">
             <td class="col-shift shift-label-e">{{ $lang === 'gu' ? 'જાવક' : 'PM' }}</td>
             @foreach($workingDates as $d)
                 @php
-                    $key = $student->id . '-' . $d['dateKey'];
+                    $key = $student['display_id'] . '-' . $d['dateKey'];
                     $att = $attendances->get($key);
                     $val = $att ? $att->evening_status : null;
                 @endphp
@@ -159,6 +174,7 @@
             <td rowspan="2"></td>
             <td class="col-name" rowspan="2"></td>
             <td class="col-mobile" rowspan="2"></td>
+            <td rowspan="2"></td>
             <td class="col-shift shift-label-m">{{ $lang === 'gu' ? 'આવક' : 'AM' }}</td>
             @foreach($workingDates as $d)
             <td class="col-date"></td>

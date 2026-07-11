@@ -26,6 +26,7 @@ class DashboardController extends Controller
         $stats = [
             'students' => Student::where('status', 'active')->count(),
             'alumni' => Student::where('status', 'alumni')->count(),
+            'unregistered' => Student::where('is_registered', false)->count(),
             'teachers' => Teacher::count(),
             'classes' => SchoolClass::count(),
             'subjects' => Subject::count(),

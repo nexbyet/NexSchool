@@ -110,7 +110,9 @@ tbody td {
     <div class="report-subtitle">{{ $titleEn }}</div>
 @endif
 
-@if($standardName)
+@if(!empty($selectionLabel))
+    <div class="report-std-class">{{ $selectionLabel }}</div>
+@elseif($standardName)
     <div class="report-std-class">
         ધોરણ: <strong>{{ $standardName }}</strong>@if($className) — વર્ગ: <strong>{{ $className }}</strong>@endif
     </div>
@@ -161,8 +163,13 @@ tbody td {
                         'last_school_en' => 'Last School',
                         'birth_place_gu' => 'જન્મ સ્થળ',
                         'native_place_gu' => 'વતન',
+                        'gaam' => 'ગામ',
+                        'gaam_en' => 'Village',
                         'is_minority' => 'લઘુ.',
                         'admission_under_rte' => 'RTE',
+                        'total_fee' => 'કુલ ફી',
+                        'paid_fee' => 'ભરેલ ફી',
+                        'due_fee' => 'બાકી ફી',
                     ];
                     $header = $labels[$col] ?? $col;
                     // check if this key has a custom column header override

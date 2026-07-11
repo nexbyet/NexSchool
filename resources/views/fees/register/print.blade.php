@@ -129,7 +129,7 @@
             @foreach($registerData as $idx => $rd)
             @php
                 $student = $rd['student'];
-                $addr = $student->native_place_gu ?: ($student->native_place_en ?: ($student->birth_place_gu ?: ($student->birth_place_en ?? '')));
+                $addr = $student->gaam ?: ($student->gaam_en ?: ($student->native_place_gu ?: ($student->native_place_en ?? '')));
                 $mobile = $student->mobile ?? ($student->whatsapp ?? '');
                 $waived = $rd['is_waived'];
             @endphp

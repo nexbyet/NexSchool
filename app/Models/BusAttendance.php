@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class BusAttendance extends Model
 {
     protected $fillable = [
-        'student_id', 'route_id', 'date',
+        'student_id', 'bus_only_student_id', 'student_type',
+        'route_id', 'date',
         'morning_status', 'evening_status', 'notes',
     ];
 
@@ -18,6 +19,11 @@ class BusAttendance extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function busOnlyStudent()
+    {
+        return $this->belongsTo(BusOnlyStudent::class, 'bus_only_student_id');
     }
 
     public function route()

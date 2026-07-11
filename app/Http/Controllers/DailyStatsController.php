@@ -25,6 +25,7 @@ class DailyStatsController extends Controller
         $students = Student::where('current_standard_id', $standard->id)
             ->where('current_class_id', $class->id)
             ->where('status', 'active')
+            ->where('is_registered', true)
             ->where('date_of_admission', '<=', $date)
             ->where(function ($q) use ($date) {
                 $q->whereNull('leaving_date')->orWhere('leaving_date', '>=', $date);

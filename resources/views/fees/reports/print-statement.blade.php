@@ -19,7 +19,7 @@ td { font-size: 12px; padding: 6px 9px; border: 1px solid #d1d5db; }
 <body>
 <div class="school-name">{{ $school->school_name_gu ?? $school->school_name_en ?? 'NexSchool' }}</div>
 <h1>વિદ્યાર્થી ફી સ્ટેટમેન્ટ</h1>
-<p class="student-info">{{ $student->full_name_gu ?? $student->full_name_en }} (GR: {{ $student->gr_number }})</p>
+<p class="student-info">{{ $student->full_name_gu ?? $student->full_name_en }} (GR: {{ $student->gr_number }}{{ $student->mobile ? ' | મોબાઇલ: '.$student->mobile : '' }})</p>
 <p class="subtitle">{{ $academicYear->year }} — {{ $semLabel }} | {{ date('d/m/Y') }}</p>
 
 <div class="summary-grid">

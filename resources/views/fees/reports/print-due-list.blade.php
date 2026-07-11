@@ -48,6 +48,7 @@ td { font-size: 13px; padding: 6px 8px; border: 1px solid #d1d5db; word-break: k
     <th rowspan="2">GR</th>
     <th rowspan="2">નામ</th>
     <th rowspan="2">પિતાનું નામ</th>
+    <th rowspan="2">મોબાઇલ</th>
     <th rowspan="2">ધોરણ-વર્ગ</th>
     <th colspan="{{ count($cols) }}" class="text-center">બાકી ફી (ફી પ્રકાર મુજબ)</th>
     <th rowspan="2" class="text-right">કુલ બાકી</th>
@@ -65,6 +66,7 @@ td { font-size: 13px; padding: 6px 8px; border: 1px solid #d1d5db; word-break: k
     <td>{{ $sd->gr_number }}</td>
     <td>{{ $sd->full_name_gu ?? $sd->full_name_en }}</td>
     <td>{{ $sd->father_name_gu ?? $sd->father_name_en }}</td>
+    <td>{{ $sd->mobile ?? '' }}</td>
     <td>{{ $sd->student['current_standard']?->name ?? '' }} - {{ $sd->student['current_class']?->name ?? '' }}</td>
     @foreach($cols as $col)
         @php $entry = $sd->entries[$col['key']] ?? null; @endphp

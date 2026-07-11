@@ -174,6 +174,12 @@
             </div>
             <span class="text-sm text-slate-600">ભૂતપૂર્વ વિદ્યાર્થીઓ: <strong class="text-slate-800">{{ $stats['alumni'] ?? 0 }}</strong></span>
         </div>
+        <div class="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+            <div class="w-7 h-7 rounded-md bg-amber-200 flex items-center justify-center">
+                <i class="lni lni-cross-circle text-xs text-amber-700"></i>
+            </div>
+            <span class="text-sm text-amber-700">અનબોર્ડ (બિન-નોંધાયેલ): <strong class="text-amber-900">{{ $stats['unregistered'] ?? 0 }}</strong></span>
+        </div>
     </div>
 
     {{-- Standard × Class × Category Matrix Table --}}

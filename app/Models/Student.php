@@ -24,6 +24,7 @@ class Student extends Model
         'dob_in_text_gu', 'dob_in_text_en',
         'birth_place_gu', 'birth_place_en',
         'native_place_gu', 'native_place_en',
+        'gaam', 'gaam_en',
         'religion_gu', 'religion_en',
         'cast_gu', 'cast_en',
         'category_gu', 'category_en',
@@ -46,6 +47,7 @@ class Student extends Model
         'attendance_days',
         'leaving_remarks',
         'status',
+        'is_registered',
     ];
 
     public function admissionStandard()

@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicYear;
+use App\Models\FeePayment;
 use App\Models\SchoolClass;
 use App\Models\SchoolSetting;
 use App\Models\Standard;
 use App\Models\Student;
+use App\Models\StudentFee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CustomReportController extends Controller
 {
     protected $availableFields = [];
+    protected $feeData = [];
 
     public function __construct()
     {
@@ -52,8 +55,15 @@ class CustomReportController extends Controller
             ['key' => 'last_school_en', 'label_gu' => 'છેલ્લી શાળા (English)', 'label_en' => 'Last School (English)', 'type' => 'student', 'width' => 130],
             ['key' => 'birth_place_gu', 'label_gu' => 'જન્મ સ્થળ (ગુજરાતી)', 'label_en' => 'Birth Place (Gujarati)', 'type' => 'student', 'width' => 100],
             ['key' => 'native_place_gu', 'label_gu' => 'વતન (ગુજરાતી)', 'label_en' => 'Native Place (Gujarati)', 'type' => 'student', 'width' => 100],
+            ['key' => 'gaam', 'label_gu' => 'ગામ (ગુજરાતી)', 'label_en' => 'Village (Gujarati)', 'type' => 'student', 'width' => 100],
+            ['key' => 'gaam_en', 'label_gu' => 'ગામ (English)', 'label_en' => 'Village (English)', 'type' => 'student', 'width' => 100],
             ['key' => 'is_minority', 'label_gu' => 'લઘુમતી', 'label_en' => 'Minority', 'type' => 'student', 'width' => 50],
             ['key' => 'admission_under_rte', 'label_gu' => 'RTE', 'label_en' => 'RTE', 'type' => 'student', 'width' => 50],
+            ['key' => 'is_registered', 'label_gu' => 'નોંધાયેલ', 'label_en' => 'Registered', 'type' => 'student', 'width' => 50],
+            // Fee fields
+            ['key' => 'total_fee', 'label_gu' => 'કુલ ફી', 'label_en' => 'Total Fee', 'type' => 'fee', 'width' => 90],
+            ['key' => 'paid_fee', 'label_gu' => 'ભરેલ ફી', 'label_en' => 'Paid Fee', 'type' => 'fee', 'width' => 90],
+            ['key' => 'due_fee', 'label_gu' => 'બાકી ફી', 'label_en' => 'Due Fee', 'type' => 'fee', 'width' => 90],
         ];
     }
 
@@ -82,6 +92,12 @@ class CustomReportController extends Controller
             'custom_columns.*.header_gu' => 'nullable|string|max:255',
             'custom_columns.*.header_en' => 'nullable|string|max:255',
             'custom_columns.*.width' => 'nullable|integer|min:10|max:500',
+            'selection_mode' => 'nullable|in:filter,manual',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'integer|exists:students,id',
+            'sort_column' => 'nullable|string',
+            'sort_direction' => 'nullable|in:asc,desc',
+            'include_unregistered' => 'nullable|boolean',
             'standard_id' => 'nullable|exists:standards,id',
             'class_id' => 'nullable|exists:school_classes,id',
             'report_type' => 'required|in:filled,blank',
@@ -98,17 +114,10 @@ class CustomReportController extends Controller
         $columnWidths = $data['column_widths'] ?? [];
         $customColumns = $data['custom_columns'] ?? [];
         $rowHeight = (int) ($data['row_height'] ?? 7);
+        $selectionMode = $data['selection_mode'] ?? 'filter';
         $standardName = null;
         $className = null;
-
-        if (!empty($data['standard_id'])) {
-            $std = Standard::find($data['standard_id']);
-            $standardName = $std?->name;
-        }
-        if (!empty($data['class_id'])) {
-            $cls = SchoolClass::find($data['class_id']);
-            $className = $cls?->name;
-        }
+        $selectionLabel = '';
 
         $students = collect();
         $studentCount = 0;
@@ -117,21 +126,49 @@ class CustomReportController extends Controller
             $query = Student::with(['currentStandard', 'currentClass', 'admissionStandard'])
                 ->whereIn('status', ['active', 'alumni']);
 
-            if (!empty($data['standard_id'])) {
-                $query->where('current_standard_id', $data['standard_id']);
+            // Filter out unregistered students unless explicitly included
+            if (!$request->boolean('include_unregistered')) {
+                $query->where('is_registered', true);
             }
-            if (!empty($data['class_id'])) {
-                $query->where('current_class_id', $data['class_id']);
+
+            if ($selectionMode === 'manual' && !empty($data['student_ids'])) {
+                $query->whereIn('id', $data['student_ids']);
+                $selectionLabel = 'પસંદ કરેલ વિદ્યાર્થીઓ: ' . count($data['student_ids']);
+            } else {
+                if (!empty($data['standard_id'])) {
+                    $query->where('current_standard_id', $data['standard_id']);
+                    $std = Standard::find($data['standard_id']);
+                    $standardName = $std?->name;
+                }
+                if (!empty($data['class_id'])) {
+                    $query->where('current_class_id', $data['class_id']);
+                    $cls = SchoolClass::find($data['class_id']);
+                    $className = $cls?->name;
+                }
+                $selectionLabel = trim(($standardName ?? 'બધા ધોરણ') . ($className ? ' — ' . $className : ''));
             }
 
             $studentCount = $query->count();
             $query->defaultSort();
 
-            if ($studentCount > 500) {
+            if ($selectionMode !== 'manual' && $studentCount > 500) {
                 return response()->json([
                     'success' => false,
                     'message' => 'વિદ્યાર્થીઓની સંખ્યા 500 થી વધુ છે. કૃપા કરીને ધોરણ અથવા વર્ગ પસંદ કરો.',
                 ], 422);
+            }
+
+            if ($studentCount > 500) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'વિદ્યાર્થીઓની સંખ્યા 500 થી વધુ છે. કૃપા કરીને ઓછા વિદ્યાર્થીઓ પસંદ કરો.',
+                ], 422);
+            }
+
+            // Load fee data if any fee column is selected
+            $hasFeeFields = !empty(array_intersect($columns, ['total_fee', 'paid_fee', 'due_fee']));
+            if ($hasFeeFields) {
+                $this->loadFeeData($query->pluck('id')->toArray());
             }
 
             $students = $query->get()->map(function ($s) use ($columns) {
@@ -141,6 +178,26 @@ class CustomReportController extends Controller
                 }
                 return $row;
             });
+
+            // Sort by column
+            if (!empty($data['sort_column']) && in_array($data['sort_column'], $columns)) {
+                $direction = $data['sort_direction'] ?? 'asc';
+                $sortCol = $data['sort_column'];
+                $students = $students->sortBy(function ($row) use ($sortCol) {
+                    $val = $row[$sortCol] ?? '';
+                    // Try numeric sort if value looks like a number
+                    if (is_numeric($val)) {
+                        return (float) $val;
+                    }
+                    // Remove ₹ and commas for fee values
+                    $clean = str_replace(['₹', ',', ' '], '', $val);
+                    if (is_numeric($clean)) {
+                        return (float) $clean;
+                    }
+                    return mb_strtolower(trim($val), 'UTF-8');
+                }, SORT_REGULAR, $direction === 'desc');
+                $students = $students->values();
+            }
         } else {
             $studentCount = (int) ($data['blank_rows'] ?? 20);
             for ($i = 1; $i <= $studentCount; $i++) {
@@ -158,14 +215,52 @@ class CustomReportController extends Controller
 
         $html = view('custom-report.print', compact(
             'students', 'columns', 'hasSrNo', 'school', 'titleGu', 'titleEn', 'studentCount',
-            'columnWidths', 'customColumns', 'rowHeight', 'standardName', 'className'
+            'columnWidths', 'customColumns', 'rowHeight', 'standardName', 'className', 'selectionLabel'
         ))->render();
 
         return response()->json(['success' => true, 'html' => $html]);
     }
 
+    protected function loadFeeData(array $studentIds)
+    {
+        $yearId = AcademicYear::getActive()?->id;
+        if (!$yearId || empty($studentIds)) return;
+
+        $studentFees = StudentFee::whereIn('student_id', $studentIds)
+            ->where('academic_year_id', $yearId)
+            ->get();
+
+        if ($studentFees->isEmpty()) return;
+
+        $payments = FeePayment::whereIn('student_fee_id', $studentFees->pluck('id'))
+            ->select('student_fee_id', 'amount_paid')
+            ->get()
+            ->groupBy('student_fee_id');
+
+        $this->feeData = [];
+        foreach ($studentFees as $sf) {
+            $paid = ($payments->get($sf->id) ?? collect())->sum('amount_paid');
+            $due = max(0, $sf->net_amount - $paid);
+
+            if (!isset($this->feeData[$sf->student_id])) {
+                $this->feeData[$sf->student_id] = ['total_fee' => 0, 'paid_fee' => 0, 'due_fee' => 0];
+            }
+            $this->feeData[$sf->student_id]['total_fee'] += (float) $sf->net_amount;
+            $this->feeData[$sf->student_id]['paid_fee'] += (float) $paid;
+            $this->feeData[$sf->student_id]['due_fee'] += (float) $due;
+        }
+    }
+
     protected function getFieldValue($student, $key)
     {
+        $feeKeys = ['total_fee', 'paid_fee', 'due_fee'];
+        if (in_array($key, $feeKeys)) {
+            $data = $this->feeData[$student->id] ?? null;
+            if (!$data) return '—';
+            $val = $data[$key] ?? 0;
+            return '₹' . number_format($val, 2);
+        }
+
         return match ($key) {
             'gr_number' => $student->gr_number,
             'full_name_gu' => $student->full_name_gu,
@@ -201,8 +296,11 @@ class CustomReportController extends Controller
             'last_school_en' => $student->last_school_en,
             'birth_place_gu' => $student->birth_place_gu,
             'native_place_gu' => $student->native_place_gu,
+            'gaam' => $student->gaam,
+            'gaam_en' => $student->gaam_en,
             'is_minority' => $student->is_minority ? '✓' : '',
             'admission_under_rte' => $student->admission_under_rte ? '✓' : '',
+            'is_registered' => $student->is_registered ? 'ના' : 'ના (અનબોર્ડ)',
             default => '',
         };
     }
@@ -214,5 +312,61 @@ class CustomReportController extends Controller
             ->orderBy('sort_order')
             ->get(['id', 'name']);
         return response()->json($classes);
+    }
+
+    public function searchStudents(Request $request)
+    {
+        $search = $request->input('search', '');
+        $query = Student::whereIn('status', ['active', 'alumni']);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('gr_number', 'LIKE', "%{$search}%")
+                  ->orWhere('full_name_gu', 'LIKE', "%{$search}%")
+                  ->orWhere('full_name_en', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $students = $query->orderBy('full_name_gu')->limit(50)->get()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'gr_number' => $s->gr_number,
+                'full_name_gu' => $s->full_name_gu,
+                'full_name_en' => $s->full_name_en,
+            ];
+        });
+
+        return response()->json(['success' => true, 'students' => $students]);
+    }
+
+    public function getStudentsByFilter(Request $request)
+    {
+        $standardId = $request->input('standard_id');
+        $classId = $request->input('class_id');
+
+        $query = Student::whereIn('status', ['active', 'alumni'])
+            ->with('currentStandard', 'currentClass');
+
+        if (!empty($standardId)) {
+            $query->where('current_standard_id', $standardId);
+        }
+        if (!empty($classId)) {
+            $query->where('current_class_id', $classId);
+        }
+
+        if (empty($standardId) && empty($classId)) {
+            return response()->json(['success' => true, 'students' => []]);
+        }
+
+        $students = $query->orderBy('gr_number')->limit(300)->get()->map(function ($s) {
+            return [
+                'id' => $s->id,
+                'gr_number' => $s->gr_number,
+                'full_name_gu' => $s->full_name_gu,
+                'full_name_en' => $s->full_name_en,
+            ];
+        });
+
+        return response()->json(['success' => true, 'students' => $students]);
     }
 }

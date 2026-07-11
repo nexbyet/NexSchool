@@ -52,6 +52,7 @@ use App\Http\Controllers\CustomReportController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\StudentRouteController;
 use App\Http\Controllers\BusAttendanceController;
+use App\Http\Controllers\BusOnlyStudentController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\TeacherDashboardController;
@@ -227,6 +228,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/custom', [CustomReportController::class, 'index'])->name('custom-report.index');
         Route::post('/reports/custom/preview', [CustomReportController::class, 'preview'])->name('custom-report.preview');
         Route::get('/reports/custom/classes/{standard}', [CustomReportController::class, 'getClasses'])->name('custom-report.classes');
+        Route::post('/reports/custom/search-students', [CustomReportController::class, 'searchStudents'])->name('custom-report.search-students');
+        Route::post('/reports/custom/students-by-filter', [CustomReportController::class, 'getStudentsByFilter'])->name('custom-report.students-by-filter');
     });
 
     // School Settings (Admin only)
@@ -326,6 +329,19 @@ Route::middleware('auth')->group(function () {
         Route::post('attendance/mark', [BusAttendanceController::class, 'mark'])->name('bus-attendance.mark');
         Route::get('attendance/print', [BusAttendanceController::class, 'print'])->name('bus-attendance.print');
         Route::get('timetable', [RouteController::class, 'showTimetable'])->name('routes.timetable');
+
+        // Bus-Only Students ( બીજી શાળાના બસ વિદ્યાર્થીઓ )
+        Route::get('bus-students', [BusOnlyStudentController::class, 'index'])->name('bus-students.index');
+        Route::post('bus-students/data', [BusOnlyStudentController::class, 'fetchData'])->name('bus-students.data');
+        Route::post('bus-students', [BusOnlyStudentController::class, 'store'])->name('bus-students.store');
+        Route::get('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'show'])->name('bus-students.show');
+        Route::put('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'update'])->name('bus-students.update');
+        Route::delete('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'destroy'])->name('bus-students.destroy');
+        Route::post('bus-students/pay-fee', [BusOnlyStudentController::class, 'payFee'])->name('bus-students.pay-fee');
+        Route::get('bus-students/due-list', [BusOnlyStudentController::class, 'dueList'])->name('bus-students.due-list');
+        Route::get('bus-students/print-due-list', [BusOnlyStudentController::class, 'printDueList'])->name('bus-students.print-due-list');
+        Route::get('bus-students/print-route-list', [BusOnlyStudentController::class, 'printRouteList'])->name('bus-students.print-route-list');
+        Route::get('bus-students/routes', [BusOnlyStudentController::class, 'getRoutes'])->name('bus-students.routes');
         Route::get('timetable/print', [RouteController::class, 'printTimetable'])->name('routes.timetable.print');
     });
 

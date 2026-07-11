@@ -133,6 +133,7 @@ class FeeReportController extends Controller
             'students.gr_number',
             'students.full_name_gu',
             'students.full_name_en',
+            'students.mobile',
             'students.father_name_gu',
             'students.father_name_en',
             'students.current_standard_id',
@@ -158,6 +159,7 @@ class FeeReportController extends Controller
                     'gr_number' => $sf->gr_number,
                     'full_name_gu' => $sf->full_name_gu,
                     'full_name_en' => $sf->full_name_en,
+                    'mobile' => $sf->mobile,
                     'father_name_gu' => $sf->father_name_gu,
                     'father_name_en' => $sf->father_name_en,
                     'current_standard_id' => $sf->current_standard_id,
@@ -268,6 +270,7 @@ class FeeReportController extends Controller
                 'gr_number' => $s->gr_number,
                 'full_name_gu' => $s->full_name_gu,
                 'full_name_en' => $s->full_name_en,
+                'mobile' => $s->mobile,
             ];
         });
 
@@ -416,6 +419,7 @@ class FeeReportController extends Controller
         $rows = $query->select(
             'student_fees.*',
             'students.gr_number', 'students.full_name_gu', 'students.full_name_en',
+            'students.mobile',
             'students.father_name_gu', 'students.father_name_en',
             'students.current_standard_id', 'students.current_class_id'
         )->get();
@@ -439,6 +443,7 @@ class FeeReportController extends Controller
                     'gr_number' => $sf->gr_number,
                     'full_name_gu' => $sf->full_name_gu,
                     'full_name_en' => $sf->full_name_en,
+                    'mobile' => $sf->mobile,
                     'father_name_gu' => $sf->father_name_gu,
                     'father_name_en' => $sf->father_name_en,
                     'current_standard_id' => $sf->current_standard_id,

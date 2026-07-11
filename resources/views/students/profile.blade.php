@@ -90,6 +90,10 @@
                         <p class="text-sm font-medium text-gray-800">{{ $student->native_place_gu ?? '—' }}</p>
                     </div>
                     <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">ગામ</label>
+                        <p class="text-sm font-medium text-gray-800">{{ $student->gaam ?? '—' }}</p>
+                    </div>
+                    <div>
                         <label class="block text-xs font-medium text-gray-400 mb-1">શરીરક જાતિ</label>
                         <p class="text-sm font-medium text-gray-800">{{ $student->sharirik_jaati === 'kumar' ? 'કુમાર' : ($student->sharirik_jaati === 'kumari' ? 'કુમારી' : '—') }}</p>
                     </div>
@@ -141,6 +145,16 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">GR નંબર</label>
                     <p class="text-sm font-medium text-gray-800">{{ $student->gr_number }}</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">નોંધણી</label>
+                    <p class="text-sm font-medium">
+                        @if($student->is_registered)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">નોંધાયેલ</span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">અનબોર્ડ</span>
+                        @endif
+                    </p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">હાલનું ધોરણ</label>

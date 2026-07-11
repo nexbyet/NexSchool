@@ -30,6 +30,7 @@ td { font-size: 12px; padding: 5px 7px; border: 1px solid #d1d5db; }
     <th>રસીદ #</th>
     <th>વિદ્યાર્થી</th>
     <th>GR</th>
+    <th>મોબાઇલ</th>
     <th>ધોરણ-વર્ગ</th>
     <th>સત્ર</th>
     <th class="text-right">રકમ</th>
@@ -45,6 +46,7 @@ td { font-size: 12px; padding: 5px 7px; border: 1px solid #d1d5db; }
     <td>{{ $p->receipt_number ?? '—' }}</td>
     <td>{{ $p->student?->full_name_gu ?? $p->student?->full_name_en ?? '—' }}</td>
     <td>{{ $p->student?->gr_number ?? '—' }}</td>
+    <td>{{ $p->student?->mobile ?? '' }}</td>
     <td>{{ $p->student?->currentStandard?->name ?? '' }} - {{ $p->student?->currentClass?->name ?? '' }}</td>
     <td>@if($p->semester)સત્ર {{ $p->semester }}@else—@endif</td>
     <td class="text-right font-bold text-green">₹{{ number_format($p->amount_paid, 2) }}</td>
@@ -56,7 +58,7 @@ td { font-size: 12px; padding: 5px 7px; border: 1px solid #d1d5db; }
 </tbody>
 <tfoot>
 <tr style="font-weight:700;background:#f3f4f6">
-    <td colspan="6" class="text-right">કુલ</td>
+    <td colspan="7" class="text-right">કુલ</td>
     <td class="text-right text-green">₹{{ number_format($totalAmount, 2) }}</td>
     <td colspan="3"></td>
 </tr>
