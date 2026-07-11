@@ -416,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     opt.value = c.id;
                     opt.textContent = c.name;
                     clsSelect.appendChild(opt);
-                });
-            });
+});
+
     });
 
     // Report type toggle
@@ -444,7 +444,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('class_id').addEventListener('change', function () {
         loadStudentList();
     });
-});
 });
 
 function loadStudentList() {

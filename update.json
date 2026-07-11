@@ -1,6 +1,6 @@
 {
-    "version": "1.0.9",
-    "requires": "1.0.8",
+    "version": "1.1.0",
+    "requires": "1.0.9",
     "migrations": [
         "2026_07_11_100000_add_gaam_to_students_table",
         "2026_07_11_200000_add_is_registered_to_students_table",
