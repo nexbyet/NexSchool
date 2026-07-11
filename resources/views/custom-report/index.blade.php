@@ -333,7 +333,7 @@ function toggleSelectionMode() {
     const mode = document.querySelector('input[name="selection_mode"]:checked').value;
     document.getElementById('filter-mode-fields').classList.toggle('hidden', mode === 'manual');
     document.getElementById('manual-mode-fields').classList.toggle('hidden', mode !== 'manual');
-    if (mode === 'manual' && typeof loadStudentList === 'function') {
+    if (mode === 'manual') {
         loadStudentList();
     }
 }
@@ -438,47 +438,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-close blank rows for filled type
     document.getElementById('blankRowsWrap').style.display = 'none';
 
-    // Standard/Class change -> load student list in manual mode
-    function loadStudentList() {
-        var mode = document.querySelector('input[name="selection_mode"]:checked').value;
-        if (mode !== 'manual') return;
-        var stdId = document.getElementById('standard_id').value;
-        var clsId = document.getElementById('class_id').value;
-        var container = document.getElementById('student-list-container');
-        if (!stdId && !clsId) {
-            container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">પહેલા ધોરણ અને વર્ગ પસંદ કરો</div>';
-            return;
-        }
-        container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400"><i class="lni lni-spinner-3 animate-spin"></i> લોડ થાય છે...</div>';
-        fetch('{{ route("custom-report.students-by-filter") }}', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ standard_id: stdId || null, class_id: clsId || null }),
-        })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (!data.success || !data.students || data.students.length === 0) {
-                container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">કોઈ વિદ્યાર્થી મળ્યો નથી</div>';
-                return;
-            }
-            var html = '';
-            for (var si = 0; si < data.students.length; si++) {
-                var st = data.students[si];
-                var checked = selectedStudentIds.indexOf(st.id) !== -1;
-                html += '<label class="student-check-item flex items-center gap-3 px-3 py-2 hover:bg-violet-50 cursor-pointer border-b border-gray-100 last:border-0">'
-                      + '<input type="checkbox" class="student-checkbox text-violet-600 focus:ring-violet-500 rounded" data-id="' + st.id + '" ' + (checked ? 'checked' : '') + ' onchange="toggleStudent(' + st.id + ')">'
-                      + '<span class="text-sm font-medium text-gray-700">' + (st.full_name_gu || st.full_name_en || '') + '</span>'
-                      + '<span class="text-xs text-gray-400 font-mono ml-auto">' + (st.gr_number || '') + '</span>'
-                      + '</label>';
-            }
-            container.innerHTML = html;
-            updateStudentCount();
-        })
-        .catch(function () {
-            container.innerHTML = '<div class="text-center py-6 text-sm text-red-500">વિદ્યાર્થીઓ લોડ કરવામાં ભૂલ</div>';
-        });
-    }
-
     document.getElementById('standard_id').addEventListener('change', function () {
         loadStudentList();
     });
@@ -486,6 +445,47 @@ document.addEventListener('DOMContentLoaded', function () {
         loadStudentList();
     });
 });
+});
+
+function loadStudentList() {
+    var mode = document.querySelector('input[name="selection_mode"]:checked').value;
+    if (mode !== 'manual') return;
+    var stdId = document.getElementById('standard_id').value;
+    var clsId = document.getElementById('class_id').value;
+    var container = document.getElementById('student-list-container');
+    if (!stdId && !clsId) {
+        container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">પહેલા ધોરણ અને વર્ગ પસંદ કરો</div>';
+        return;
+    }
+    container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400"><i class="lni lni-spinner-3 animate-spin"></i> લોડ થાય છે...</div>';
+    fetch('{{ route("custom-report.students-by-filter") }}', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ standard_id: stdId || null, class_id: clsId || null }),
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+        if (!data.success || !data.students || data.students.length === 0) {
+            container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">કોઈ વિદ્યાર્થી મળ્યો નથી</div>';
+            return;
+        }
+        var html = '';
+        for (var si = 0; si < data.students.length; si++) {
+            var st = data.students[si];
+            var checked = selectedStudentIds.indexOf(st.id) !== -1;
+            html += '<label class="student-check-item flex items-center gap-3 px-3 py-2 hover:bg-violet-50 cursor-pointer border-b border-gray-100 last:border-0">'
+                  + '<input type="checkbox" class="student-checkbox text-violet-600 focus:ring-violet-500 rounded" data-id="' + st.id + '" ' + (checked ? 'checked' : '') + ' onchange="toggleStudent(' + st.id + ')">'
+                  + '<span class="text-sm font-medium text-gray-700">' + (st.full_name_gu || st.full_name_en || '') + '</span>'
+                  + '<span class="text-xs text-gray-400 font-mono ml-auto">' + (st.gr_number || '') + '</span>'
+                  + '</label>';
+        }
+        container.innerHTML = html;
+        updateStudentCount();
+    })
+    .catch(function () {
+        container.innerHTML = '<div class="text-center py-6 text-sm text-red-500">વિદ્યાર્થીઓ લોડ કરવામાં ભૂલ</div>';
+    });
+}
 
 function addColumn(key, labelGu, labelEn) {
     if (selectedColumns.some(c => c.key === key)) {

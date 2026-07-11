@@ -29,8 +29,8 @@
             <button onclick="loadStudents()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition"><i class="lni lni-search-1 text-xs"></i> શોધો</button>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('bus-students.due-list') }}" class="px-3 py-2 bg-amber-500 text-white text-xs font-medium rounded-lg hover:bg-amber-600 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> બાકી યાદી</a>
-            <a href="{{ route('bus-students.print-route-list') }}" target="_blank" class="px-3 py-2 bg-indigo-500 text-white text-xs font-medium rounded-lg hover:bg-indigo-600 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> રૂટ યાદી</a>
+            <a href="{{ route('transport.bus-students.due-list') }}" class="px-3 py-2 bg-amber-500 text-white text-xs font-medium rounded-lg hover:bg-amber-600 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> બાકી યાદી</a>
+            <a href="{{ route('transport.bus-students.print-route-list') }}" target="_blank" class="px-3 py-2 bg-indigo-500 text-white text-xs font-medium rounded-lg hover:bg-indigo-600 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> રૂટ યાદી</a>
         </div>
     </div>
 
@@ -238,7 +238,7 @@ document.getElementById('student-form').addEventListener('submit', function(e) {
     btn.disabled = true;
     btn.textContent = 'સાચવાઈ રહ્યું છે...';
     const id = document.getElementById('student-id').value;
-    const url = id ? '/bus-students/' + id : '/bus-students';
+    const url = id ? '/transport/bus-students/' + id : '/transport/bus-students';
     const method = id ? 'PUT' : 'POST';
     const data = new FormData(this);
     if (id) data.append('_method', 'PUT');
@@ -259,7 +259,7 @@ document.getElementById('student-form').addEventListener('submit', function(e) {
 });
 
 function editStudent(id) {
-    fetch('/bus-students/' + id, { headers: { 'Accept': 'application/json' } })
+    fetch('/transport/bus-students/' + id, { headers: { 'Accept': 'application/json' } })
     .then(res => res.json())
     .then(data => {
         openModal(data);
@@ -277,7 +277,7 @@ function editStudent(id) {
 function deleteStudent(id) {
     NexSchool.confirm.show('ખાતરી કરો', 'શું તમે આ બસ વિદ્યાર્થીને કાઢી નાખવા માંગો છો?', 'danger')
     .then(() => {
-        fetch('/bus-students/' + id, {
+        fetch('/transport/bus-students/' + id, {
             method: 'DELETE',
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         })
@@ -302,7 +302,7 @@ document.getElementById('fee-form').addEventListener('submit', function(e) {
     btn.disabled = true;
     btn.textContent = 'સેવ થાય છે...';
     const data = new FormData(this);
-    fetch('/bus-students/pay-fee', {
+    fetch('/transport/bus-students/pay-fee', {
         method: 'POST', body: data,
         headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
     })
@@ -321,7 +321,7 @@ document.getElementById('fee-form').addEventListener('submit', function(e) {
 function loadStudents() {
     const routeId = document.getElementById('filter-route').value;
     const search = document.getElementById('filter-search').value.trim();
-    let url = '{{ route("bus-students.data") }}?';
+    let url = '{{ route("transport.bus-students.data") }}?';
     if (routeId) url += 'route_id=' + routeId + '&';
     if (search) url += 'search=' + encodeURIComponent(search);
     fetch(url, { headers: { 'Accept': 'application/json' } })

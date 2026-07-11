@@ -19,9 +19,9 @@
         };
         $whole = floor($num); $frac = round(($num - $whole) * 100);
         $words = '';
-        if ($whole >= 10000000) { $words .= $guDigits[floor($whole/10000000)] . ' કરોડ '; $whole %= 10000000; }
-        if ($whole >= 100000) { $words .= $guDigits[floor($whole/100000)] . ' લાખ '; $whole %= 100000; }
-        if ($whole >= 1000) { $words .= $guDigits[floor($whole/1000)] . ' હજાર '; $whole %= 1000; }
+        if ($whole >= 10000000) { $words .= $w(floor($whole/10000000)) . ' કરોડ '; $whole %= 10000000; }
+        if ($whole >= 100000) { $words .= $w(floor($whole/100000)) . ' લાખ '; $whole %= 100000; }
+        if ($whole >= 1000) { $words .= $w(floor($whole/1000)) . ' હજાર '; $whole %= 1000; }
         $words .= $w($whole);
         $words = trim($words) . ' રૂપિયા';
         if ($frac > 0) $words .= ' અને ' . $w($frac) . ' પૈસા';

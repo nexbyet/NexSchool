@@ -10,7 +10,7 @@
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-5 flex flex-wrap items-center justify-between gap-3">
-        <form method="GET" action="{{ route('bus-students.due-list') }}" class="flex items-center gap-3">
+        <form method="GET" action="{{ route('transport.bus-students.due-list') }}" class="flex items-center gap-3">
             <select name="route_id" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" onchange="this.form.submit()">
                 <option value="">બધા રૂટ</option>
                 @foreach($routes as $r)
@@ -18,7 +18,7 @@
                 @endforeach
             </select>
         </form>
-        <a href="{{ route('bus-students.print-due-list', request()->all()) }}" target="_blank" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> પ્રિન્ટ</a>
+        <a href="{{ route('transport.bus-students.print-due-list', request()->all()) }}" target="_blank" class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition flex items-center gap-1"><i class="lni lni-printer text-xs"></i> પ્રિન્ટ</a>
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
