@@ -416,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     opt.value = c.id;
                     opt.textContent = c.name;
                     clsSelect.appendChild(opt);
-});
-
+                });
+            });
     });
 
     // Report type toggle
