@@ -29,19 +29,19 @@
     }
 
     table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #000; padding: 3px 3px; text-align: center; vertical-align: middle; }
+    th, td { border: 1px solid #000; padding: 2px 2px; text-align: center; vertical-align: middle; }
     th { background: #d1d5db; font-weight: 700; font-size: 8pt; }
     thead tr:first-child th { border-bottom: 3px solid #000; }
 
-    .col-sr { width: 7mm; font-size: 7pt; }
-    .col-name { text-align: left !important; padding-left: 4px !important; min-width: 36mm; max-width: 44mm; font-size: 9pt; }
-    .col-addr { text-align: left !important; padding-left: 4px !important; min-width: 16mm; max-width: 20mm; font-size: 7.5pt; }
-    .col-mobile { width: 16mm; font-size: 8pt; }
-    .col-amount { width: 16mm; font-size: 8pt; text-align: center !important; font-weight: 600; }
-    .col-pay { width: 14mm; font-size: 7pt; }
-    .col-balance { width: 14mm; font-size: 10pt; text-align: center !important; font-weight: 800; }
-    .pay-receipt { font-size: 5.5pt; color: #444; display: block; }
-    .pay-amount { font-size: 7.5pt; font-weight: 700; display: block; }
+    .col-sr { width: 6mm; font-size: 7pt; }
+    .col-name { text-align: left !important; padding-left: 3px !important; min-width: 30mm; max-width: 36mm; font-size: 8.5pt; }
+    .col-addr { text-align: left !important; padding-left: 3px !important; min-width: 12mm; max-width: 16mm; font-size: 7pt; }
+    .col-mobile { width: 13mm; font-size: 7.5pt; }
+    .col-amount { width: 18mm; font-size: 8pt; text-align: center !important; font-weight: 600; }
+    .col-pay { width: 17mm; font-size: 7pt; }
+    .col-balance { width: 18mm; font-size: 10pt; text-align: center !important; font-weight: 800; }
+    .pay-receipt { font-size: 5pt; color: #444; display: block; line-height: 1.1; }
+    .pay-amount { font-size: 7pt; font-weight: 700; display: block; line-height: 1.2; }
     .waived-badge { display: inline-block; background: #059669; color: #fff; font-weight: 700; font-size: 6.5pt; padding: 1px 6px; border-radius: 2px; }
     .trans-bg { background: #fffbeb; }
 

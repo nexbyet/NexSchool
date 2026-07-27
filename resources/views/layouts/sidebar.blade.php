@@ -191,9 +191,13 @@ $userRole = auth()->user()->role;
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('transport.bus-attendance*')) bg-emerald-500 @else bg-gray-300 @endif"></span>
                     બસ હાજરી
                 </a>
-                <a href="{{ route('transport.bus-students.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('transport.bus-students*')) bg-emerald-50 text-emerald-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
-                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('transport.bus-students*')) bg-emerald-500 @else bg-gray-300 @endif"></span>
+                <a href="{{ route('transport.bus-students.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('transport.bus-students*') && !request()->routeIs('transport.bus-students.fee-collection*')) bg-emerald-50 text-emerald-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('transport.bus-students*') && !request()->routeIs('transport.bus-students.fee-collection*')) bg-emerald-500 @else bg-gray-300 @endif"></span>
                     બીજી શાળાના બસ વિદ્યાર્થીઓ
+                </a>
+                <a href="{{ route('transport.bus-students.fee-collection') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('transport.bus-students.fee-collection*')) bg-emerald-50 text-emerald-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('transport.bus-students.fee-collection*')) bg-emerald-500 @else bg-gray-300 @endif"></span>
+                    બસ ફી વસૂલાત
                 </a>
                 <a href="{{ route('transport.routes.timetable') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('transport.routes.timetable*')) bg-emerald-50 text-emerald-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-800 @endif">
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('transport.routes.timetable*')) bg-emerald-500 @else bg-gray-300 @endif"></span>

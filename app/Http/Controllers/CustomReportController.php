@@ -132,8 +132,9 @@ class CustomReportController extends Controller
         }
 
         $pdf = Pdf::loadView('custom-report.pdf', $report);
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->setOptions(['defaultFont' => 'Anek Gujarati', 'isRemoteEnabled' => true]);
+        $orientation = $report['pageOrientation'] ?? 'landscape';
+        $pdf->setPaper('A4', $orientation);
+        $pdf->setOptions(['defaultFont' => 'DejaVu Sans', 'isRemoteEnabled' => true]);
 
         $filename = 'custom-report-' . now()->format('Ymd_His') . '.pdf';
 
@@ -164,6 +165,7 @@ class CustomReportController extends Controller
             'title_gu' => 'nullable|string|max:255',
             'title_en' => 'nullable|string|max:255',
             'row_height' => 'nullable|integer|min:4|max:50',
+            'page_orientation' => 'nullable|in:landscape,portrait',
         ]);
 
         $columns = $data['columns'];
@@ -173,6 +175,7 @@ class CustomReportController extends Controller
         $columnWidths = $data['column_widths'] ?? [];
         $customColumns = $data['custom_columns'] ?? [];
         $rowHeight = (int) ($data['row_height'] ?? 7);
+        $pageOrientation = $data['page_orientation'] ?? 'landscape';
         $selectionMode = $data['selection_mode'] ?? 'filter';
         $standardName = null;
         $className = null;
@@ -269,7 +272,7 @@ class CustomReportController extends Controller
 
         return compact(
             'students', 'columns', 'hasSrNo', 'school', 'titleGu', 'titleEn', 'studentCount',
-            'columnWidths', 'customColumns', 'rowHeight', 'standardName', 'className', 'selectionLabel'
+            'columnWidths', 'customColumns', 'rowHeight', 'pageOrientation', 'standardName', 'className', 'selectionLabel'
         );
     }
 

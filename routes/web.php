@@ -341,6 +341,11 @@ Route::middleware('auth')->group(function () {
         Route::get('bus-students/routes', [BusOnlyStudentController::class, 'getRoutes'])->name('bus-students.routes');
         Route::post('bus-students', [BusOnlyStudentController::class, 'store'])->name('bus-students.store');
         Route::post('bus-students/pay-fee', [BusOnlyStudentController::class, 'payFee'])->name('bus-students.pay-fee');
+        Route::get('bus-students/fee-collection', [BusOnlyStudentController::class, 'feeCollection'])->name('bus-students.fee-collection');
+        Route::get('bus-students/fee-collection/data', [BusOnlyStudentController::class, 'getCollectionData'])->name('bus-students.fee-collection.data');
+        Route::post('bus-students/fee-collection/pay', [BusOnlyStudentController::class, 'collectFee'])->name('bus-students.fee-collection.pay');
+        Route::get('bus-students/fee-collection/receipt', [BusOnlyStudentController::class, 'receipt'])->name('bus-students.fee-collection.receipt');
+        Route::post('bus-students/fee-collection/history', [BusOnlyStudentController::class, 'history'])->name('bus-students.fee-collection.history');
         Route::get('bus-students', [BusOnlyStudentController::class, 'index'])->name('bus-students.index');
         Route::get('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'show'])->name('bus-students.show');
         Route::put('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'update'])->name('bus-students.update');

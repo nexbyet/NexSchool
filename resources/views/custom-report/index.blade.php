@@ -125,6 +125,13 @@
                     <label class="block text-sm font-medium text-gray-600 mb-1.5">હરોળ ઊંચાઈ (mm)</label>
                     <input type="number" name="row_height" id="row_height" value="7" min="4" max="50" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">પેજ દિશા</label>
+                    <select name="page_orientation" id="page_orientation" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                        <option value="landscape">Landscape (આડું)</option>
+                        <option value="portrait">Portrait (ઊભું)</option>
+                    </select>
+                </div>
             </div>
             <div class="mt-2 flex items-center gap-2">
                 <input type="checkbox" id="include_unregistered" name="include_unregistered" value="1" class="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">

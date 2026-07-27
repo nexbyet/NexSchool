@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @page {
-    size: A4 landscape;
+    size: A4 {{ $pageOrientation ?? 'landscape' }};
     margin: 15mm 12mm;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }

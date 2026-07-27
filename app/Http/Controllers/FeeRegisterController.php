@@ -198,8 +198,8 @@ class FeeRegisterController extends Controller
             ];
         }
 
-        $schoolFeeCols = 4;
-        $busFeeCols = 4;
+        $schoolFeeCols = 5;
+        $busFeeCols = 5;
 
         $school = \App\Models\SchoolSetting::find(1);
 

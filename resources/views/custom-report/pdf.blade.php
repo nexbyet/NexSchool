@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>કસ્ટમ રિપોર્ટ</title>
 <style>
-    @page { size: A4 landscape; margin: 15mm 12mm; }
+    @page { size: A4 {{ $pageOrientation ?? 'landscape' }}; margin: 15mm 12mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'DejaVu Sans', sans-serif; font-size: 9pt; color: #000; line-height: 1.4; }
     .report-header { text-align: center; margin-bottom: 10px; }
