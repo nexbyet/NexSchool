@@ -91,6 +91,25 @@ class FeeRegisterController extends Controller
             ->get()
             ->groupBy('student_id');
 
+        // Also load carry forward payments (they have semester = null) so they show in register
+        $cfFeeIds = StudentFee::whereIn('student_id', $studentIds)
+            ->where('academic_year_id', $data['academic_year_id'])
+            ->whereNull('fee_structure_id')
+            ->pluck('id');
+        if ($cfFeeIds->isNotEmpty()) {
+            $cfPayments = FeePayment::whereIn('student_id', $studentIds)
+                ->whereIn('student_fee_id', $cfFeeIds)
+                ->with('studentFee.feeStructure')
+                ->orderBy('payment_date')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('student_id');
+            foreach ($cfPayments as $sid => $pmts) {
+                $existing = $payments->get($sid, collect());
+                $payments[$sid] = $existing->concat($pmts)->sortBy('payment_date')->values();
+            }
+        }
+
         // Load student routes for bus assignment status
         $studentRoutes = StudentRoute::whereIn('student_id', $studentIds)
             ->where('is_active', true)

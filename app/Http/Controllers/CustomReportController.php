@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CustomReportExport;
 use App\Models\AcademicYear;
 use App\Models\FeePayment;
 use App\Models\SchoolClass;
@@ -9,8 +10,10 @@ use App\Models\SchoolSetting;
 use App\Models\Standard;
 use App\Models\Student;
 use App\Models\StudentFee;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomReportController extends Controller
 {
@@ -83,6 +86,62 @@ class CustomReportController extends Controller
 
     public function preview(Request $request)
     {
+        $report = $this->buildReportData($request);
+
+        if ($report instanceof \Illuminate\Http\JsonResponse) {
+            return $report;
+        }
+
+        $html = view('custom-report.print', $report)->render();
+
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $report = $this->buildReportData($request);
+
+        if ($report instanceof \Illuminate\Http\JsonResponse) {
+            return $report;
+        }
+
+        $rows = $report['students']->toArray();
+        // Add __sr_index to each row for serial numbering
+        foreach ($rows as $i => &$row) {
+            $row['__sr_index'] = $i + 1;
+        }
+
+        $export = new CustomReportExport(
+            $rows,
+            $report['columns'],
+            $report['hasSrNo'],
+            $report['columnWidths']
+        );
+
+        $filename = 'custom-report-' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download($export, $filename);
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $report = $this->buildReportData($request);
+
+        if ($report instanceof \Illuminate\Http\JsonResponse) {
+            return $report;
+        }
+
+        $pdf = Pdf::loadView('custom-report.pdf', $report);
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->setOptions(['defaultFont' => 'Anek Gujarati', 'isRemoteEnabled' => true]);
+
+        $filename = 'custom-report-' . now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    protected function buildReportData(Request $request): array|\Illuminate\Http\JsonResponse
+    {
         $data = $request->validate([
             'columns' => 'required|array|min:1',
             'columns.*' => 'string',
@@ -126,7 +185,6 @@ class CustomReportController extends Controller
             $query = Student::with(['currentStandard', 'currentClass', 'admissionStandard'])
                 ->whereIn('status', ['active', 'alumni']);
 
-            // Filter out unregistered students unless explicitly included
             if (!$request->boolean('include_unregistered')) {
                 $query->where('is_registered', true);
             }
@@ -165,7 +223,6 @@ class CustomReportController extends Controller
                 ], 422);
             }
 
-            // Load fee data if any fee column is selected
             $hasFeeFields = !empty(array_intersect($columns, ['total_fee', 'paid_fee', 'due_fee']));
             if ($hasFeeFields) {
                 $this->loadFeeData($query->pluck('id')->toArray());
@@ -179,17 +236,14 @@ class CustomReportController extends Controller
                 return $row;
             });
 
-            // Sort by column
             if (!empty($data['sort_column']) && in_array($data['sort_column'], $columns)) {
                 $direction = $data['sort_direction'] ?? 'asc';
                 $sortCol = $data['sort_column'];
                 $students = $students->sortBy(function ($row) use ($sortCol) {
                     $val = $row[$sortCol] ?? '';
-                    // Try numeric sort if value looks like a number
                     if (is_numeric($val)) {
                         return (float) $val;
                     }
-                    // Remove ₹ and commas for fee values
                     $clean = str_replace(['₹', ',', ' '], '', $val);
                     if (is_numeric($clean)) {
                         return (float) $clean;
@@ -213,12 +267,10 @@ class CustomReportController extends Controller
         $titleGu = $data['title_gu'] ?? '';
         $titleEn = $data['title_en'] ?? '';
 
-        $html = view('custom-report.print', compact(
+        return compact(
             'students', 'columns', 'hasSrNo', 'school', 'titleGu', 'titleEn', 'studentCount',
             'columnWidths', 'customColumns', 'rowHeight', 'standardName', 'className', 'selectionLabel'
-        ))->render();
-
-        return response()->json(['success' => true, 'html' => $html]);
+        );
     }
 
     protected function loadFeeData(array $studentIds)

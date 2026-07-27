@@ -291,6 +291,63 @@
         </div>
     </div>
 
+    {{-- Unregistered Students Table --}}
+    @if($unregisteredStats->count())
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-8">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-sm">
+                    <i class="lni lni-cross-circle text-lg text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900">અનબોર્ડ (બિન-નોંધાયેલ) વિદ્યાર્થીઓ</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">બિન-નોંધાયેલ વિદ્યાર્થીઓનું ધોરણ અને વર્ગ મુજબ વિતરણ</p>
+                </div>
+                <span class="ml-auto text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">{{ $unregisteredStats->sum('total') }} કુલ</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="bg-gray-50/80 border-b border-gray-200">
+                        <th class="text-left py-3 px-3 font-semibold text-gray-700 uppercase tracking-wider">ધોરણ</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 uppercase tracking-wider">વર્ગ</th>
+                        <th class="text-center py-3 px-2 font-semibold text-gray-700 uppercase tracking-wider bg-blue-50/50">કુમાર</th>
+                        <th class="text-center py-3 px-2 font-semibold text-gray-700 uppercase tracking-wider bg-rose-50/50">કુમારી</th>
+                        <th class="text-center py-3 px-2 font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">કુલ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($unregisteredStats as $row)
+                        <tr class="hover:bg-amber-50/30 transition">
+                            <td class="py-2.5 px-3 font-medium text-gray-800">{{ $row->standard_name }}</td>
+                            <td class="py-2.5 px-2 text-gray-600">{{ $row->class_name }}</td>
+                            <td class="text-center py-2.5 px-2 font-medium text-blue-600">{{ $row->boys }}</td>
+                            <td class="text-center py-2.5 px-2 font-medium text-rose-600">{{ $row->girls }}</td>
+                            <td class="text-center py-2.5 px-2 font-semibold text-gray-900">{{ $row->total }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-10 text-gray-400">
+                                <i class="lni lni-cross-circle text-2xl block mb-2 text-gray-300"></i>
+                                કોઈ અનબોર્ડ વિદ્યાર્થી નથી
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gradient-to-r from-amber-50 to-orange-50/50 border-t-2 border-amber-200 font-bold">
+                        <td class="py-3 px-3 text-gray-900" colspan="2">કુલ સરવાળો</td>
+                        <td class="text-center py-3 px-2 text-blue-700">{{ $unregisteredStats->sum('boys') }}</td>
+                        <td class="text-center py-3 px-2 text-rose-700">{{ $unregisteredStats->sum('girls') }}</td>
+                        <td class="text-center py-3 px-2 text-gray-900">{{ $unregisteredStats->sum('total') }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    @endif
+
     {{-- Upcoming Events: Activities & Holidays (next 10 days) --}}
     @php
         $combined = collect();

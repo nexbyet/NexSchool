@@ -35,10 +35,10 @@
 
     .col-sr { width: 7mm; font-size: 7pt; }
     .col-name { text-align: left !important; padding-left: 4px !important; min-width: 36mm; max-width: 44mm; font-size: 9pt; }
-    .col-addr { text-align: left !important; padding-left: 4px !important; min-width: 26mm; max-width: 32mm; font-size: 7.5pt; }
+    .col-addr { text-align: left !important; padding-left: 4px !important; min-width: 16mm; max-width: 20mm; font-size: 7.5pt; }
     .col-mobile { width: 16mm; font-size: 8pt; }
-    .col-amount { width: 13mm; font-size: 8pt; text-align: center !important; font-weight: 600; }
-    .col-pay { width: 11mm; font-size: 7pt; }
+    .col-amount { width: 16mm; font-size: 8pt; text-align: center !important; font-weight: 600; }
+    .col-pay { width: 14mm; font-size: 7pt; }
     .col-balance { width: 14mm; font-size: 10pt; text-align: center !important; font-weight: 800; }
     .pay-receipt { font-size: 5.5pt; color: #444; display: block; }
     .pay-amount { font-size: 7.5pt; font-weight: 700; display: block; }

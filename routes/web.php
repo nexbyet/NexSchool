@@ -230,6 +230,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports/custom/classes/{standard}', [CustomReportController::class, 'getClasses'])->name('custom-report.classes');
         Route::post('/reports/custom/search-students', [CustomReportController::class, 'searchStudents'])->name('custom-report.search-students');
         Route::post('/reports/custom/students-by-filter', [CustomReportController::class, 'getStudentsByFilter'])->name('custom-report.students-by-filter');
+        Route::post('/reports/custom/export-excel', [CustomReportController::class, 'exportExcel'])->name('custom-report.export-excel');
+        Route::post('/reports/custom/download-pdf', [CustomReportController::class, 'downloadPdf'])->name('custom-report.download-pdf');
     });
 
     // School Settings (Admin only)
@@ -331,17 +333,18 @@ Route::middleware('auth')->group(function () {
         Route::get('timetable', [RouteController::class, 'showTimetable'])->name('routes.timetable');
 
         // Bus-Only Students ( બીજી શાળાના બસ વિદ્યાર્થીઓ )
-        Route::get('bus-students', [BusOnlyStudentController::class, 'index'])->name('bus-students.index');
-        Route::post('bus-students/data', [BusOnlyStudentController::class, 'fetchData'])->name('bus-students.data');
-        Route::post('bus-students', [BusOnlyStudentController::class, 'store'])->name('bus-students.store');
-        Route::get('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'show'])->name('bus-students.show');
-        Route::put('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'update'])->name('bus-students.update');
-        Route::delete('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'destroy'])->name('bus-students.destroy');
-        Route::post('bus-students/pay-fee', [BusOnlyStudentController::class, 'payFee'])->name('bus-students.pay-fee');
+        // IMPORTANT: Specific GET routes MUST come before the wildcard {busOnlyStudent}
+        Route::get('bus-students/data', [BusOnlyStudentController::class, 'fetchData'])->name('bus-students.data');
         Route::get('bus-students/due-list', [BusOnlyStudentController::class, 'dueList'])->name('bus-students.due-list');
         Route::get('bus-students/print-due-list', [BusOnlyStudentController::class, 'printDueList'])->name('bus-students.print-due-list');
         Route::get('bus-students/print-route-list', [BusOnlyStudentController::class, 'printRouteList'])->name('bus-students.print-route-list');
         Route::get('bus-students/routes', [BusOnlyStudentController::class, 'getRoutes'])->name('bus-students.routes');
+        Route::post('bus-students', [BusOnlyStudentController::class, 'store'])->name('bus-students.store');
+        Route::post('bus-students/pay-fee', [BusOnlyStudentController::class, 'payFee'])->name('bus-students.pay-fee');
+        Route::get('bus-students', [BusOnlyStudentController::class, 'index'])->name('bus-students.index');
+        Route::get('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'show'])->name('bus-students.show');
+        Route::put('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'update'])->name('bus-students.update');
+        Route::delete('bus-students/{busOnlyStudent}', [BusOnlyStudentController::class, 'destroy'])->name('bus-students.destroy');
         Route::get('timetable/print', [RouteController::class, 'printTimetable'])->name('routes.timetable.print');
     });
 

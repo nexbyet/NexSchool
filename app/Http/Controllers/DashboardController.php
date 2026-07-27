@@ -62,6 +62,7 @@ class DashboardController extends Controller
                 SUM(CASE WHEN students.category_en = 'OBC' AND students.is_minority = 1 THEN 1 ELSE 0 END) as obc_min_total
             ")
             ->where('students.status', 'active')
+            ->where('students.is_registered', true)
             ->whereNotNull('students.current_class_id')
             ->groupBy('standards.id', 'standards.name', 'standards.sort_order', 'school_classes.id', 'school_classes.name')
             ->orderBy('standards.sort_order')
@@ -90,9 +91,30 @@ class DashboardController extends Controller
             'obc_min_total'   => $classStats->sum('obc_min_total'),
         ];
 
+        // Unregistered students by standard & class (is_registered = false)
+        $unregisteredStats = DB::table('students')
+            ->join('standards', 'students.current_standard_id', '=', 'standards.id')
+            ->leftJoin('school_classes', 'students.current_class_id', '=', 'school_classes.id')
+            ->selectRaw("
+                standards.id as standard_id,
+                standards.name as standard_name,
+                standards.sort_order,
+                school_classes.id as class_id,
+                school_classes.name as class_name,
+                COUNT(*) as total,
+                SUM(CASE WHEN students.sharirik_jaati = 'kumar' THEN 1 ELSE 0 END) as boys,
+                SUM(CASE WHEN students.sharirik_jaati = 'kumari' THEN 1 ELSE 0 END) as girls
+            ")
+            ->where('students.status', 'active')
+            ->where('students.is_registered', false)
+            ->groupBy('standards.id', 'standards.name', 'standards.sort_order', 'school_classes.id', 'school_classes.name')
+            ->orderBy('standards.sort_order')
+            ->orderBy('school_classes.name')
+            ->get();
+
         // Upcoming 10 days birthdays (active students only)
-        $start = now();
-        $end = now()->addDays(10);
+        $start = now()->startOfDay();
+        $end = now()->addDays(10)->endOfDay();
         $allActive = Student::where('status', 'active')
             ->with(['currentStandard', 'currentClass'])
             ->get(['id', 'gr_number', 'student_name_gu', 'student_name_en', 'full_name_gu', 'full_name_en', 'date_of_birth', 'sharirik_jaati', 'photo', 'current_standard_id', 'current_class_id']);
@@ -123,6 +145,6 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays'));
+        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'unregisteredStats', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays'));
     }
 }

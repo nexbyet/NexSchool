@@ -271,6 +271,12 @@
             <button type="button" id="printBtn" onclick="printReport()" class="px-6 py-3 bg-emerald-600 text-white font-medium rounded-xl hover:bg-emerald-700 transition flex items-center gap-2 shadow-lg shadow-emerald-200" style="display:none">
                 <i class="lni lni-printer text-lg"></i> પ્રિન્ટ કરો
             </button>
+            <button type="button" id="excelBtn" onclick="exportExcel()" class="px-6 py-3 bg-green-700 text-white font-medium rounded-xl hover:bg-green-800 transition flex items-center gap-2 shadow-lg shadow-green-200" style="display:none">
+                <i class="lni lni-clipboard text-lg"></i> Excel ડાઉનલોડ
+            </button>
+            <button type="button" id="pdfBtn" onclick="downloadPdf()" class="px-6 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition flex items-center gap-2 shadow-lg shadow-red-200" style="display:none">
+                <i class="lni lni-file-multiple text-lg"></i> PDF ડાઉનલોડ
+            </button>
         </div>
     </form>
 
@@ -306,9 +312,17 @@
                 <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
                     <i class="lni lni-eye text-violet-500"></i> પ્રીવ્યૂ
                 </h3>
-                <button onclick="printReport()" class="px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition flex items-center gap-1.5">
-                    <i class="lni lni-printer"></i> પ્રિન્ટ
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportExcel()" class="px-3 py-1.5 bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-800 transition flex items-center gap-1.5">
+                        <i class="lni lni-clipboard"></i> Excel
+                    </button>
+                    <button onclick="downloadPdf()" class="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition flex items-center gap-1.5">
+                        <i class="lni lni-file-multiple"></i> PDF
+                    </button>
+                    <button onclick="printReport()" class="px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition flex items-center gap-1.5">
+                        <i class="lni lni-printer"></i> પ્રિન્ટ
+                    </button>
+                </div>
             </div>
             <div class="p-4 overflow-x-auto">
                 <iframe id="printFrame" srcdoc="" class="w-full border-0"></iframe>
@@ -734,6 +748,8 @@ function generatePreview() {
             btn.disabled = false;
             btn.innerHTML = '<i class="lni lni-search-1 text-lg"></i> પ્રીવ્યૂ જુઓ';
             document.getElementById('printBtn').style.display = 'inline-flex';
+            document.getElementById('excelBtn').style.display = 'inline-flex';
+            document.getElementById('pdfBtn').style.display = 'inline-flex';
         };
     })
     .catch(function () {
@@ -749,6 +765,86 @@ function printReport() {
         frame.contentWindow.focus();
         frame.contentWindow.print();
     }
+}
+
+function submitExport(url) {
+    const form = document.getElementById('reportForm');
+    const formData = new FormData(form);
+    formData.delete('columns');
+    formData.delete('column_widths');
+    formData.delete('custom_columns');
+
+    try {
+        const cols = JSON.parse(document.getElementById('columnsInput').value || '[]');
+        cols.forEach(function (col) { formData.append('columns[]', col); });
+        const widths = JSON.parse(document.getElementById('columnWidthsInput').value || '{}');
+        Object.keys(widths).forEach(function (k) { formData.append('column_widths[' + k + ']', widths[k]); });
+        const custom = JSON.parse(document.getElementById('customColumnsInput').value || '{}');
+        Object.keys(custom).forEach(function (k) {
+            formData.append('custom_columns[' + k + '][header_gu]', custom[k].header_gu || '');
+            formData.append('custom_columns[' + k + '][header_en]', custom[k].header_en || '');
+            formData.append('custom_columns[' + k + '][width]', custom[k].width || 100);
+        });
+    } catch (e) {
+        formData.append('columns[]', '');
+    }
+
+    var mode = document.querySelector('input[name="selection_mode"]:checked').value;
+    var sortCol = document.getElementById('sort_column').value;
+    var sortDir = document.getElementById('sort_direction').value;
+    if (sortCol) {
+        formData.append('sort_column', sortCol);
+        formData.append('sort_direction', sortDir);
+    }
+    if (mode === 'manual') {
+        selectedStudentIds.forEach(function (sid) { formData.append('student_ids[]', sid); });
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var blob = xhr.response;
+            var disposition = xhr.getResponseHeader('Content-Disposition');
+            var filename = 'custom-report-' + new Date().toISOString().slice(0,10) + '.xlsx';
+            if (disposition && disposition.indexOf('filename=') !== -1) {
+                var match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (match && match[1]) {
+                    filename = match[1].replace(/['"]/g, '');
+                }
+            }
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(link.href);
+        } else {
+            var reader = new FileReader();
+            reader.onload = function () {
+                try {
+                    var err = JSON.parse(reader.result);
+                    NexSchool.alert.error(err.message || 'Download failed');
+                } catch (e) {
+                    NexSchool.alert.error('Download failed');
+                }
+            };
+            reader.readAsText(xhr.response);
+        }
+    };
+    xhr.onerror = function () { NexSchool.alert.error('Network error'); };
+    xhr.send(formData);
+}
+
+function exportExcel() {
+    submitExport('{{ route("custom-report.export-excel") }}');
+}
+
+function downloadPdf() {
+    submitExport('{{ route("custom-report.download-pdf") }}');
 }
 </script>
 @endpush
