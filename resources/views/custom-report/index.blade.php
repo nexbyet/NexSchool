@@ -96,19 +96,19 @@
             </div>
             <div id="filter-mode-fields" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">ધોરણ</label>
-                    <select name="standard_id" id="standard_id" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                        <option value="">બધા ધોરણ</option>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">ધોરણ <span class="text-xs text-gray-400 font-normal">(Ctrl+ક્લિક)</span></label>
+                    <select name="standard_id[]" id="standard_id" multiple size="5" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
                         @foreach($standards as $s)
                             <option value="{{ $s->id }}">{{ $s->name }}</option>
                         @endforeach
                     </select>
+                    <p class="mt-1 text-[11px] text-gray-400">કંઈ પસંદ ન થાય તો બધા ધોરણો</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1.5">વર્ગ</label>
-                    <select name="class_id" id="class_id" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                        <option value="">બધા વર્ગ</option>
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">વર્ગ <span class="text-xs text-gray-400 font-normal">(Ctrl+ક્લિક)</span></label>
+                    <select name="class_id[]" id="class_id" multiple size="5" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">
                     </select>
+                    <p class="mt-1 text-[11px] text-gray-400">ધોરણ પસંદ કરો તો વર્ગો લોડ થશે</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 mb-1.5">રિપોર્ટ પ્રકાર</label>
@@ -136,6 +136,10 @@
             <div class="mt-2 flex items-center gap-2">
                 <input type="checkbox" id="include_unregistered" name="include_unregistered" value="1" class="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
                 <label for="include_unregistered" class="text-sm text-gray-600 cursor-pointer">અનબોર્ડ (નોંધાયેલ ન હોય તેવા) વિદ્યાર્થીઓ પણ સામેલ કરો</label>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+                <input type="checkbox" id="include_lc" name="include_lc" value="1" onchange="onIncludeLcChange()" class="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500">
+                <label for="include_lc" class="text-sm text-gray-600 cursor-pointer">શાળા છોડી ગયેલા (LC જારી થયેલ) વિદ્યાર્થીઓ પણ સામેલ કરો</label>
             </div>
             <div id="manual-mode-fields" class="hidden">
                 <div class="flex items-center justify-between mb-2">
@@ -423,22 +427,44 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     });
 
-    // Standard -> Class cascade
+    // Standard -> Class cascade (multi-select)
     document.getElementById('standard_id').addEventListener('change', function () {
-        const stdId = this.value;
+        const stdIds = Array.from(this.selectedOptions).map(o => o.value);
         const clsSelect = document.getElementById('class_id');
-        clsSelect.innerHTML = '<option value="">બધા વર્ગ</option>';
-        if (!stdId) return;
-        fetch('{{ url("reports/custom/classes") }}/' + stdId)
-            .then(r => r.json())
-            .then(data => {
-                data.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = c.name;
-                    clsSelect.appendChild(opt);
+        const prevClasses = Array.from(clsSelect.selectedOptions).map(o => o.value);
+        clsSelect.innerHTML = '';
+        if (stdIds.length === 0) {
+            loadStudentList();
+            return;
+        }
+        const seen = {};
+        let pending = stdIds.length;
+        stdIds.forEach(function (stdId) {
+            fetch('{{ url("reports/custom/classes") }}/' + stdId)
+                .then(r => r.json())
+                .then(function (data) {
+                    data.forEach(function (c) {
+                        if (!seen[c.id]) {
+                            seen[c.id] = true;
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = c.name;
+                            clsSelect.appendChild(opt);
+                        }
+                    });
+                    pending--;
+                    if (pending === 0) {
+                        Array.from(clsSelect.options).forEach(function (opt) {
+                            if (prevClasses.indexOf(opt.value) !== -1) opt.selected = true;
+                        });
+                        loadStudentList();
+                    }
+                })
+                .catch(function () {
+                    pending--;
+                    if (pending === 0) loadStudentList();
                 });
-            });
+        });
     });
 
     // Report type toggle
@@ -450,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('reportForm').addEventListener('submit', function (e) {
         e.preventDefault();
         if (selectedColumns.length === 0) {
-            NexSchool.alert.error('કૃપા કરીને ઓછામાં ઓછી એક કૉલમ પસંદ કરો');
+            NexSchool.alert.danger('કૃપા કરીને ઓછામાં ઓછી એક કૉલમ પસંદ કરો');
             return;
         }
         generatePreview();
@@ -459,21 +485,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-close blank rows for filled type
     document.getElementById('blankRowsWrap').style.display = 'none';
 
-    document.getElementById('standard_id').addEventListener('change', function () {
-        loadStudentList();
-    });
     document.getElementById('class_id').addEventListener('change', function () {
         loadStudentList();
     });
 });
 
+function onIncludeLcChange() {
+    var mode = document.querySelector('input[name="selection_mode"]:checked');
+    if (mode && mode.value === 'manual') {
+        loadStudentList();
+    }
+}
+
 function loadStudentList() {
     var mode = document.querySelector('input[name="selection_mode"]:checked').value;
     if (mode !== 'manual') return;
-    var stdId = document.getElementById('standard_id').value;
-    var clsId = document.getElementById('class_id').value;
+    var stdIds = Array.from(document.getElementById('standard_id').selectedOptions).map(function (o) { return o.value; });
+    var clsIds = Array.from(document.getElementById('class_id').selectedOptions).map(function (o) { return o.value; });
     var container = document.getElementById('student-list-container');
-    if (!stdId && !clsId) {
+    if (stdIds.length === 0 && clsIds.length === 0) {
         container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">પહેલા ધોરણ અને વર્ગ પસંદ કરો</div>';
         return;
     }
@@ -481,11 +511,14 @@ function loadStudentList() {
     fetch('{{ route("custom-report.students-by-filter") }}', {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ standard_id: stdId || null, class_id: clsId || null }),
+        body: JSON.stringify({ standard_id: stdIds, class_id: clsIds, include_lc: document.getElementById('include_lc').checked }),
     })
-    .then(function (res) { return res.json(); })
-    .then(function (data) {
-        if (!data.success || !data.students || data.students.length === 0) {
+    .then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    })
+    .then(function (r) {
+        var data = r.data;
+        if (!r.ok || !data.success || !data.students || data.students.length === 0) {
             container.innerHTML = '<div class="text-center py-6 text-sm text-gray-400">કોઈ વિદ્યાર્થી મળ્યો નથી</div>';
             return;
         }
@@ -691,7 +724,7 @@ function generatePreview() {
 
     var mode = document.querySelector('input[name="selection_mode"]:checked').value;
     if (mode === 'manual' && selectedStudentIds.length === 0) {
-        NexSchool.alert.error('કૃપા કરીને ઓછામાં ઓછો એક વિદ્યાર્થી પસંદ કરો');
+        NexSchool.alert.danger('કૃપા કરીને ઓછામાં ઓછો એક વિદ્યાર્થી પસંદ કરો');
         return;
     }
 
@@ -700,6 +733,7 @@ function generatePreview() {
     formData.delete('columns');
     formData.delete('column_widths');
     formData.delete('custom_columns');
+    formData.delete('student_ids');
 
     try {
         const cols = JSON.parse(document.getElementById('columnsInput').value || '[]');
@@ -741,7 +775,12 @@ function generatePreview() {
     .then(function (r) { return r.json(); })
     .then(function (data) {
         if (!data.success) {
-            NexSchool.alert.error(data.message || 'ભૂલ આવી');
+            var msg = data.message || 'ભૂલ આવી';
+            if (data.errors) {
+                var errKeys = Object.keys(data.errors);
+                if (errKeys.length) msg = data.errors[errKeys[0]][0] || msg;
+            }
+            NexSchool.alert.danger(msg);
             btn.disabled = false;
             btn.innerHTML = '<i class="lni lni-search-1 text-lg"></i> પ્રીવ્યૂ જુઓ';
             return;
@@ -760,7 +799,7 @@ function generatePreview() {
         };
     })
     .catch(function () {
-        NexSchool.alert.error('સર્વર ભૂલ. ફરી પ્રયાસ કરો.');
+        NexSchool.alert.danger('સર્વર ભૂલ. ફરી પ્રયાસ કરો.');
         btn.disabled = false;
         btn.innerHTML = '<i class="lni lni-search-1 text-lg"></i> પ્રીવ્યૂ જુઓ';
     });
@@ -780,6 +819,7 @@ function submitExport(url) {
     formData.delete('columns');
     formData.delete('column_widths');
     formData.delete('custom_columns');
+    formData.delete('student_ids');
 
     try {
         const cols = JSON.parse(document.getElementById('columnsInput').value || '[]');
@@ -796,7 +836,9 @@ function submitExport(url) {
         formData.append('columns[]', '');
     }
 
-    var mode = document.querySelector('input[name="selection_mode"]:checked').value;
+    var mode = document.querySelector('input[name="selection_mode"]:checked');
+    if (!mode) { NexSchool.alert.danger('કૃપા કરીને સિલેક્શન મોડ પસંદ કરો'); return; }
+    mode = mode.value;
     var sortCol = document.getElementById('sort_column').value;
     var sortDir = document.getElementById('sort_direction').value;
     if (sortCol) {
@@ -807,6 +849,7 @@ function submitExport(url) {
         selectedStudentIds.forEach(function (sid) { formData.append('student_ids[]', sid); });
     }
 
+    var ext = url.indexOf('download-pdf') !== -1 ? 'pdf' : 'xlsx';
     var xhr = new XMLHttpRequest();
     xhr.open('POST', url, true);
     xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
@@ -815,7 +858,7 @@ function submitExport(url) {
         if (xhr.status === 200) {
             var blob = xhr.response;
             var disposition = xhr.getResponseHeader('Content-Disposition');
-            var filename = 'custom-report-' + new Date().toISOString().slice(0,10) + '.xlsx';
+            var filename = 'custom-report-' + new Date().toISOString().slice(0,10) + '.' + ext;
             if (disposition && disposition.indexOf('filename=') !== -1) {
                 var match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
                 if (match && match[1]) {
@@ -834,15 +877,15 @@ function submitExport(url) {
             reader.onload = function () {
                 try {
                     var err = JSON.parse(reader.result);
-                    NexSchool.alert.error(err.message || 'Download failed');
+                    NexSchool.alert.danger(err.message || 'Download failed');
                 } catch (e) {
-                    NexSchool.alert.error('Download failed');
+                    NexSchool.alert.danger('Download failed');
                 }
             };
             reader.readAsText(xhr.response);
         }
     };
-    xhr.onerror = function () { NexSchool.alert.error('Network error'); };
+    xhr.onerror = function () { NexSchool.alert.danger('Network error'); };
     xhr.send(formData);
 }
 

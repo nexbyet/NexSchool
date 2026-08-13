@@ -26,6 +26,9 @@
                 <a href="{{ route('students.import.view') }}" class="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition flex items-center gap-2 backdrop-blur-sm" title="Excel થી જથ્થાબંધ વિદ્યાર્થી ઉમેરો">
                     <i class="lni lni-upload-1 text-base"></i> Import
                 </a>
+                <a href="{{ route('students.export') }}" class="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition flex items-center gap-2 backdrop-blur-sm" title="તમામ વિદ્યાર્થી ડેટા Excel માં ડાઉનલોડ કરો">
+                    <i class="lni lni-download-1 text-base"></i> Export
+                </a>
                 <button onclick="openModal()" class="px-4 py-2 bg-white text-indigo-700 text-sm font-medium rounded-lg hover:bg-indigo-50 transition flex items-center gap-2 shadow-lg">
                     <i class="lni lni-plus text-base"></i> નવો વિદ્યાર્થી
                 </button>

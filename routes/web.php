@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/students/import/demo', [StudentController::class, 'importDemo'])->name('students.import.demo');
     Route::match(['get', 'post'], '/students/import', [StudentController::class, 'importView'])->name('students.import.view');
     Route::post('/students/import/upload', [StudentController::class, 'import'])->name('students.import');
+    Route::get('/students/export', [StudentController::class, 'exportData'])->name('students.export');
     Route::get('/students', [StudentController::class, 'index'])->name('students.index');
     Route::get('/students/data/fetch', [StudentController::class, 'fetchData'])->name('students.data');
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');

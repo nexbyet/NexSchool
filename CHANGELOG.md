@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.1.3 (July 27, 2026)
+
+### New
+- **Bus-Only Students — Dedicated Fee Collection Page** — New "બસ ફી વસૂલાત" page with route filter, student table showing કુલ/ચૂકવેલ/બાકી, payment modal with semester/amount/date/method, and receipt print (A4 portrait, ₹ words). Full payment history modal for each student.
+- **Bus-Only Fee Receipt** — Standalone receipt view at `transport.bus-students.fee-collection.receipt` with school logo, semester details, amount in Gujarati words, and running balance.
+
+### Fixed
+- **Sidebar Route Highlighting** — "બીજી શાળાના બસ વિદ્યાર્થીઓ" link matches all bus-students routes except fee-collection (which has its own sidebar link).
+- **Custom Report PDF** — Changed `defaultFont` from `Anek Gujarati` (not a DomPDF built-in font → caused errors) to `DejaVu Sans` (built-in). PDF now generates reliably.
+- **Custom Report Orientation** — Page orientation is now configurable: landscape or portrait via a dropdown in Step 1. Print and PDF views both respect the setting.
+
+### Changed
+- **Fee Register Print** — School fee payment columns: 4 → 5, Bus fee payment columns: 4 → 5. All payment columns widened (`.col-pay`: 14mm→17mm, `.col-amount`: 16mm→18mm, `.col-balance`: 14mm→18mm) with tighter padding and smaller fonts to fit A4 landscape.
+
+### Technical
+- New controller methods: `BusOnlyStudentController` — `feeCollection()`, `getCollectionData()`, `collectFee()`, `receipt()`, `history()`.
+- New views: `resources/views/transport/bus-students/fee-collection/index.blade.php`, `resources/views/transport/bus-students/fee-collection/receipt.blade.php`.
+- 5 new routes under `transport.bus-students.fee-collection.*`.
+- No new migrations for v1.1.3.
+
 ## v1.1.2 (July 27, 2026)
 
 ### New

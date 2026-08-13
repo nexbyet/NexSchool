@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StudentDemoExport;
+use App\Exports\StudentFullExport;
 use App\Helpers\DateTextHelper;
 use App\Imports\StudentsImport;
 use App\Models\SchoolClass;
@@ -332,5 +333,27 @@ class StudentController extends Controller
         $standards = \App\Models\Standard::orderBy('sort_order')->get();
         $classes = \App\Models\SchoolClass::where('status', 'active')->orderBy('sort_order')->get();
         return view('students.import', compact('standards', 'classes'));
+    }
+
+    public function exportData(Request $request)
+    {
+        $query = Student::with([
+            'admissionStandard', 'admissionClass',
+            'currentStandard', 'currentClass',
+            'leavingStandard',
+        ]);
+
+        if ($request->filled('standard_id')) {
+            $query->where('current_standard_id', $request->standard_id);
+        }
+        if ($request->filled('class_id')) {
+            $query->where('current_class_id', $request->class_id);
+        }
+
+        $students = $query->defaultSort()->get();
+
+        $filename = 'students_' . now()->format('Y-m-d_Hi') . '.xlsx';
+
+        return Excel::download(new StudentFullExport($students), $filename);
     }
 }

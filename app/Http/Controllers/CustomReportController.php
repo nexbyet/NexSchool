@@ -158,8 +158,11 @@ class CustomReportController extends Controller
             'sort_column' => 'nullable|string',
             'sort_direction' => 'nullable|in:asc,desc',
             'include_unregistered' => 'nullable|boolean',
-            'standard_id' => 'nullable|exists:standards,id',
-            'class_id' => 'nullable|exists:school_classes,id',
+            'include_lc' => 'nullable|boolean',
+            'standard_id' => 'nullable|array',
+            'standard_id.*' => 'integer|exists:standards,id',
+            'class_id' => 'nullable|array',
+            'class_id.*' => 'integer|exists:school_classes,id',
             'report_type' => 'required|in:filled,blank',
             'blank_rows' => 'nullable|integer|min:1|max:200',
             'title_gu' => 'nullable|string|max:255',
@@ -181,12 +184,25 @@ class CustomReportController extends Controller
         $className = null;
         $selectionLabel = '';
 
+        $standardIds = $data['standard_id'] ?? [];
+        if (!is_array($standardIds)) {
+            $standardIds = $standardIds ? [$standardIds] : [];
+        }
+        $classIds = $data['class_id'] ?? [];
+        if (!is_array($classIds)) {
+            $classIds = $classIds ? [$classIds] : [];
+        }
+
         $students = collect();
         $studentCount = 0;
 
         if ($data['report_type'] === 'filled') {
             $query = Student::with(['currentStandard', 'currentClass', 'admissionStandard'])
                 ->whereIn('status', ['active', 'alumni']);
+
+            if (!$request->boolean('include_lc')) {
+                $query->where('status', '!=', 'alumni');
+            }
 
             if (!$request->boolean('include_unregistered')) {
                 $query->where('is_registered', true);
@@ -196,17 +212,21 @@ class CustomReportController extends Controller
                 $query->whereIn('id', $data['student_ids']);
                 $selectionLabel = 'પસંદ કરેલ વિદ્યાર્થીઓ: ' . count($data['student_ids']);
             } else {
-                if (!empty($data['standard_id'])) {
-                    $query->where('current_standard_id', $data['standard_id']);
-                    $std = Standard::find($data['standard_id']);
-                    $standardName = $std?->name;
+                if (!empty($standardIds)) {
+                    $query->whereIn('current_standard_id', $standardIds);
+                    $standardName = Standard::whereIn('id', $standardIds)
+                        ->orderBy('sort_order')
+                        ->pluck('name')
+                        ->implode(', ');
                 }
-                if (!empty($data['class_id'])) {
-                    $query->where('current_class_id', $data['class_id']);
-                    $cls = SchoolClass::find($data['class_id']);
-                    $className = $cls?->name;
+                if (!empty($classIds)) {
+                    $query->whereIn('current_class_id', $classIds);
+                    $className = SchoolClass::whereIn('id', $classIds)
+                        ->orderBy('sort_order')
+                        ->pluck('name')
+                        ->implode(', ');
                 }
-                $selectionLabel = trim(($standardName ?? 'બધા ધોરણ') . ($className ? ' — ' . $className : ''));
+                $selectionLabel = trim(($standardName ?: 'બધા ધોરણ') . ($className ? ' — ' . $className : ''));
             }
 
             $studentCount = $query->count();
@@ -374,6 +394,10 @@ class CustomReportController extends Controller
         $search = $request->input('search', '');
         $query = Student::whereIn('status', ['active', 'alumni']);
 
+        if (!$request->boolean('include_lc')) {
+            $query->where('status', '!=', 'alumni');
+        }
+
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('gr_number', 'LIKE', "%{$search}%")
@@ -396,20 +420,30 @@ class CustomReportController extends Controller
 
     public function getStudentsByFilter(Request $request)
     {
-        $standardId = $request->input('standard_id');
-        $classId = $request->input('class_id');
+        $standardIds = $request->input('standard_id');
+        $classIds = $request->input('class_id');
+        if (!is_array($standardIds)) {
+            $standardIds = $standardIds ? [$standardIds] : [];
+        }
+        if (!is_array($classIds)) {
+            $classIds = $classIds ? [$classIds] : [];
+        }
 
         $query = Student::whereIn('status', ['active', 'alumni'])
             ->with('currentStandard', 'currentClass');
 
-        if (!empty($standardId)) {
-            $query->where('current_standard_id', $standardId);
-        }
-        if (!empty($classId)) {
-            $query->where('current_class_id', $classId);
+        if (!$request->boolean('include_lc')) {
+            $query->where('status', '!=', 'alumni');
         }
 
-        if (empty($standardId) && empty($classId)) {
+        if (!empty($standardIds)) {
+            $query->whereIn('current_standard_id', $standardIds);
+        }
+        if (!empty($classIds)) {
+            $query->whereIn('current_class_id', $classIds);
+        }
+
+        if (empty($standardIds) && empty($classIds)) {
             return response()->json(['success' => true, 'students' => []]);
         }
 

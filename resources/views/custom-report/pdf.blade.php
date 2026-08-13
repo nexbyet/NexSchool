@@ -24,8 +24,8 @@
 </head>
 <body>
 <div class="report-header">
-    @if($school && $school->school_logo)
-        @php $logoPath = public_path('storage/' . $school->school_logo); @endphp
+    @if($school && $school->logo)
+        @php $logoPath = public_path('storage/' . $school->logo); @endphp
         @if(file_exists($logoPath))
             <img src="{{ $logoPath }}" alt="Logo" class="school-logo">
         @endif
