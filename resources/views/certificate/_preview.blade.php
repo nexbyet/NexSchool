@@ -1,15 +1,18 @@
 <div class="border border-gray-200 rounded-lg overflow-hidden shadow-sm" style="max-width:210mm; margin:0 auto;">
     {{-- Mini letterhead --}}
     <div class="border-b border-gray-300 px-5 py-3 text-center bg-white">
-        <h3 class="font-bold text-gray-900 text-base">{{ $school?->school_name_gu ?? 'શાળા' }}</h3>
+        <h3 class="font-bold text-gray-900 text-base">{{ $lang === 'gu' ? ($school?->school_name_gu ?? $school?->school_name_en ?? 'શાળા') : ($school?->school_name_en ?? $school?->school_name_gu ?? 'School') }}</h3>
         @if($school)
+            @if($school->management_name_gu || $school->management_name_en)
+                <p class="text-xs text-gray-600">{{ $lang === 'gu' ? 'સંચાલન:' : 'Managed by:' }} {{ $lang === 'gu' ? ($school->management_name_gu ?? $school->management_name_en) : ($school->management_name_en ?? $school->management_name_gu) }}</p>
+            @endif
             <p class="text-xs text-gray-600">{{ $school->address }}</p>
             <p class="text-xs text-gray-600">
-                મોબાઇલ: {{ $school->mobile }}{{ $school->email ? ' | ' . $school->email : '' }}
+                {{ $lang === 'gu' ? 'મોબાઇલ:' : 'Mobile:' }} {{ $school->mobile }}{{ $school->email ? ' | ' . ($lang === 'gu' ? 'ઇમેઇલ: ' : 'Email: ') . $school->email : '' }}
                 @if($school->uid_number) | UID: {{ $school->uid_number }} @endif
             </p>
             @if($school->grant_number)
-                <p class="text-xs text-gray-600">મંજૂરી નં: {{ $school->grant_number }}{{ $school->grant_date ? ' | તા. ' . \Carbon\Carbon::parse($school->grant_date)->format('d/m/Y') : '' }}</p>
+                <p class="text-xs text-gray-600">{{ $lang === 'gu' ? 'મંજૂરી નં:' : 'Registration No:' }} {{ $school->grant_number }}{{ $school->grant_date ? ' | ' . ($lang === 'gu' ? 'તા. ' : 'Date: ') . \Carbon\Carbon::parse($school->grant_date)->format('d/m/Y') : '' }}</p>
             @endif
         @endif
     </div>

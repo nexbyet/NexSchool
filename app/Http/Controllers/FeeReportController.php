@@ -226,9 +226,10 @@ class FeeReportController extends Controller
             'to_date' => 'required|date|after_or_equal:from_date',
             'payment_method' => 'nullable|in:cash,bank,cheque,online',
             'semester' => 'nullable|in:1,2',
+            'fee_type' => 'nullable|in:tuition,transport,other',
         ]);
 
-        $query = FeePayment::with('student.currentStandard', 'student.currentClass', 'receiver')
+        $query = FeePayment::with('student.currentStandard', 'student.currentClass', 'receiver', 'studentFee.feeStructure')
             ->where('academic_year_id', $data['academic_year_id'])
             ->whereBetween('payment_date', [$data['from_date'], $data['to_date']]);
 
@@ -240,14 +241,47 @@ class FeeReportController extends Controller
             $query->where('payment_method', $data['payment_method']);
         }
 
+        if (!empty($data['fee_type'])) {
+            $feeType = $data['fee_type'];
+            $query->where(function ($q) use ($feeType) {
+                $q->whereHas('studentFee.feeStructure', function ($qq) use ($feeType) {
+                    $qq->where('type', $feeType);
+                });
+                if ($feeType === 'other') {
+                    $q->orWhereNull('student_fee_id');
+                }
+            });
+        }
+
         $payments = $query->orderBy('payment_date')->get();
         $totalAmount = $payments->sum('amount_paid');
+
+        // Head + semester grouping for summary
+        $typeLabels = ['tuition' => 'શાળા ફી', 'transport' => 'બસ ફી', 'other' => 'અન્ય'];
+        $byType = ['tuition' => 0, 'transport' => 0, 'other' => 0];
+        $bySemester = [1 => 0, 2 => 0];
+        $byMatrix = [1 => ['tuition' => 0, 'transport' => 0, 'other' => 0], 2 => ['tuition' => 0, 'transport' => 0, 'other' => 0]];
+
+        foreach ($payments as $p) {
+            $type = $p->studentFee?->feeStructure?->type ?? 'other';
+            if (!isset($byType[$type])) $byType[$type] = 0;
+            $byType[$type] += (float) $p->amount_paid;
+            $sem = $p->semester ? (int) $p->semester : 1;
+            if (!isset($bySemester[$sem])) $bySemester[$sem] = 0;
+            $bySemester[$sem] += (float) $p->amount_paid;
+            if (!isset($byMatrix[$sem][$type])) $byMatrix[$sem][$type] = 0;
+            $byMatrix[$sem][$type] += (float) $p->amount_paid;
+        }
 
         return response()->json([
             'success' => true,
             'payments' => $payments,
             'total_amount' => $totalAmount,
             'count' => $payments->count(),
+            'by_type' => $byType,
+            'by_semester' => $bySemester,
+            'by_matrix' => $byMatrix,
+            'type_labels' => $typeLabels,
         ]);
     }
 
@@ -506,23 +540,52 @@ class FeeReportController extends Controller
             'to_date' => 'required|date|after_or_equal:from_date',
             'payment_method' => 'nullable|in:cash,bank,cheque,online',
             'semester' => 'nullable|in:1,2',
+            'fee_type' => 'nullable|in:tuition,transport,other',
         ]);
 
         $academicYear = AcademicYear::findOrFail($data['academic_year_id']);
         $semester = $data['semester'] ?? null;
+        $feeType = $data['fee_type'] ?? null;
 
-        $query = FeePayment::with('student.currentStandard', 'student.currentClass', 'receiver')
+        $query = FeePayment::with('student.currentStandard', 'student.currentClass', 'receiver', 'studentFee.feeStructure')
             ->where('academic_year_id', $data['academic_year_id'])
             ->whereBetween('payment_date', [$data['from_date'], $data['to_date']]);
         if ($semester) $query->where('semester', $semester);
         if (!empty($data['payment_method'])) $query->where('payment_method', $data['payment_method']);
+        if (!empty($feeType)) {
+            $query->where(function ($q) use ($feeType) {
+                $q->whereHas('studentFee.feeStructure', function ($qq) use ($feeType) {
+                    $qq->where('type', $feeType);
+                });
+                if ($feeType === 'other') {
+                    $q->orWhereNull('student_fee_id');
+                }
+            });
+        }
 
         $payments = $query->orderBy('payment_date')->get();
         $totalAmount = $payments->sum('amount_paid');
         $semLabel = $semester ? "સત્ર $semester" : 'બધા સત્ર';
+        $feeTypeLabel = $feeType ? ['tuition' => 'શાળા ફી', 'transport' => 'બસ ફી', 'other' => 'અન્ય'][$feeType] ?? $feeType : 'બધા હેડ';
         $school = SchoolSetting::find(1);
 
-        return view('fees.reports.print-collection', compact('academicYear', 'semester', 'semLabel', 'payments', 'totalAmount', 'school'));
+        // Grouped summaries for print
+        $typeLabels = ['tuition' => 'શાળા ફી', 'transport' => 'બસ ફી', 'other' => 'અન્ય'];
+        $byType = ['tuition' => 0, 'transport' => 0, 'other' => 0];
+        $bySemester = [1 => 0, 2 => 0];
+        $byMatrix = [1 => ['tuition' => 0, 'transport' => 0, 'other' => 0], 2 => ['tuition' => 0, 'transport' => 0, 'other' => 0]];
+        $groupedByType = ['tuition' => collect(), 'transport' => collect(), 'other' => collect()];
+
+        foreach ($payments as $p) {
+            $type = $p->studentFee?->feeStructure?->type ?? 'other';
+            $byType[$type] = ($byType[$type] ?? 0) + (float) $p->amount_paid;
+            $sem = $p->semester ? (int) $p->semester : 1;
+            $bySemester[$sem] = ($bySemester[$sem] ?? 0) + (float) $p->amount_paid;
+            $byMatrix[$sem][$type] = ($byMatrix[$sem][$type] ?? 0) + (float) $p->amount_paid;
+            $groupedByType[$type]->push($p);
+        }
+
+        return view('fees.reports.print-collection', compact('academicYear', 'semester', 'semLabel', 'feeType', 'feeTypeLabel', 'payments', 'totalAmount', 'school', 'byType', 'bySemester', 'byMatrix', 'groupedByType', 'typeLabels'));
     }
 
     public function printStudentStatement(Request $request)

@@ -100,22 +100,22 @@
                 @endif
             </div>
             <div class="school-info">
-                <div class="school-name">{{ $school?->school_name_gu ?? 'શાળા' }}</div>
-                @if($school && $school->management_name_gu)
-                    <div class="line">સંચાલન: {{ $school->management_name_gu }}</div>
+                <div class="school-name">{{ $lang === 'gu' ? ($school?->school_name_gu ?? $school?->school_name_en ?? 'શાળા') : ($school?->school_name_en ?? $school?->school_name_gu ?? 'School') }}</div>
+                @if($school && ($school->management_name_gu || $school->management_name_en))
+                    <div class="line">{{ $lang === 'gu' ? 'સંચાલન:' : 'Managed by:' }} {{ $lang === 'gu' ? ($school->management_name_gu ?? $school->management_name_en) : ($school->management_name_en ?? $school->management_name_gu) }}</div>
                 @endif
                 @if($school && $school->address)
                     <div class="line">{{ $school->address }}</div>
                 @endif
                 <div class="line">
-                    @if($school && $school->mobile)મોબાઇલ: {{ $school->mobile }} @endif
-                    @if($school && $school->email) | ઇમેઇલ: {{ $school->email }} @endif
+                    @if($school && $school->mobile){{ $lang === 'gu' ? 'મોબાઇલ:' : 'Mobile:' }} {{ $school->mobile }} @endif
+                    @if($school && $school->email) | {{ $lang === 'gu' ? 'ઇમેઇલ:' : 'Email:' }} {{ $school->email }} @endif
                     @if($school && $school->uid_number) | UID: {{ $school->uid_number }} @endif
                 </div>
                 @if($school && $school->grant_number)
                     <div class="line">
-                        મંજૂરી નં: {{ $school->grant_number }}
-                        @if($school->grant_date) | તા: {{ \Carbon\Carbon::parse($school->grant_date)->format('d/m/Y') }} @endif
+                        {{ $lang === 'gu' ? 'મંજૂરી નં:' : 'Registration No:' }} {{ $school->grant_number }}
+                        @if($school->grant_date) | {{ $lang === 'gu' ? 'તા:' : 'Date:' }} {{ \Carbon\Carbon::parse($school->grant_date)->format('d/m/Y') }} @endif
                     </div>
                 @endif
             </div>

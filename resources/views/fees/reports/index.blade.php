@@ -112,7 +112,7 @@
 
     <div id="tab-collection-report-panel" class="tab-panel hidden">
         <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">શૈક્ષણિક વર્ષ</label>
                     <select id="cr-year" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition">
@@ -127,6 +127,15 @@
                         <option value="">બધા</option>
                         <option value="1">સત્ર 1</option>
                         <option value="2">સત્ર 2</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">હેડ</label>
+                    <select id="cr-fee-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition">
+                        <option value="">બધા હેડ</option>
+                        <option value="tuition">શાળા ફી</option>
+                        <option value="transport">બસ ફી</option>
+                        <option value="other">અન્ય</option>
                     </select>
                 </div>
                 <div>
@@ -373,6 +382,7 @@
     var loadCollectionReport = function() {
         var yearId = parseInt(document.getElementById('cr-year').value);
         var sem = document.getElementById('cr-semester').value || null;
+        var feeType = document.getElementById('cr-fee-type').value || null;
         var fromDate = document.getElementById('cr-from-date').value;
         var toDate = document.getElementById('cr-to-date').value;
         var method = document.getElementById('cr-method').value;
@@ -385,6 +395,7 @@
             body: JSON.stringify({
                 academic_year_id: yearId,
                 semester: sem,
+                fee_type: feeType,
                 from_date: fromDate,
                 to_date: toDate,
                 payment_method: method || null,
@@ -398,7 +409,40 @@
                 content.innerHTML = '<div class="text-center py-12 bg-white rounded-xl border border-gray-200"><p class="text-gray-500 font-medium">આ સમયગાળામાં કોઈ વસૂલાત નથી</p></div>';
                 return;
             }
-            var html = '<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">તારીખ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">રસીદ નંબર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">વિદ્યાર્થી</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">GR</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">મોબાઇલ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">ધોરણ-વર્ગ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સત્ર</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">રકમ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">પદ્ધતિ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સંદર્ભ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">લેનાર</th></tr></thead><tbody class="divide-y divide-gray-100">';
+            var byType = data.by_type || {};
+            var bySemester = data.by_semester || {};
+            var byMatrix = data.by_matrix || {};
+            var typeLabels = data.type_labels || feeTypeLabels;
+            var html = '';
+            // --- Combine summary cards ---
+            html += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">';
+            html += '<div class="bg-white rounded-xl border border-gray-200 p-3 text-center"><p class="text-xs text-gray-500">કુલ વસૂલાત</p><p class="text-lg font-bold text-gray-900">₹' + (data.total_amount || 0).toFixed(2) + '</p><p class="text-xs text-gray-400">' + (data.count || 0) + ' રસીદ</p></div>';
+            html += '<div class="bg-blue-50 rounded-xl border border-blue-200 p-3 text-center"><p class="text-xs text-blue-600">શાળા ફી</p><p class="text-lg font-bold text-blue-700">₹' + (byType.tuition || 0).toFixed(2) + '</p></div>';
+            html += '<div class="bg-amber-50 rounded-xl border border-amber-200 p-3 text-center"><p class="text-xs text-amber-600">બસ ફી</p><p class="text-lg font-bold text-amber-700">₹' + (byType.transport || 0).toFixed(2) + '</p></div>';
+            if ((byType.other || 0) > 0) html += '<div class="bg-gray-50 rounded-xl border border-gray-200 p-3 text-center"><p class="text-xs text-gray-500">અન્ય</p><p class="text-lg font-bold text-gray-700">₹' + (byType.other || 0).toFixed(2) + '</p></div>';
+            html += '</div>';
+            // Semester summary
+            html += '<div class="grid grid-cols-3 gap-3 mb-4">';
+            html += '<div class="bg-white rounded-xl border border-gray-200 p-3 text-center"><p class="text-xs text-gray-500">સત્ર 1</p><p class="font-bold text-gray-900">₹' + (bySemester[1] || 0).toFixed(2) + '</p></div>';
+            html += '<div class="bg-white rounded-xl border border-gray-200 p-3 text-center"><p class="text-xs text-gray-500">સત્ર 2</p><p class="font-bold text-gray-900">₹' + (bySemester[2] || 0).toFixed(2) + '</p></div>';
+            html += '<div class="bg-emerald-50 rounded-xl border border-emerald-200 p-3 text-center"><p class="text-xs text-emerald-600">કુલ</p><p class="font-bold text-emerald-700">₹' + (data.total_amount || 0).toFixed(2) + '</p></div>';
+            html += '</div>';
+            // Matrix table when both semesters present and no single semester filter
+            if (!sem) {
+                html += '<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4"><div class="p-3 border-b bg-gray-50"><h4 class="font-semibold text-sm">સત્ર × હેડ મેટ્રિક્સ</h4></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left text-xs">સત્ર \\ હેડ</th><th class="px-3 py-2 text-right text-xs">શાળા ફી</th><th class="px-3 py-2 text-right text-xs">બસ ફી</th>';
+                if ((byType.other || 0) > 0) html += '<th class="px-3 py-2 text-right text-xs">અન્ય</th>';
+                html += '<th class="px-3 py-2 text-right text-xs bg-emerald-50">સત્ર કુલ</th></tr></thead><tbody class="divide-y divide-gray-100">';
+                html += '<tr><td class="px-3 py-2 font-medium">સત્ર 1</td><td class="px-3 py-2 text-right">₹' + ((byMatrix[1] && byMatrix[1].tuition) || 0).toFixed(2) + '</td><td class="px-3 py-2 text-right">₹' + ((byMatrix[1] && byMatrix[1].transport) || 0).toFixed(2) + '</td>';
+                if ((byType.other || 0) > 0) html += '<td class="px-3 py-2 text-right">₹' + ((byMatrix[1] && byMatrix[1].other) || 0).toFixed(2) + '</td>';
+                html += '<td class="px-3 py-2 text-right font-bold bg-emerald-50">₹' + (bySemester[1] || 0).toFixed(2) + '</td></tr>';
+                html += '<tr><td class="px-3 py-2 font-medium">સત્ર 2</td><td class="px-3 py-2 text-right">₹' + ((byMatrix[2] && byMatrix[2].tuition) || 0).toFixed(2) + '</td><td class="px-3 py-2 text-right">₹' + ((byMatrix[2] && byMatrix[2].transport) || 0).toFixed(2) + '</td>';
+                if ((byType.other || 0) > 0) html += '<td class="px-3 py-2 text-right">₹' + ((byMatrix[2] && byMatrix[2].other) || 0).toFixed(2) + '</td>';
+                html += '<td class="px-3 py-2 text-right font-bold bg-emerald-50">₹' + (bySemester[2] || 0).toFixed(2) + '</td></tr>';
+                html += '</tbody><tfoot><tr class="bg-gray-100 font-bold"><td class="px-3 py-2">હેડ કુલ</td><td class="px-3 py-2 text-right">₹' + (byType.tuition || 0).toFixed(2) + '</td><td class="px-3 py-2 text-right">₹' + (byType.transport || 0).toFixed(2) + '</td>';
+                if ((byType.other || 0) > 0) html += '<td class="px-3 py-2 text-right">₹' + (byType.other || 0).toFixed(2) + '</td>';
+                html += '<td class="px-3 py-2 text-right bg-emerald-100">₹' + (data.total_amount || 0).toFixed(2) + '</td></tr></tfoot></table></div></div>';
+            }
+            html += '<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">તારીખ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">રસીદ નંબર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">વિદ્યાર્થી</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">GR</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">ધોરણ-વર્ગ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">હેડ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સત્ર</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">રકમ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">પદ્ધતિ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">લેનાર</th></tr></thead><tbody class="divide-y divide-gray-100">';
             var totalAmt = 0;
             for (var i = 0; i < payments.length; i++) {
                 var p = payments[i];
@@ -410,10 +454,12 @@
                 var amt = parseFloat(p.amount_paid) || 0;
                 totalAmt += amt;
                 var semHtml = p.semester ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">સત્ર ' + p.semester + '</span>' : '<span class="text-gray-400">—</span>';
-                var mobile = stud.mobile || '';
-                html += '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-gray-900">' + payDateStr + '</td><td class="px-4 py-3 font-mono text-xs text-gray-700">' + (p.receipt_number || '—') + '</td><td class="px-4 py-3 font-medium text-gray-900">' + (stud.full_name_gu || stud.full_name_en || '') + '</td><td class="px-4 py-3 text-gray-600">' + (stud.gr_number || '') + '</td><td class="px-4 py-3 font-mono text-gray-700">' + mobile + '</td><td class="px-4 py-3 text-gray-500 text-xs">' + stdName + ' - ' + clsName + '</td><td class="px-4 py-3">' + semHtml + '</td><td class="px-4 py-3 text-right font-semibold text-emerald-700">₹' + amt.toFixed(2) + '</td><td class="px-4 py-3">' + (methodLabels[p.payment_method] || p.payment_method) + '</td><td class="px-4 py-3 text-gray-500">' + (p.reference_number || '—') + '</td><td class="px-4 py-3 text-gray-600">' + receiver + '</td></tr>';
+                var ptype = (p.student_fee && p.student_fee.fee_structure) ? p.student_fee.fee_structure.type : 'other';
+                var badgeClass = ptype === 'tuition' ? 'bg-blue-100 text-blue-700' : (ptype === 'transport' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600');
+                var headHtml = '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium ' + badgeClass + '">' + (typeLabels[ptype] || ptype) + '</span>';
+                html += '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-gray-900">' + payDateStr + '</td><td class="px-4 py-3 font-mono text-xs text-gray-700">' + (p.receipt_number || '—') + '</td><td class="px-4 py-3 font-medium text-gray-900">' + (stud.full_name_gu || stud.full_name_en || '') + '</td><td class="px-4 py-3 text-gray-600">' + (stud.gr_number || '') + '</td><td class="px-4 py-3 text-gray-500 text-xs">' + stdName + ' - ' + clsName + '</td><td class="px-4 py-3">' + headHtml + '</td><td class="px-4 py-3">' + semHtml + '</td><td class="px-4 py-3 text-right font-semibold text-emerald-700">₹' + amt.toFixed(2) + '</td><td class="px-4 py-3">' + (methodLabels[p.payment_method] || p.payment_method) + '</td><td class="px-4 py-3 text-gray-600">' + receiver + '</td></tr>';
             }
-            html += '</tbody><tfoot><tr class="bg-gray-50 font-bold"><td colspan="6" class="px-4 py-3 text-right text-gray-900">કુલ</td><td class="px-4 py-3 text-right text-emerald-700">₹' + totalAmt.toFixed(2) + '</td><td colspan="3" class="px-4 py-3"></td></tr></tfoot></table></div></div>';
+            html += '</tbody><tfoot><tr class="bg-gray-50 font-bold"><td colspan="7" class="px-4 py-3 text-right text-gray-900">કુલ</td><td class="px-4 py-3 text-right text-emerald-700">₹' + totalAmt.toFixed(2) + '</td><td colspan="2" class="px-4 py-3"></td></tr></tfoot></table></div></div>';
             content.innerHTML = html;
         })
         .catch(function(err) { content.innerHTML = '<p class="text-red-500 text-center py-8">' + (err.message || 'સર્વર ભૂલ') + '</p>'; });
@@ -578,8 +624,9 @@
             var fromDate = document.getElementById('cr-from-date').value || '';
             var toDate = document.getElementById('cr-to-date').value || '';
             var method = document.getElementById('cr-method').value || '';
+            var feeType = document.getElementById('cr-fee-type').value || '';
             if (!fromDate || !toDate) { NexSchool.alert.danger('તારીખથી અને તારીખ સુધી પસંદ કરો.'); return; }
-            url = '{{ route("fees.reports.print-collection") }}?academic_year_id=' + yearId + '&semester=' + (sem || '') + '&from_date=' + fromDate + '&to_date=' + toDate + '&payment_method=' + method;
+            url = '{{ route("fees.reports.print-collection") }}?academic_year_id=' + yearId + '&semester=' + (sem || '') + '&from_date=' + fromDate + '&to_date=' + toDate + '&payment_method=' + method + '&fee_type=' + feeType;
         } else if (type === 'statement') {
             yearId = parseInt(document.getElementById('stmt-year').value);
             sem = document.getElementById('stmt-semester').value || null;
