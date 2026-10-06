@@ -183,6 +183,71 @@ class FeeCollectionController extends Controller
         ]);
     }
 
+    public function updatePayment(Request $request, $id)
+    {
+        $payment = FeePayment::with('studentFee')->find($id);
+        if (!$payment) {
+            return response()->json(['success' => false, 'message' => 'ચુકવણી મળી નથી.'], 404);
+        }
+
+        $data = $request->validate([
+            'amount_paid' => 'required|numeric|min:0.01',
+            'payment_date' => 'required|date',
+            'payment_method' => 'required|in:cash,bank,cheque,online',
+            'reference_number' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+        ]);
+
+        $sf = $payment->studentFee;
+        $otherPaid = FeePayment::where('student_fee_id', $payment->student_fee_id)
+            ->where('id', '!=', $payment->id)
+            ->sum('amount_paid');
+
+        if ($sf && !$sf->is_waived) {
+            $maxAllowed = max(0, (float) $sf->net_amount - (float) $otherPaid);
+            if ((float) $data['amount_paid'] > $maxAllowed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'આ ફી માટે વધુમાં વધુ ₹' . number_format($maxAllowed, 2)
+                        . ' જ વસૂલ કરી શકાય. સોંપાયેલ ફી ₹' . number_format($sf->net_amount, 2)
+                        . ' છે, અત્યાર સુધી ચૂકવેલ ₹' . number_format($otherPaid, 2) . '.',
+                ], 422);
+            }
+        }
+
+        $payment->update([
+            'amount_paid' => $data['amount_paid'],
+            'payment_date' => $data['payment_date'],
+            'payment_method' => $data['payment_method'],
+            'reference_number' => $data['reference_number'] ?? null,
+            'notes' => $data['notes'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ચુકવણી સુધારી દેવાઈ ગઈ.',
+            'payment' => $payment->fresh(),
+        ]);
+    }
+
+    public function destroyPayment(Request $request, $id)
+    {
+        $payment = FeePayment::find($id);
+        if (!$payment) {
+            return response()->json(['success' => false, 'message' => 'ચુકવણી મળી નથી.'], 404);
+        }
+
+        $receiptNumber = $payment->receipt_number;
+        $amount = (float) $payment->amount_paid;
+        $payment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'ચુકવણી કાઢી નાખી. રસીદ ' . $receiptNumber . ' (₹' . number_format($amount, 2) . ') હવે ફી બાકીમાં પરત આવશે.',
+            'deleted' => ['receipt_number' => $receiptNumber, 'amount_paid' => $amount],
+        ]);
+    }
+
     public function receipt($studentId, $academicYearId)
     {
         $student = Student::with('currentStandard', 'currentClass')->findOrFail($studentId);

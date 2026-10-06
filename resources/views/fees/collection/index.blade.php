@@ -128,6 +128,57 @@
         <div id="history-content"></div>
     </div>
 </div>
+
+<div id="edit-modal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 hidden" style="opacity:0;transition:opacity 0.2s">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">ચુકવણી સુધારો</h3>
+            <button type="button" onclick="closeEditModal()" class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"><i class="lni lni-xmark text-lg"></i></button>
+        </div>
+        <form id="edit-form">
+            <input type="hidden" id="edit-id">
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 mb-4">
+                <h4 id="edit-student-name" class="font-semibold text-gray-900"></h4>
+                <p class="text-xs text-gray-500 mt-0.5">રસીદ: <span id="edit-receipt-no" class="font-mono font-semibold text-amber-700"></span></p>
+                <p class="text-xs text-gray-500">ફી: <span id="edit-fee-label"></span> · વર્તમાન: <span id="edit-current-amount" class="font-semibold text-emerald-600"></span></p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ચૂકવેલેલ રકમ <span class="text-red-500">*</span></label>
+                    <input type="number" step="0.01" min="0.01" id="edit-amount" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                    <p class="text-xs text-gray-500 mt-1">આ ફી માટે વધુમાં વધુ વસૂલ થઈ શકે તેટલું: <span id="edit-max-amount" class="font-semibold text-gray-700"></span></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ચુકવણી તારીખ <span class="text-red-500">*</span></label>
+                    <input type="date" id="edit-date" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ચુકવણી પદ્ધતિ <span class="text-red-500">*</span></label>
+                    <select id="edit-method" onchange="toggleEditRefField()" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                        <option value="cash">રોકડા</option>
+                        <option value="bank">બેંક ટ્રાન્સફર</option>
+                        <option value="cheque">ચેક</option>
+                        <option value="online">ઓનલાઇન</option>
+                    </select>
+                </div>
+                <div id="edit-ref-field">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">સંદર્ભ નંબર</label>
+                    <input type="text" id="edit-reference" placeholder="ચેક નંબર / ટ્રાન્ઝેક્શન ID" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">નોંધ</label>
+                    <textarea id="edit-notes" rows="2" placeholder="વૈકલ્પિક" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 mt-6">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button>
+                <button type="submit" id="edit-submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg focus:ring-4 focus:ring-amber-200 transition flex items-center gap-2">
+                    <i class="lni lni-check-circle-1 text-sm"></i> સાચવો
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -158,6 +209,23 @@
     var refField = document.getElementById('ref-field');
     var historyModal = document.getElementById('history-modal');
     var historyContent = document.getElementById('history-content');
+    var editModal = document.getElementById('edit-modal');
+    var editForm = document.getElementById('edit-form');
+    var editId = document.getElementById('edit-id');
+    var editStudentName = document.getElementById('edit-student-name');
+    var editReceiptNo = document.getElementById('edit-receipt-no');
+    var editFeeLabel = document.getElementById('edit-fee-label');
+    var editCurrentAmount = document.getElementById('edit-current-amount');
+    var editAmount = document.getElementById('edit-amount');
+    var editMaxAmount = document.getElementById('edit-max-amount');
+    var editDate = document.getElementById('edit-date');
+    var editMethod = document.getElementById('edit-method');
+    var editReference = document.getElementById('edit-reference');
+    var editNotes = document.getElementById('edit-notes');
+    var editSubmitBtn = document.getElementById('edit-submit-btn');
+    var editRefField = document.getElementById('edit-ref-field');
+    var historyContext = { studentId: null, studentFeeId: null };
+    var paymentIndex = {};
 
     var currentYearId = parseInt(yearSelector.value);
     var feeTypeLabels = {'tuition': 'શાળા ફી', 'transport': 'બસ ફી', 'other': 'અન્ય', 'carry_forward': 'કેરી ફોરવર્ડ'};
@@ -441,17 +509,27 @@
             var fee = data.fee || {};
             var feeType = !fee.fee_structure ? 'carry_forward' : (fee.fee_structure?.type || '');
             var feeLabel = feeType === 'carry_forward' ? 'કેરી ફોરવર્ડ' : (feeType ? feeTypeLabels[feeType] || 'અન્ય' : '');
+            var stu = data.student || {};
+            historyContext = { studentId: studentId, studentFeeId: studentFeeId };
+            window.__historyFee = fee;
+            window.__historyStudent = data.student || {};
+            window.__historyTotalPaid = parseFloat(data.total_paid) || 0;
+            paymentIndex = {};
+            for (var k = 0; k < payments.length; k++) { paymentIndex[payments[k].id] = payments[k]; }
             var html = '';
             if (payments.length === 0) {
                 html = '<div class="text-center py-8"><p class="text-gray-500">હજી સુધી કોઈ ચુકવણી નથી</p></div>';
             } else {
-                html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">તારીખ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">રસીદ નંબર</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">રકમ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">પદ્ધતિ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સંદર્ભ નંબર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">નોંધ</th><th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">પ્રિન્ટ</th></tr></thead><tbody class="divide-y divide-gray-100">';
+                html = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">તારીખ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">રસીદ નંબર</th><th class="px-4 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">રકમ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">પદ્ધતિ</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">સંદર્ભ નંબર</th><th class="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">નોંધ</th><th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">પ્રિન્ટ</th><th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">સુધારો</th><th class="px-4 py-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wider">કાઢો</th></tr></thead><tbody class="divide-y divide-gray-100">';
                 for (var i = 0; i < payments.length; i++) {
                     var p = payments[i];
                     var payDateStr = p.payment_date ? p.payment_date.substring(0, 10) : '';
-                    html += '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-gray-900">' + payDateStr + '</td><td class="px-4 py-3 font-mono text-xs text-gray-700">' + (p.receipt_number || '—') + '</td><td class="px-4 py-3 text-right font-semibold text-emerald-700">₹' + (parseFloat(p.amount_paid) || 0).toFixed(2) + '</td><td class="px-4 py-3">' + (methodLabels[p.payment_method] || p.payment_method) + '</td><td class="px-4 py-3 text-gray-500">' + (p.reference_number || '—') + '</td><td class="px-4 py-3 text-gray-500 max-w-xs truncate">' + (p.notes || '—') + '</td><td class="px-4 py-3 text-center"><a href="{{ url("fees/collection/receipt") }}/' + studentId + '/' + currentYearId + '?payment_id=' + p.id + '" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-lg transition"><i class="lni lni-printer text-xs"></i> પ્રિન્ટ</a></td></tr>';
+                    html += '<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-gray-900">' + payDateStr + '</td><td class="px-4 py-3 font-mono text-xs text-gray-700">' + (p.receipt_number || '—') + '</td><td class="px-4 py-3 text-right font-semibold text-emerald-700">₹' + (parseFloat(p.amount_paid) || 0).toFixed(2) + '</td><td class="px-4 py-3">' + (methodLabels[p.payment_method] || p.payment_method) + '</td><td class="px-4 py-3 text-gray-500">' + (p.reference_number || '—') + '</td><td class="px-4 py-3 text-gray-500 max-w-xs truncate">' + (p.notes || '—') + '</td><td class="px-4 py-3 text-center"><a href="{{ url("fees/collection/receipt") }}/' + studentId + '/' + currentYearId + '?payment_id=' + p.id + '" target="_blank" class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-2 py-1 rounded-lg transition"><i class="lni lni-printer text-xs"></i> પ્રિન્ટ</a></td>';
+                    html += '<td class="px-4 py-3 text-center"><button type="button" onclick="openEditModal(' + p.id + ')" class="inline-flex items-center gap-1 text-xs font-medium text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-2 py-1 rounded-lg transition"><i class="lni lni-pencil-1 text-xs"></i> સુધારો</button></td>';
+                    html += '<td class="px-4 py-3 text-center"><button type="button" onclick="deletePayment(' + p.id + ')" class="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition"><i class="lni lni-trash-2 text-xs"></i> કાઢો</button></td></tr>';
                 }
                 html += '</tbody></table></div>';
+                html += '<div class="mt-3 flex items-center justify-between text-xs text-gray-500 bg-gray-50 rounded-lg px-4 py-2"><span>કુલ ' + payments.length + ' ચુકવણી</span><span class="font-semibold text-emerald-700">કુલ ચૂકવેલ: ₹' + (parseFloat(data.total_paid) || 0).toFixed(2) + '</span></div>';
             }
             historyContent.innerHTML = html;
             historyModal.classList.remove('hidden');
@@ -460,6 +538,127 @@
         .catch(function(err) { NexSchool.alert.danger(err.message); });
     };
     window.showHistory = showHistory;
+
+    var editContext = { fee: null, student: null };
+
+    var toggleEditRefField = function() {
+        editRefField.style.display = (editMethod.value === 'cash') ? 'none' : 'block';
+    };
+    window.toggleEditRefField = toggleEditRefField;
+
+    var openEditModal = function(paymentId) {
+        var p = paymentIndex[paymentId];
+        if (!p) { NexSchool.alert.danger('ચુકવણી વિગત મળી નથી.'); return; }
+
+        var fee = window.__historyFee || {};
+        var student = window.__historyStudent || {};
+        var feeType = !fee.fee_structure ? 'carry_forward' : (fee.fee_structure?.type || '');
+        var feeLabel = feeType === 'carry_forward' ? 'કેરી ફોરવર્ડ' : (feeType ? feeTypeLabels[feeType] || 'અન્ય' : 'અન્ય');
+
+        editId.value = paymentId;
+        editStudentName.textContent = student.full_name_gu || student.full_name_en || 'વિદ્યાર્થી';
+        editReceiptNo.textContent = p.receipt_number || '—';
+        editFeeLabel.textContent = feeLabel;
+        editCurrentAmount.textContent = '₹' + (parseFloat(p.amount_paid) || 0).toFixed(2);
+
+        var otherPaid = Math.max(0, (parseFloat(window.__historyTotalPaid) || 0) - (parseFloat(p.amount_paid) || 0));
+        var netAmt = parseFloat(fee.net_amount) || 0;
+        var isWaived = !!fee.is_waived;
+        var maxAllowed = isWaived ? netAmt : Math.max(0, netAmt - otherPaid);
+        editMaxAmount.textContent = '₹' + maxAllowed.toFixed(2);
+
+        editAmount.value = (parseFloat(p.amount_paid) || 0).toFixed(2);
+        editAmount.setAttribute('max', maxAllowed.toFixed(2));
+        editDate.value = p.payment_date ? p.payment_date.substring(0, 10) : '';
+        editMethod.value = p.payment_method || 'cash';
+        editReference.value = p.reference_number || '';
+        editNotes.value = p.notes || '';
+        toggleEditRefField();
+
+        editModal.classList.remove('hidden');
+        requestAnimationFrame(function() { editModal.style.opacity = '1'; });
+    };
+    window.openEditModal = openEditModal;
+
+    var closeEditModal = function() {
+        editModal.style.opacity = '0';
+        setTimeout(function() { editModal.classList.add('hidden'); }, 200);
+    };
+    window.closeEditModal = closeEditModal;
+    editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEditModal(); });
+
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var paymentId = parseInt(editId.value);
+        if (!paymentId) return;
+
+        editSubmitBtn.disabled = true;
+        editSubmitBtn.innerHTML = '<i class="lni lni-spinner-3 text-sm animate-spin"></i> સાચવાય છે...';
+
+        fetch('{{ url("fees/collection/payment/update") }}/' + paymentId, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount_paid: parseFloat(editAmount.value) || 0,
+                payment_date: editDate.value,
+                payment_method: editMethod.value,
+                reference_number: editReference.value || null,
+                notes: editNotes.value || null,
+            }),
+        })
+        .then(function(res) { if (!res.ok) return res.json().then(function(e) { throw e; }); return res.json(); })
+        .then(function(data) {
+            if (data.success) {
+                NexSchool.alert.success(data.message || 'ચુકવણી સુધારી દેવાઈ ગઈ.');
+                closeEditModal();
+                refreshAfterChange();
+            } else {
+                NexSchool.alert.danger(data.message || 'સુધારો અસફળ.');
+            }
+        })
+        .catch(function(err) {
+            var msg = (err.errors) ? Object.values(err.errors).flat().join(' ') : (err.message || 'સર્વર ભૂલ');
+            NexSchool.alert.danger(msg);
+        })
+        .finally(function() { editSubmitBtn.disabled = false; editSubmitBtn.innerHTML = '<i class="lni lni-check-circle-1 text-sm"></i> સાચવો'; });
+    });
+
+    var deletePayment = function(paymentId) {
+        var p = paymentIndex[paymentId];
+        if (!p) return;
+
+        NexSchool.confirm.show(
+            'ચુકવણી કાઢી નાખવી છે?',
+            'રસીદ ' + (p.receipt_number || '—') + ' — ₹' + (parseFloat(p.amount_paid) || 0).toFixed(2) + ' ની ચુકવણી કાઢી નાખવાથી વિદ્યાર્થીની ફી ફરી બાકીમાં ગણાશે. આ કામ પાછું ફેરવી શકાશે નહીં.',
+            'danger',
+            'હા, કાઢી નાખો'
+        ).then(function(ok) {
+            if (!ok) return;
+            fetch('{{ url("fees/collection/payment/delete") }}/' + paymentId, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            })
+            .then(function(res) { if (!res.ok) return res.json().then(function(e) { throw e; }); return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    NexSchool.alert.success(data.message || 'ચુકવણી કાઢી નાખી.');
+                    refreshAfterChange();
+                } else {
+                    NexSchool.alert.danger(data.message || 'કાઢી નાખવામાં અસફળ.');
+                }
+            })
+            .catch(function(err) { NexSchool.alert.danger(err.message || 'સર્વર ભૂલ'); });
+        });
+    };
+    window.deletePayment = deletePayment;
+
+    var refreshAfterChange = function() {
+        if (historyContext.studentId) {
+            showHistory(historyContext.studentId, historyContext.studentFeeId);
+        }
+        searchStudents();
+    };
+    window.refreshAfterChange = refreshAfterChange;
 
     var closeHistoryModal = function() {
         historyModal.style.opacity = '0';

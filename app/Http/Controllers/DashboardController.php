@@ -132,6 +132,43 @@ class DashboardController extends Controller
         $birthdayBoys = $upcomingBirthdays->where('sharirik_jaati', 'kumar');
         $birthdayGirls = $upcomingBirthdays->where('sharirik_jaati', 'kumari');
 
+        // === Semester-wise Fee Summary for Active Academic Year ===
+        $feeSemesterSummary = null;
+        if ($activeYear) {
+            $feeAgg = DB::table('student_fees')
+                ->where('academic_year_id', $activeYear->id)
+                ->selectRaw('semester, SUM(net_amount) as assigned, SUM(concession_amount) as concession, SUM(total_amount) as gross')
+                ->groupBy('semester')
+                ->get()->keyBy('semester');
+            $payAgg = DB::table('fee_payments')
+                ->where('academic_year_id', $activeYear->id)
+                ->selectRaw('semester, SUM(amount_paid) as collected')
+                ->groupBy('semester')
+                ->get()->keyBy('semester');
+
+            $semesters = [1, 2];
+            $rows = [];
+            $totalAssigned = 0; $totalConcession = 0; $totalCollected = 0;
+            foreach ($semesters as $sem) {
+                $assigned = (float)($feeAgg[$sem]->assigned ?? 0);
+                $concession = (float)($feeAgg[$sem]->concession ?? 0);
+                $collected = (float)($payAgg[$sem]->collected ?? 0);
+                $due = max(0, $assigned - $collected);
+                $pct = $assigned > 0 ? round($collected / $assigned * 100, 1) : 0;
+                $rows[$sem] = compact('assigned','concession','collected','due','pct');
+                $totalAssigned += $assigned;
+                $totalConcession += $concession;
+                $totalCollected += $collected;
+            }
+            $totalDue = max(0, $totalAssigned - $totalCollected);
+            $totalPct = $totalAssigned > 0 ? round($totalCollected / $totalAssigned * 100, 1) : 0;
+            $feeSemesterSummary = [
+                'year' => $activeYear,
+                'rows' => $rows,
+                'total' => ['assigned' => $totalAssigned, 'concession' => $totalConcession, 'collected' => $totalCollected, 'due' => $totalDue, 'pct' => $totalPct],
+            ];
+        }
+
         // Upcoming activities and holidays (next 10 days)
         $today = now()->format('Y-m-d');
         $tenDaysLater = now()->addDays(10)->format('Y-m-d');
@@ -145,6 +182,6 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'unregisteredStats', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays'));
+        return view('dashboard.index', compact('stats', 'classStats', 'summaryTotals', 'unregisteredStats', 'activeYear', 'upcomingBirthdays', 'birthdayBoys', 'birthdayGirls', 'upcomingPlans', 'upcomingHolidays', 'feeSemesterSummary'));
     }
 }

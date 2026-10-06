@@ -182,6 +182,67 @@
         </div>
     </div>
 
+    {{-- Semester-wise Fee Summary (Active Year) --}}
+    @if(!empty($feeSemesterSummary))
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-8">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+                    <i class="lni lni-wallet-1 text-lg text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900">ફી સારાંશ — સત્ર વાઇઝ ({{ $feeSemesterSummary['year']->year }})</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">ચાલુ શૈક્ષણિક વર્ષ ની સત્ર 1 / સત્ર 2 મુજબ ફી સ્થિતિ</p>
+                </div>
+                <a href="{{ route('fees.reports.index') }}" class="ml-auto text-xs bg-white border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg hover:bg-amber-50 font-medium">વિગતવાર રિપોર્ટ <i class="lni lni-arrow-right text-xs ml-1"></i></a>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+            @foreach([1,2] as $sem)
+                @php $r = $feeSemesterSummary['rows'][$sem]; @endphp
+                <div class="p-6 {{ $sem==1 ? 'bg-gradient-to-br from-amber-50/50 to-white' : 'bg-gradient-to-br from-blue-50/50 to-white' }}">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg {{ $sem==1 ? 'bg-amber-500' : 'bg-blue-500' }} flex items-center justify-center text-white text-xs font-bold">સ{{ $sem }}</span>
+                            સત્ર {{ $sem }}
+                        </h3>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ $r['pct']>=80 ? 'bg-emerald-100 text-emerald-700' : ($r['pct']>=50 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700') }}">{{ $r['pct'] }}% વસૂલ</span>
+                    </div>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex justify-between items-center"><span class="text-gray-500">સોંપાયેલ</span><span class="font-semibold text-gray-900">₹{{ number_format($r['assigned'],2) }}</span></div>
+                        <div class="flex justify-between items-center"><span class="text-gray-500">છૂટ</span><span class="font-medium text-amber-600">₹{{ number_format($r['concession'],2) }}</span></div>
+                        <div class="flex justify-between items-center"><span class="text-gray-500">વસૂલ</span><span class="font-semibold text-emerald-600">₹{{ number_format($r['collected'],2) }}</span></div>
+                        <div class="flex justify-between items-center"><span class="text-gray-500">બાકી</span><span class="font-bold {{ $r['due']>0 ? 'text-red-600' : 'text-gray-400' }}">₹{{ number_format($r['due'],2) }}</span></div>
+                        <div class="mt-3">
+                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="h-2 rounded-full {{ $sem==1 ? 'bg-amber-500' : 'bg-blue-500' }}" style="width: {{ min(100, $r['pct']) }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+            @php $t = $feeSemesterSummary['total']; @endphp
+            <div class="p-6 bg-gradient-to-br from-emerald-50 to-green-50/50">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2"><span class="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">કુલ</span> કુલ (બંને સત્ર)</h3>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ $t['pct']>=80 ? 'bg-emerald-600 text-white' : ($t['pct']>=50 ? 'bg-amber-500 text-white' : 'bg-red-500 text-white') }}">{{ $t['pct'] }}%</span>
+                </div>
+                <div class="space-y-2.5 text-xs">
+                    <div class="flex justify-between items-center"><span class="text-gray-500">સોંપાયેલ</span><span class="font-semibold text-gray-900">₹{{ number_format($t['assigned'],2) }}</span></div>
+                    <div class="flex justify-between items-center"><span class="text-gray-500">છૂટ</span><span class="font-medium text-amber-600">₹{{ number_format($t['concession'],2) }}</span></div>
+                    <div class="flex justify-between items-center"><span class="text-gray-500">વસૂલ</span><span class="font-semibold text-emerald-600">₹{{ number_format($t['collected'],2) }}</span></div>
+                    <div class="flex justify-between items-center"><span class="text-gray-500">બાકી</span><span class="font-bold {{ $t['due']>0 ? 'text-red-600' : 'text-emerald-600' }}">₹{{ number_format($t['due'],2) }}</span></div>
+                    <div class="mt-3">
+                        <div class="w-full bg-white rounded-full h-2 overflow-hidden border border-emerald-100">
+                            <div class="h-2 rounded-full bg-emerald-600" style="width: {{ min(100, $t['pct']) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Standard × Class × Category Matrix Table --}}
     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm mb-8">
         <div class="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50/50">

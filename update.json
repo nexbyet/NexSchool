@@ -1,8 +1,10 @@
 {
-    "version": "1.1.5",
-    "requires": "1.1.4",
+    "version": "1.1.6",
+    "requires": "1.1.5",
     "migrations": [],
-    "delete_files": [],
+    "delete_files": [
+        "public/js/tailwind.js"
+    ],
     "post_update_commands": [
         "php artisan optimize:clear",
         "php artisan view:cache"

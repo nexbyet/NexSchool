@@ -1,5 +1,5 @@
 {{-- NexSchool Main Layout --}}
-{{-- Blade + Tailwind CDN + Alpine.js — cPanel ready, no Node.js needed --}}
+{{-- Blade + Local Vite-built Tailwind + Alpine.js --}}
 {{-- ગુજરાતી: મુખ્ય લેઆઉટ જેમાં sidebar, header અને main content નો સમાવેશ થાય છે --}}
 
 <!DOCTYPE html>
@@ -16,8 +16,9 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='16' y='22' font-size='18' font-weight='bold' text-anchor='middle' fill='white'>N</text></svg>">
     @endif
 
-    {{-- Tailwind CSS via CDN (no build step needed) --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Local compiled Tailwind CSS + app JS (versioned static assets, no CDN/Node needed at runtime) --}}
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.6.css') }}">
+    <script src="{{ asset('js/app-1.1.6.js') }}" defer>
     {{-- Alpine.js for interactivity (sidebar toggle) --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     {{-- LineIcons 5.1 Free CDN --}}

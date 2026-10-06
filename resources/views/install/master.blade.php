@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Install — NexSchool</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="{{ asset('css/app-1.1.6.css') }}">
 <link rel="stylesheet" href="https://cdn.lineicons.com/5.1/line/lineicons.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anek+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>

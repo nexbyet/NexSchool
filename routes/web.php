@@ -291,6 +291,8 @@ Route::middleware('auth')->group(function () {
         Route::post('collection/pay-multi', [FeeCollectionController::class, 'collectMulti'])->name('collection.pay-multi');
         Route::get('collection/receipt/{studentId}/{academicYearId}', [FeeCollectionController::class, 'receipt'])->name('collection.receipt');
         Route::post('collection/history', [FeeCollectionController::class, 'studentHistory'])->name('collection.history');
+        Route::post('collection/payment/update/{id}', [FeeCollectionController::class, 'updatePayment'])->name('collection.payment.update');
+        Route::post('collection/payment/delete/{id}', [FeeCollectionController::class, 'destroyPayment'])->name('collection.payment.delete');
 
         // Fee Reports
         Route::get('reports', [FeeReportController::class, 'index'])->name('reports.index');
