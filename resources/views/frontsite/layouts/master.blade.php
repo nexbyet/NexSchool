@@ -6,10 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $school->school_name_gu ?? 'શાળા') — {{ $school->school_name_gu ?? '' }}</title>
     <meta name="description" content="@yield('meta_description', $school->school_name_gu ?? '')">
-    <link rel="stylesheet" href="{{ asset('css/app-1.1.6.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.lineicons.com/5.1/line/lineicons.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/lineicons.css') }}">
+    <script defer src="{{ asset('js/alpine.min.js') }}"></script>
     @php $__fav = $school && $school->favicon ? asset('storage/'.$school->favicon) : null; @endphp
     @if($__fav)
     <link rel="icon" type="image/png" href="{{ $__fav }}">

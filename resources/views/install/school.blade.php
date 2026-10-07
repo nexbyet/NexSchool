@@ -5,7 +5,7 @@
     <p class="text-gray-400 text-xs mt-1 mb-5">Tell us about your school.</p>
 
     @if($errors->any())
-    <div class="alert-e mb-4 flex items-start gap-2 text-sm"><i class="lni lni-warning mt-0.5"></i> {{ $errors->first() }}</div>
+    <div class="alert-e mb-4 flex items-start gap-2 text-sm"><i class="lni lni-ban-2 mt-0.5"></i> {{ $errors->first() }}</div>
     @endif
 
     <form method="POST" action="{{ route('install.school.save') }}">@csrf
@@ -17,7 +17,7 @@
         </div>
         <div class="flex gap-3">
             <a href="{{ route('install.admin') }}" class="btn btn-g flex-1"><i class="lni lni-arrow-left"></i> Back</a>
-            <button type="submit" class="btn btn-p flex-1">Install <i class="lni lni-checkmark-circle"></i></button>
+            <button type="submit" class="btn btn-p flex-1">Install <i class="lni lni-check-circle-1"></i></button>
         </div>
     </form>
 </div>

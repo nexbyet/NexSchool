@@ -66,7 +66,7 @@
                     </select>
                 </div>
                 <div class="flex items-end">
-                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition flex items-center gap-2"><i class="lni lni-checkmark-circle text-sm"></i> પસંદ કરેલ વિદ્યાર્થીઓને સોંપો</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 transition flex items-center gap-2"><i class="lni lni-check-circle-1 text-sm"></i> પસંદ કરેલ વિદ્યાર્થીઓને સોંપો</button>
                 </div>
             </div>
             <div class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">

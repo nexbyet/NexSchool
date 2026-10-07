@@ -2,7 +2,7 @@
 @section('content')
 <div class="cd p-6 text-center fi">
     <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/15 mb-5">
-        <i class="lni lni-checkmark-circle text-2xl text-white"></i>
+        <i class="lni lni-check-circle-1 text-2xl text-white"></i>
     </div>
     <h2 class="text-base font-semibold text-white mb-1">Installation Complete!</h2>
     <p class="text-gray-400 text-xs mb-6">NexSchool has been installed successfully.</p>
@@ -29,7 +29,7 @@
 
     {{-- Security warning --}}
     <div class="bg-amber-500/5 border border-amber-500/10 rounded-lg p-4 text-left">
-        <h4 class="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1.5"><i class="lni lni-shield"></i> Security Notice</h4>
+        <h4 class="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1.5"><i class="lni lni-shield-2"></i> Security Notice</h4>
         <p class="text-[11px] text-amber-300/70 leading-relaxed mb-2">
             For maximum security, <strong class="text-amber-300">delete the installer files</strong> from your server.
             Leaving them accessible may allow attackers to reset your installation and gain admin access.

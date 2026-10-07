@@ -89,7 +89,7 @@
         <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <div class="flex items-center gap-2 mb-5">
                 <div class="w-8 h-8 bg-gradient-to-br from-amber-100 to-amber-200 rounded-lg flex items-center justify-center">
-                    <i class="lni lni-map-marker-1-1 text-amber-600 text-sm"></i>
+                    <i class="lni lni-map-marker-1 text-amber-600 text-sm"></i>
                 </div>
                 <h2 class="text-lg font-semibold text-gray-900">સરનામું</h2>
             </div>

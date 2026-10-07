@@ -271,6 +271,37 @@ $userRole = auth()->user()->role;
             </div>
         </div>
 
+        {{-- EXAM --}}
+        <hr class="my-2 border-gray-100">
+        <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1 flex items-center gap-1"><i class="lni lni-graduation-cap-1 text-xs"></i> પરીક્ષા</div>
+        <div x-data="{ open: @json(request()->routeIs('exams*')) }">
+            <button @click="open = !open" class="flex items-center justify-between w-full gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams*')) bg-violet-50 text-violet-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center justify-center w-5 h-5"><i class="lni lni-graduation-cap-1 text-lg @if(request()->routeIs('exams*')) text-violet-600 @endif"></i></span>
+                    પરીક્ષા વ્યવસ્થાપન
+                </div>
+                <i class="lni lni-chevron-down text-xs transition-transform duration-200" :class="open ? 'rotate-0' : '-rotate-90'"></i>
+            </button>
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-0.5 ml-3 space-y-0.5">
+                <a href="{{ route('exams.patterns.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.patterns*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.patterns*')) bg-violet-500 @else bg-gray-300 @endif"></span>
+                    પરીક્ષા પેટર્ન
+                </a>
+                <a href="{{ route('exams.marks.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.marks*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.marks*')) bg-violet-500 @else bg-gray-300 @endif"></span>
+                    ગુણ એન્ટ્રી
+                </a>
+                <a href="{{ route('exams.grades.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.grades*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.grades*')) bg-violet-500 @else bg-gray-300 @endif"></span>
+                    ગ્રેડ વ્યવસ્થાપન
+                </a>
+                <a href="{{ route('exams.reports.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.reports*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.reports*')) bg-violet-500 @else bg-gray-300 @endif"></span>
+                    રિપોર્ટ
+                </a>
+            </div>
+        </div>
+
         {{-- SETTINGS --}}
         <hr class="my-2 border-gray-100">
         <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 pt-1 pb-1 flex items-center gap-1"><i class="lni lni-gear-1 text-xs"></i> સેટિંગ્સ</div>

@@ -30,11 +30,11 @@
                 </div>
                 <div class="flex-1">
                     <label class="block w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 cursor-pointer transition text-center">
-                        <i class="lni lni-upload text-sm mr-1"></i> ફેવિકોન અપલોડ કરો
+                        <i class="lni lni-upload-1 text-sm mr-1"></i> ફેવિકોન અપલોડ કરો
                         <input type="file" accept="image/png,image/jpeg,image/gif,image/vnd.microsoft.icon,image/svg+xml" class="hidden" onchange="uploadFavicon(this, 'frontend')">
                     </label>
                     @if($setting->favicon)
-                    <button onclick="deleteFavicon('frontend')" class="mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"><i class="lni lni-trash-1 text-xs"></i> દૂર કરો</button>
+                    <button onclick="deleteFavicon('frontend')" class="mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"><i class="lni lni-trash-3 text-xs"></i> દૂર કરો</button>
                     @endif
                 </div>
             </div>
@@ -54,11 +54,11 @@
                 </div>
                 <div class="flex-1">
                     <label class="block w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 cursor-pointer transition text-center">
-                        <i class="lni lni-upload text-sm mr-1"></i> ફેવિકોન અપલોડ કરો
+                        <i class="lni lni-upload-1 text-sm mr-1"></i> ફેવિકોન અપલોડ કરો
                         <input type="file" accept="image/png,image/jpeg,image/gif,image/vnd.microsoft.icon,image/svg+xml" class="hidden" onchange="uploadFavicon(this, 'backend')">
                     </label>
                     @if($setting->backend_favicon)
-                    <button onclick="deleteFavicon('backend')" class="mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"><i class="lni lni-trash-1 text-xs"></i> દૂર કરો</button>
+                    <button onclick="deleteFavicon('backend')" class="mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"><i class="lni lni-trash-3 text-xs"></i> દૂર કરો</button>
                     @endif
                 </div>
             </div>
@@ -86,7 +86,7 @@
             </div>
             <div class="flex items-center gap-3 mt-6 pt-4 border-t border-gray-200">
                 <button type="submit" id="save-btn" class="px-6 py-2.5 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2 shadow-sm">
-                    <i class="lni lni-save text-sm"></i> <span>સાચવો</span>
+                    <i class="lni lni-floppy-disk-1 text-sm"></i> <span>સાચવો</span>
                 </button>
                 <a href="{{ route('dashboard') }}" class="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition">રદ કરો</a>
             </div>
@@ -123,7 +123,7 @@
             if (!btnWrap.querySelector('button')) {
                 var delBtn = document.createElement('button');
                 delBtn.className = 'mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1';
-                delBtn.innerHTML = '<i class="lni lni-trash-1 text-xs"></i> દૂર કરો';
+                delBtn.innerHTML = '<i class="lni lni-trash-3 text-xs"></i> દૂર કરો';
                 delBtn.onclick = function() { deleteFavicon(type); };
                 btnWrap.appendChild(delBtn);
             }

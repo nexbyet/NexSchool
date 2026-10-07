@@ -194,7 +194,7 @@ function renderStudentCards(students) {
                         <td class="px-4 py-3 text-center">
                             <div class="flex items-center justify-center gap-1">
                                 <button onclick="openPay(${s.id},'${s.name.replace(/'/g,"\\'")}','${s.standard||''}','${s.gaam||''}',${s.total},${s.paid},${s.due})" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="ફી ભરો"><i class="lni lni-wallet-1"></i></button>
-                                <button onclick="showHistory(${s.id},'${s.name.replace(/'/g,"\\'")}')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="હિસ્ટ્રી"><i class="lni lni-history"></i></button>
+                                <button onclick="showHistory(${s.id},'${s.name.replace(/'/g,"\\'")}')" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="હિસ્ટ્રી"><i class="lni lni-hourglass"></i></button>
                             </div>
                         </td>
                     </tr>

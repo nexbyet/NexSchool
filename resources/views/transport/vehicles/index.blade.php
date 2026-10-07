@@ -51,7 +51,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="8" class="px-4 py-16 text-center"><div class="flex flex-col items-center gap-3"><i class="lni lni-truck-1 text-5xl text-gray-300"></i><p class="text-gray-500 font-medium">હજી સુધી કોઈ વાહન ઉમેરાયું નથી</p><button onclick="openModal()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition flex items-center gap-2"><i class="lni lni-plus text-sm"></i> નવું વાહન ઉમેરો</button></div></td></tr>
+                    <tr><td colspan="8" class="px-4 py-16 text-center"><div class="flex flex-col items-center gap-3"><i class="lni lni-truck-delivery-1 text-5xl text-gray-300"></i><p class="text-gray-500 font-medium">હજી સુધી કોઈ વાહન ઉમેરાયું નથી</p><button onclick="openModal()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition flex items-center gap-2"><i class="lni lni-plus text-sm"></i> નવું વાહન ઉમેરો</button></div></td></tr>
                     @endforelse
                 </tbody>
             </table>

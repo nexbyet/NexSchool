@@ -16,16 +16,16 @@
 <script>
 document.getElementById('activateBtn').addEventListener('click', async function(){
     const btn=this, r=document.getElementById('licenseResult'), k=document.getElementById('licenseKey').value.trim();
-    if(!k){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-warning"></i> Enter a license key or skip.</div>';return}
+    if(!k){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-ban-2"></i> Enter a license key or skip.</div>';return}
     btn.disabled=!0; btn.innerHTML='<span class="sp"></span> Verifying...';
     const t=document.querySelector('meta[name=csrf-token]').content;
     try{
         const res=await fetch('{{ route("install.license.activate") }}',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':t},body:JSON.stringify({_token,license_key:k})});
         const j=await res.json();
         r.style.display='block';
-        if(j.success){r.innerHTML='<div class="alert-s"><i class="lni lni-checkmark-circle"></i> '+j.message+'</div>';setTimeout(()=>window.location.href='{{ route("install.admin") }}',600)}
-        else{r.innerHTML='<div class="alert-e"><i class="lni lni-warning"></i> '+j.message+'</div>';btn.disabled=!1;btn.innerHTML='<i class="lni lni-shield-2"></i> Activate'}
-    }catch(e){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-warning"></i> Server unreachable.</div>';btn.disabled=!1;btn.innerHTML='<i class="lni lni-shield-2"></i> Activate'}
+        if(j.success){r.innerHTML='<div class="alert-s"><i class="lni lni-check-circle-1"></i> '+j.message+'</div>';setTimeout(()=>window.location.href='{{ route("install.admin") }}',600)}
+        else{r.innerHTML='<div class="alert-e"><i class="lni lni-ban-2"></i> '+j.message+'</div>';btn.disabled=!1;btn.innerHTML='<i class="lni lni-shield-2"></i> Activate'}
+    }catch(e){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-ban-2"></i> Server unreachable.</div>';btn.disabled=!1;btn.innerHTML='<i class="lni lni-shield-2"></i> Activate'}
 });
 </script>
 @endpush

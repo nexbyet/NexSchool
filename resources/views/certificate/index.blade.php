@@ -39,7 +39,7 @@
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-100">
                     <h3 class="font-semibold text-gray-900 flex items-center gap-2">
-                        <i class="lni lni-funnel text-teal-600"></i>
+                        <i class="lni lni-funnel-1 text-teal-600"></i>
                         ધોરણ અને વર્ગ પસંદ કરો
                     </h3>
                 </div>

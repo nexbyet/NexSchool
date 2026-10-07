@@ -2,7 +2,7 @@
 @section('content')
 <div class="cd p-6 text-center">
     <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/15 mb-5">
-        <i class="lni lni-cog text-2xl text-white animate-spin"></i>
+        <i class="lni lni-gear-1 text-2xl text-white animate-spin"></i>
     </div>
     <h2 class="text-base font-semibold text-white">Installing NexSchool...</h2>
     <p class="text-gray-400 text-xs mt-1 mb-6">Please wait while we set up everything.</p>
@@ -30,7 +30,7 @@ async function startInstall(){
 
     function markDone(step){
         steps.forEach((el,i)=>{
-            if(i<step){el.innerHTML='<i class="lni lni-checkmark-circle text-emerald-400"></i> '+el.querySelector('span').textContent;el.style.opacity='1';el.className='flex items-center gap-2.5 text-sm text-emerald-400'}
+            if(i<step){el.innerHTML='<i class="lni lni-check-circle-1 text-emerald-400"></i> '+el.querySelector('span').textContent;el.style.opacity='1';el.className='flex items-center gap-2.5 text-sm text-emerald-400'}
             else if(i==step){el.style.display='flex';el.style.opacity='1';el.className='flex items-center gap-2.5 text-sm text-white'}
             else{el.style.display='flex';el.style.opacity='.3'}
         });

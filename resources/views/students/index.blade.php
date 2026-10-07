@@ -70,7 +70,7 @@
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <i class="lni lni-cross-circle text-amber-600 text-lg"></i>
+                <i class="lni lni-xmark-circle text-amber-600 text-lg"></i>
             </div>
             <div>
                 <p class="text-xs text-gray-500 font-medium uppercase tracking-wider">અનબોર્ડ</p>
@@ -176,7 +176,7 @@
                         @if($s->is_registered)
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700"><i class="lni lni-check-circle-1 text-xs"></i> હા</span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-cross-circle text-xs"></i> અનબોર્ડ</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-xmark-circle text-xs"></i> અનબોર્ડ</span>
                         @endif
                     </td>
                     <td class="px-4 py-3 text-center">
@@ -232,7 +232,7 @@
                     @if($end < $students->lastPage() - 1)<span class="px-1 text-gray-400 text-xs">...</span>@endif
                     <button onclick="goToPage({{ $students->lastPage() }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">{{ $students->lastPage() }}</button>
                 @endif
-                <button onclick="goToPage({{ $students->currentPage() + 1 }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($students->currentPage() >= $students->lastPage()) bg-gray-50 text-gray-300 cursor-not-allowed @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif" @if($students->currentPage() >= $students->lastPage()) disabled @endif><i class="lni lni-chevron-right text-xs"></i></button>
+                <button onclick="goToPage({{ $students->currentPage() + 1 }})" class="px-3 py-1.5 text-sm rounded-lg transition font-medium @if($students->currentPage() >= $students->lastPage()) bg-gray-50 text-gray-300 cursor-not-allowed @else bg-gray-100 text-gray-600 hover:bg-gray-200 @endif" @if($students->currentPage() >= $students->lastPage()) disabled @endif><i class="lni lni-arrow-right text-xs"></i></button>
             @endif
         </div>
     </div>
@@ -964,7 +964,7 @@ function renderTable(students) {
             <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}"><i class="lni lni-${statusIcon(s.status)} text-xs"></i> ${statusLabel}</span></td>
             <td class="px-4 py-3">${s.is_registered
                 ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 rounded-full text-xs font-medium text-emerald-700"><i class="lni lni-check-circle-1 text-xs"></i> હા</span>'
-                : '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-cross-circle text-xs"></i> અનબોર્ડ</span>'}</td>
+                : '<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 rounded-full text-xs font-medium text-amber-700"><i class="lni lni-xmark-circle text-xs"></i> અનબોર્ડ</span>'}</td>
             <td class="px-4 py-3 text-center">
                 <div class="flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition">
                     <a href="/students/${s.id}" class="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition" title="પ્રોફાઇલ જુઓ"><i class="lni lni-eye"></i></a>
@@ -1009,7 +1009,7 @@ function renderPagination(pg) {
             if (end < pg.last_page - 1) html += '<span class="px-1 text-gray-400 text-xs">...</span>';
             html += '<button onclick="goToPage(' + pg.last_page + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">' + pg.last_page + '</button>';
         }
-        html += '<button onclick="goToPage(' + (pg.current_page + 1) + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (pg.current_page >= pg.last_page ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '" ' + (pg.current_page >= pg.last_page ? 'disabled' : '') + '><i class="lni lni-chevron-right text-xs"></i></button>';
+        html += '<button onclick="goToPage(' + (pg.current_page + 1) + ')" class="px-3 py-1.5 text-sm rounded-lg transition font-medium ' + (pg.current_page >= pg.last_page ? 'bg-gray-50 text-gray-300 cursor-not-allowed' : 'bg-gray-100 text-gray-600 hover:bg-gray-200') + '" ' + (pg.current_page >= pg.last_page ? 'disabled' : '') + '><i class="lni lni-arrow-right text-xs"></i></button>';
     }
     elLinks.innerHTML = html;
 }

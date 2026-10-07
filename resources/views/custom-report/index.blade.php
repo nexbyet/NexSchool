@@ -240,7 +240,7 @@
                     {{-- Sort by column --}}
                     <div class="mt-4 pt-4 border-t border-gray-100">
                         <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                            <i class="lni lni-sort-alpha-asc text-violet-500"></i> કૉલમ મુજબ સૉર્ટ કરો
+                            <i class="lni lni-sort-alphabetical text-violet-500"></i> કૉલમ મુજબ સૉર્ટ કરો
                         </h4>
                         <div class="flex items-center gap-3">
                             <select id="sort_column" name="sort_column" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent">

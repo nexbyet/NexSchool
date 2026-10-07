@@ -83,7 +83,7 @@
                     @if(!$readOnly)
                     <div class="flex items-center gap-2">
                         <button id="copyDayBtn" class="px-3 py-1.5 text-xs font-medium bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-lg hover:bg-cyan-100 transition flex items-center gap-1.5">
-                            <i class="lni lni-copy text-[10px]"></i> બધા દિવસોમાં કોપી કરો
+                            <i class="lni lni-layers-1 text-[10px]"></i> બધા દિવસોમાં કોપી કરો
                         </button>
                         <button id="clearAllBtn" class="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition flex items-center gap-1.5">
                             <i class="lni lni-trash-3 text-[10px]"></i> બધું સાફ કરો
@@ -746,7 +746,7 @@
             }).catch(err => {
                 NexSchool.alert.danger('કોપી કરવામાં ભૂલ: ' + err.message);
                 btn.disabled = false;
-                btn.innerHTML = '<i class="lni lni-copy text-[10px]"></i> બધા દિવસોમાં કોપી કરો';
+                btn.innerHTML = '<i class="lni lni-layers-1 text-[10px]"></i> બધા દિવસોમાં કોપી કરો';
             });
         });
     });

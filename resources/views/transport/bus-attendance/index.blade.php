@@ -115,7 +115,7 @@
     </div>
     @elseif(request('route_id'))
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-        <i class="lni lni-users-2 text-5xl text-gray-300 mb-3 block"></i>
+        <i class="lni lni-user-multiple-4 text-5xl text-gray-300 mb-3 block"></i>
         <p class="text-gray-500 font-medium">આ રૂટ પર કોઈ વિદ્યાર્થી સોંપાયેલ નથી</p>
     </div>
     @endif

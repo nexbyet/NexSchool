@@ -83,6 +83,7 @@ class StudentFeeController extends Controller
         $concession = $data['concession_amount'] ?? 0;
         $isWaived = $data['is_waived'] ?? false;
         $assigned = 0;
+        $skipped = 0;
 
         foreach ($data['fee_structure_ids'] as $fsId) {
             $feeStructure = FeeStructure::with('details')->findOrFail($fsId);
@@ -101,29 +102,41 @@ class StudentFeeController extends Controller
             $netAmount = $isWaived ? 0 : max(0, $totalAmount - $excludedTotal - $concession);
 
             foreach ($data['student_ids'] as $studentId) {
-                StudentFee::updateOrCreate(
-                    [
-                        'student_id' => $studentId,
-                        'academic_year_id' => $data['academic_year_id'],
-                        'fee_structure_id' => $fsId,
-                        'semester' => $feeStructure->semester,
-                    ],
-                    [
-                        'total_amount' => $totalAmount,
-                        'concession_amount' => $concession,
-                        'net_amount' => $netAmount,
-                        'is_waived' => $isWaived,
-                        'excluded_fee_heads' => $excluded,
-                    ]
-                );
+                // પહેલેથી આ જ (structure + semester) સોંપાયેલું હોય તો SKIP — double entry + juni concession overwrite ન થાય
+                $alreadyAssigned = StudentFee::where('student_id', $studentId)
+                    ->where('academic_year_id', $data['academic_year_id'])
+                    ->where('fee_structure_id', $fsId)
+                    ->where('semester', $feeStructure->semester)
+                    ->exists();
+                if ($alreadyAssigned) {
+                    $skipped++;
+                    continue;
+                }
+                StudentFee::create([
+                    'student_id' => $studentId,
+                    'academic_year_id' => $data['academic_year_id'],
+                    'fee_structure_id' => $fsId,
+                    'semester' => $feeStructure->semester,
+                    'total_amount' => $totalAmount,
+                    'concession_amount' => $concession,
+                    'net_amount' => $netAmount,
+                    'is_waived' => $isWaived,
+                    'excluded_fee_heads' => $excluded,
+                ]);
                 $assigned++;
             }
         }
 
+        $message = "{$assigned} નવી ફી સોંપાઈ.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} વિદ્યાર્થીને આ ફી પહેલેથી સોંપાયેલી હતી (skip કરી).";
+        }
+
         return response()->json([
             'success' => true,
-            'message' => "{$assigned} fee assignments saved",
-            'count' => $assigned,
+            'message' => $message,
+            'assigned' => $assigned,
+            'skipped' => $skipped,
         ]);
     }
 

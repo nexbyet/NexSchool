@@ -129,7 +129,7 @@
             </div>
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button>
-                <button type="submit" id="submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition flex items-center gap-1"><i class="lni lni-save text-sm"></i> સાચવો</button>
+                <button type="submit" id="submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition flex items-center gap-1"><i class="lni lni-floppy-disk-1 text-sm"></i> સાચવો</button>
             </div>
         </form>
     </div>

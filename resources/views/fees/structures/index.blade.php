@@ -21,7 +21,7 @@
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="openCopyModal()" class="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition flex items-center gap-2">
-                    <i class="lni lni-copy text-base"></i> ગત વર્ષથી કૉપી કરો
+                    <i class="lni lni-layers-1 text-base"></i> ગત વર્ષથી કૉપી કરો
                 </button>
                 <button onclick="openModal()" class="px-4 py-2 bg-white text-amber-700 text-sm font-medium rounded-lg hover:bg-amber-50 transition flex items-center gap-2 shadow-lg">
                     <i class="lni lni-plus text-base"></i> નવું ફી માળખું
@@ -35,7 +35,7 @@
     <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6 shadow-sm">
         <div class="flex flex-wrap items-center gap-4">
             <div class="flex items-center gap-2">
-                <i class="lni lni-funnel text-gray-400 text-sm"></i>
+                <i class="lni lni-funnel-1 text-gray-400 text-sm"></i>
                 <label class="text-sm font-medium text-gray-700">શૈક્ષણિક વર્ષ:</label>
             </div>
             <select id="year-selector" onchange="switchYear(parseInt(this.value))" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
@@ -252,7 +252,7 @@
             <div class="flex items-center justify-end gap-3 mt-6">
                 <button type="button" onclick="closeCopyModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button>
                 <button type="submit" id="copy-submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg focus:ring-4 focus:ring-amber-200 transition flex items-center gap-2">
-                    <i class="lni lni-copy text-sm"></i> કૉપી કરો
+                    <i class="lni lni-layers-1 text-sm"></i> કૉપી કરો
                 </button>
             </div>
         </form>
@@ -588,7 +588,7 @@
             else { NexSchool.alert.danger(data.message || 'ભૂલ આવી.'); }
         })
         .catch(function(err) { NexSchool.alert.danger(err.message || 'કૉપી કરવામાં ભૂલ.'); })
-        .finally(function() { copySubmitBtn.disabled = false; copySubmitBtn.innerHTML = '<i class="lni lni-copy text-sm"></i> કૉપી કરો'; });
+        .finally(function() { copySubmitBtn.disabled = false; copySubmitBtn.innerHTML = '<i class="lni lni-layers-1 text-sm"></i> કૉપી કરો'; });
     });
 
     window.openModal = openModal;

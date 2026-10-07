@@ -60,7 +60,7 @@
             <div class="flex items-center gap-3">
                 <h2 class="text-lg font-semibold text-gray-900" id="student-count">વિદ્યાર્થીઓ (0)</h2>
                 <button onclick="showUnassignedOnly()" id="unassigned-toggle" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition flex items-center gap-1">
-                    <i class="lni lni-funnel text-xs"></i> ફક્ત અસાઇન ન થયેલા
+                    <i class="lni lni-funnel-1 text-xs"></i> ફક્ત અસાઇન ન થયેલા
                 </button>
             </div>
             <div class="flex items-center gap-2">
@@ -275,6 +275,9 @@
         }
     });
 
+    // માળખાં બદલાય એટલે table ફરી render — કોને સોંપાયેલું છે એ fresh દેખાય
+    feeStructureCheckboxes.addEventListener('change', function() { renderTable(currentStudents); });
+
     var showUnassignedOnly = function() {
         isUnassignedFilter = !isUnassignedFilter;
         if (isUnassignedFilter) {
@@ -359,6 +362,8 @@
             var s = filtered[i];
             var idx = i + 1;
 
+            var selStructIds = getSelectedStructureIds();
+            var hasAllSelectedFees = (selStructIds.length > 0) && studentHasAllSelectedFees(s);
             var allFeesHtml = '';
             var totalCombinedNet = 0;
             var feeCount = 0;
@@ -375,13 +380,14 @@
             if (!allFeesHtml) {
                 allFeesHtml = '<span class="text-xs text-gray-400">—</span>';
             }
+            if (hasAllSelectedFees) {
+                allFeesHtml += '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">✓ સોંપાયેલ</span> ';
+            }
 
             var checked = '';
             for (var j = 0; j < selectedStudentIds.length; j++) {
                 if (selectedStudentIds[j] === s.id) { checked = 'checked'; break; }
             }
-            var selStructIds = getSelectedStructureIds();
-            var hasAllSelectedFees = (selStructIds.length > 0) && studentHasAllSelectedFees(s);
             var checkboxDisabled = hasAllSelectedFees ? 'disabled' : '';
             var actionBtn = '<div class="flex items-center justify-center gap-1">';
             // Show "ફી સોંપો" if missing any selected structure
@@ -432,7 +438,8 @@
 
     var updateBulkButton = function() {
         selectedStudentIds = [];
-        var checkboxes = studentsTbody.querySelectorAll('.student-checkbox:checked');
+        // disabled (પહેલેથી સોંપાયેલા) checkboxes payload માં ન આવે
+        var checkboxes = studentsTbody.querySelectorAll('.student-checkbox:checked:not(:disabled)');
         for (var i = 0; i < checkboxes.length; i++) {
             selectedStudentIds.push(parseInt(checkboxes[i].value));
         }
@@ -538,10 +545,25 @@
     }
     window.updateModalSummary = updateModalSummary;
 
+    // પસંદ કરેલામાંથી ફક્ત જેમને પસંદ કરેલા માળખાં નથી સોંપાયા એ જ રાખો
+    function filterUnassignedIds(ids) {
+        var out = [];
+        var byId = {};
+        for (var i = 0; i < currentStudents.length; i++) { byId[currentStudents[i].id] = currentStudents[i]; }
+        for (var j = 0; j < ids.length; j++) {
+            var st = byId[ids[j]];
+            if (!st || !studentHasAllSelectedFees(st)) { out.push(ids[j]); }
+        }
+        return out;
+    }
+
     var openBulkModal = function() {
         if (selectedStudentIds.length === 0) { NexSchool.alert.danger('કૃપા કરીને વિદ્યાર્થીઓ પસંદ કરો.'); return; }
         var selIds = getSelectedStructureIds();
         if (selIds.length === 0) { NexSchool.alert.danger('કૃપા કરીને ઉપર ફી માળખાં પસંદ કરો.'); return; }
+        // પહેલેથી સોંપાયેલા વિદ્યાર્થીઓને payload માંથી કાઢો
+        selectedStudentIds = filterUnassignedIds(selectedStudentIds);
+        if (selectedStudentIds.length === 0) { NexSchool.alert.note('પસંદ કરેલા બધા વિદ્યાર્થીઓને આ ફી પહેલેથી સોંપાયેલી છે.'); return; }
         assignEditId.value = '';
         assignModalTitle.textContent = 'બલ્ક ફી સોંપો';
         selectedCountMsg.textContent = selectedStudentIds.length + ' વિદ્યાર્થીઓ પસંદ કર્યા';
@@ -686,6 +708,7 @@
             if (data.success) {
                 NexSchool.alert.success(data.message || 'ફી સોંપાઈ.');
                 closeAssignModal();
+                selectedStudentIds = []; // જૂની selection સાફ — ફરી assign ન થાય
                 searchStudents();
             } else {
                 NexSchool.alert.danger(data.message || 'ભૂલ આવી.');

@@ -73,7 +73,7 @@
                 </button>
                 @if($setting && $setting->license_key)
                 <button type="button" onclick="deactivateLicense()" class="px-4 py-2.5 text-sm font-medium text-red-600 hover:text-red-800 transition flex items-center gap-1">
-                    <i class="lni lni-trash-1 text-sm"></i> દૂર કરો
+                    <i class="lni lni-trash-3 text-sm"></i> દૂર કરો
                 </button>
                 @endif
             </div>

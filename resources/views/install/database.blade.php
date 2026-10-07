@@ -15,7 +15,7 @@
     <div id="dbResult" style="display:none" class="mb-4"></div>
 
     <div class="flex gap-3">
-        <button type="button" id="testBtn" class="btn btn-g flex-1"><i class="lni lni-connection"></i> Test</button>
+        <button type="button" id="testBtn" class="btn btn-g flex-1"><i class="lni lni-database-2"></i> Test</button>
         <a href="{{ route('install.license') }}" id="continueBtn" class="btn btn-p flex-1" style="pointer-events:none;opacity:.4">Continue <i class="lni lni-arrow-right"></i></a>
     </div>
 </div>
@@ -35,10 +35,10 @@ document.getElementById('testBtn').addEventListener('click', async function(){
         const res=await fetch('{{ route("install.database.test") }}',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':t},body:d});
         const j=await res.json();
         r.style.display='block';
-        if(j.success){r.innerHTML='<div class="alert-s"><i class="lni lni-checkmark-circle"></i> '+j.message+'</div>';c.style.pointerEvents='auto';c.style.opacity='1'}
-        else{r.innerHTML='<div class="alert-e"><i class="lni lni-warning"></i> '+j.message+'</div>';c.style.pointerEvents='none';c.style.opacity='.4'}
-    }catch(e){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-warning"></i> Server unreachable.</div>';c.style.pointerEvents='none';c.style.opacity='.4'}
-    finally{btn.disabled=!1;btn.innerHTML='<i class="lni lni-connection"></i> Test'}
+        if(j.success){r.innerHTML='<div class="alert-s"><i class="lni lni-check-circle-1"></i> '+j.message+'</div>';c.style.pointerEvents='auto';c.style.opacity='1'}
+        else{r.innerHTML='<div class="alert-e"><i class="lni lni-ban-2"></i> '+j.message+'</div>';c.style.pointerEvents='none';c.style.opacity='.4'}
+    }catch(e){r.style.display='block';r.innerHTML='<div class="alert-e"><i class="lni lni-ban-2"></i> Server unreachable.</div>';c.style.pointerEvents='none';c.style.opacity='.4'}
+    finally{btn.disabled=!1;btn.innerHTML='<i class="lni lni-database-2"></i> Test'}
 });
 </script>
 @endpush

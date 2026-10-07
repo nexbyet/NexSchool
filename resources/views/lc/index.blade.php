@@ -9,7 +9,7 @@
                 <p class="text-slate-300 mt-1 text-sm">વિદ્યાર્થીઓને શાળા છોડવાનું પ્રમાણપત્ર આપો</p>
             </div>
             <a href="{{ route('lc.register') }}" target="_blank" class="px-4 py-2 bg-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/30 transition flex items-center gap-2">
-                <i class="lni lni-printer-1 text-base"></i> LC રજીસ્ટર
+                <i class="lni lni-printer text-base"></i> LC રજીસ્ટર
             </a>
         </div>
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
@@ -116,7 +116,7 @@
             <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button>
                 <button type="submit" id="lc-submit-btn" class="px-4 py-2 text-sm font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg focus:ring-4 focus:ring-slate-200 transition flex items-center gap-2">
-                    <i class="lni lni-checkmark-circle-1 text-sm"></i> LC જારી કરો
+                    <i class="lni lni-check-circle-1 text-sm"></i> LC જારી કરો
                 </button>
             </div>
         </form>
@@ -164,7 +164,7 @@
         .then(function(r) { return r.json(); })
         .then(function(res) {
             if (!res.success || !res.students.length) {
-                resultsContainer.innerHTML = '<div class="text-center py-16 bg-white rounded-xl border border-gray-200"><div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl flex items-center justify-center shadow-sm"><i class="lni lni-user-block-1 text-3xl text-gray-300"></i></div><p class="text-gray-500 font-medium">કોઈ વિદ્યાર્થી મળ્યો નથી</p><p class="text-gray-400 text-sm mt-1">ફિલ્ટર બદલીને ફરી પ્રયાસ કરો</p></div>';
+                resultsContainer.innerHTML = '<div class="text-center py-16 bg-white rounded-xl border border-gray-200"><div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl flex items-center justify-center shadow-sm"><i class="lni lni-user-4 text-3xl text-gray-300"></i></div><p class="text-gray-500 font-medium">કોઈ વિદ્યાર્થી મળ્યો નથી</p><p class="text-gray-400 text-sm mt-1">ફિલ્ટર બદલીને ફરી પ્રયાસ કરો</p></div>';
                 return;
             }
             var html = '';
@@ -175,7 +175,7 @@
                     : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700"><i class="lni lni-check-circle-1 text-xs"></i> સક્રિય</span>';
                 var lcBtn = s.status === 'alumni'
                     ? '<span class="text-xs text-slate-400">LC જારી — ' + (s.l_c_number || '—') + '</span>'
-                    : '<button onclick="openLcModal(' + s.id + ')" class="px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition"><i class="lni lni-checkmark-circle-1 text-xs"></i> LC આપો</button>';
+                    : '<button onclick="openLcModal(' + s.id + ')" class="px-3 py-1.5 text-xs font-medium text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition"><i class="lni lni-check-circle-1 text-xs"></i> LC આપો</button>';
                 html += '<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition">';
                 html += '<div class="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-100 to-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">';
                 if (s.photo) html += '<img src="{{ asset("storage") }}/' + s.photo + '" class="w-full h-full object-cover">';
@@ -258,7 +258,7 @@
             }
         })
         .catch(function(err) { NexSchool.alert.danger(err.message || 'સર્વર ભૂલ'); })
-        .finally(function() { lcSubmitBtn.disabled = false; lcSubmitBtn.innerHTML = '<i class="lni lni-checkmark-circle-1 text-sm"></i> LC જારી કરો'; });
+        .finally(function() { lcSubmitBtn.disabled = false; lcSubmitBtn.innerHTML = '<i class="lni lni-check-circle-1 text-sm"></i> LC જારી કરો'; });
     });
 
     document.getElementById('search-gr').addEventListener('keydown', function(e) {

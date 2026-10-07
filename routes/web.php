@@ -32,6 +32,10 @@ use App\Http\Controllers\FeeCollectionController;
 use App\Http\Controllers\FeeReportController;
 use App\Http\Controllers\FeeRegisterController;
 use App\Http\Controllers\FeeCarryForwardController;
+use App\Http\Controllers\ExamPatternController;
+use App\Http\Controllers\ExamMarkController;
+use App\Http\Controllers\GradeController;
+use App\Http\Controllers\ExamReportController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NoticeController;
@@ -315,6 +319,38 @@ Route::middleware('auth')->group(function () {
         // Fee Register
         Route::get('register', [FeeRegisterController::class, 'index'])->name('register.index');
         Route::get('register/print', [FeeRegisterController::class, 'print'])->name('register.print');
+    });
+
+    // Exam Module — Pattern Builder
+    Route::prefix('exams')->name('exams.')->group(function () {
+        Route::get('patterns', [ExamPatternController::class, 'index'])->name('patterns.index');
+        Route::get('patterns/create', [ExamPatternController::class, 'create'])->name('patterns.create');
+        Route::post('patterns', [ExamPatternController::class, 'store'])->name('patterns.store');
+        Route::get('patterns/standard-classes/{standard}', [ExamPatternController::class, 'standardClasses'])->name('patterns.standard-classes');
+        Route::get('patterns/standard-subjects/{standard}', [ExamPatternController::class, 'standardSubjects'])->name('patterns.standard-subjects');
+        Route::get('patterns/{id}/edit', [ExamPatternController::class, 'edit'])->name('patterns.edit');
+        Route::get('patterns/{id}', [ExamPatternController::class, 'show'])->name('patterns.show');
+        Route::post('patterns/update/{id}', [ExamPatternController::class, 'update'])->name('patterns.update');
+        Route::post('patterns/delete/{id}', [ExamPatternController::class, 'destroy'])->name('patterns.destroy');
+        Route::post('patterns/copy/{id}', [ExamPatternController::class, 'copy'])->name('patterns.copy');
+
+        // Exam Marks Entry (Phase 2)
+        Route::get('marks', [ExamMarkController::class, 'index'])->name('marks.index');
+        Route::get('marks/scope/{year}', [ExamMarkController::class, 'scope'])->name('marks.scope');
+        Route::post('marks/grid', [ExamMarkController::class, 'grid'])->name('marks.grid');
+        Route::post('marks/save', [ExamMarkController::class, 'save'])->name('marks.save');
+
+        // Semester Report (Result)
+        Route::get('reports', [ExamReportController::class, 'index'])->name('reports.index');
+        Route::post('reports/data', [ExamReportController::class, 'report'])->name('reports.data');
+        Route::get('reports/print', [ExamReportController::class, 'print'])->name('reports.print');
+
+        // Grade Management
+        Route::get('grades', [GradeController::class, 'index'])->name('grades.index');
+        Route::post('grades', [GradeController::class, 'store'])->name('grades.store');
+        Route::get('grades/{id}', [GradeController::class, 'show'])->name('grades.show');
+        Route::post('grades/update/{id}', [GradeController::class, 'update'])->name('grades.update');
+        Route::post('grades/delete/{id}', [GradeController::class, 'destroy'])->name('grades.destroy');
     });
 
     // Transport Module

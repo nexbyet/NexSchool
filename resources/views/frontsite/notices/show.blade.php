@@ -9,7 +9,7 @@
         </a>
         <h1 class="text-2xl md:text-4xl font-bold">{{ $notice->title_gu }}</h1>
         <p class="text-white-70 text-sm mt-1">
-            <i class="lni lni-calendar"></i> {{ $notice->date->locale('gu')->isoFormat('D MMMM, YYYY') }}
+            <i class="lni lni-calendar-days"></i> {{ $notice->date->locale('gu')->isoFormat('D MMMM, YYYY') }}
         </p>
     </div>
 </section>

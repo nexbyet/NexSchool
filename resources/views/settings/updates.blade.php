@@ -12,21 +12,21 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-            <div class="text-5xl mb-2 text-emerald-500"><i class="lni lni-code-alt"></i></div>
+            <div class="text-5xl mb-2 text-emerald-500"><i class="lni lni-code-1"></i></div>
             <div class="text-sm text-gray-500">વર્તમાન વર્ઝન</div>
             <div class="text-2xl font-bold text-gray-800 font-mono">v{{ $currentVersion }}</div>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center" id="latest-version-card">
-            <div class="text-5xl mb-2 text-gray-300"><i class="lni lni-cloud"></i></div>
+            <div class="text-5xl mb-2 text-gray-300"><i class="lni lni-cloud-2"></i></div>
             <div class="text-sm text-gray-500">નવું વર્ઝન</div>
             <div class="text-2xl font-bold text-gray-400 font-mono" id="latest-version-text">—</div>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col items-center justify-center">
             <button onclick="checkUpdate()" id="check-btn" class="px-6 py-3 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition flex items-center gap-2 shadow-sm">
-                <i class="lni lni-refresh text-sm"></i> અપડેટ ચેક કરો
+                <i class="lni lni-refresh-circle-1-clockwise text-sm"></i> અપડેટ ચેક કરો
             </button>
             <button onclick="runUpdate()" id="update-btn" class="px-6 py-3 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 shadow-sm mt-3 hidden">
-                <i class="lni lni-download text-sm"></i> અપડેટ કરો
+                <i class="lni lni-download-1 text-sm"></i> અપડેટ કરો
             </button>
         </div>
     </div>
@@ -63,7 +63,7 @@
 function checkUpdate() {
     var btn = document.getElementById('check-btn');
     var result = document.getElementById('update-result');
-    btn.disabled = true; btn.innerHTML = '<i class="lni lni-spinner-2 text-sm animate-spin"></i> ચેક કરી રહ્યા...';
+    btn.disabled = true; btn.innerHTML = '<i class="lni lni-spinner-3 text-sm animate-spin"></i> ચેક કરી રહ્યા...';
     result.className = 'hidden';
 
     fetch('{{ route("settings.updates.check") }}', {
@@ -74,13 +74,13 @@ function checkUpdate() {
     .then(function(d) {
         if (!d.success) {
             result.className = 'bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 mb-6';
-            result.innerHTML = '<i class="lni lni-warning mr-1"></i> ' + d.message;
-            btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh text-sm"></i> અપડેટ ચેક કરો';
+            result.innerHTML = '<i class="lni lni-ban-2 mr-1"></i> ' + d.message;
+            btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh-circle-1-clockwise text-sm"></i> અપડેટ ચેક કરો';
             return;
         }
 
         document.getElementById('latest-version-card').querySelector('.text-5xl').className = 'text-5xl mb-2 ' + (d.update_available ? 'text-amber-500' : 'text-emerald-500');
-        document.getElementById('latest-version-card').querySelector('.text-5xl').innerHTML = d.update_available ? '<i class="lni lni-download"></i>' : '<i class="lni lni-checkmark-circle"></i>';
+        document.getElementById('latest-version-card').querySelector('.text-5xl').innerHTML = d.update_available ? '<i class="lni lni-download-1"></i>' : '<i class="lni lni-check-circle-1"></i>';
         document.getElementById('latest-version-text').textContent = 'v' + d.latest_version;
         document.getElementById('latest-version-text').className = 'text-2xl font-bold font-mono ' + (d.update_available ? 'text-amber-600' : 'text-emerald-600');
 
@@ -90,23 +90,23 @@ function checkUpdate() {
             document.getElementById('update-btn').classList.remove('hidden');
         } else {
             result.className = 'bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-700 mb-6';
-            result.innerHTML = '<i class="lni lni-checkmark-circle mr-1"></i> તમે નવીનતમ વર્ઝન પર છો!';
+            result.innerHTML = '<i class="lni lni-check-circle-1 mr-1"></i> તમે નવીનતમ વર્ઝન પર છો!';
             document.getElementById('update-btn').classList.add('hidden');
         }
 
-        btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh text-sm"></i> ફરી ચેક કરો';
+        btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh-circle-1-clockwise text-sm"></i> ફરી ચેક કરો';
     })
     .catch(function() {
         result.className = 'bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 mb-6';
-        result.innerHTML = '<i class="lni lni-warning mr-1"></i> સર્વર ભૂલ. ફરી પ્રયાસ કરો.';
-        btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh text-sm"></i> અપડેટ ચેક કરો';
+        result.innerHTML = '<i class="lni lni-ban-2 mr-1"></i> સર્વર ભૂલ. ફરી પ્રયાસ કરો.';
+        btn.disabled = false; btn.innerHTML = '<i class="lni lni-refresh-circle-1-clockwise text-sm"></i> અપડેટ ચેક કરો';
     });
 }
 
 function runUpdate() {
     if (!confirm('અપડેટ ઇન્સ્ટોલ કરવાથી સિસ્ટમ થોડી સેકંડ માટે બંધ રહેશે. ચાલુ રાખવું?')) return;
     var btn = document.getElementById('update-btn');
-    btn.disabled = true; btn.innerHTML = '<i class="lni lni-spinner-2 text-sm animate-spin"></i> અપડેટ કરી રહ્યા...';
+    btn.disabled = true; btn.innerHTML = '<i class="lni lni-spinner-3 text-sm animate-spin"></i> અપડેટ કરી રહ્યા...';
 
     fetch('{{ route("settings.updates.run") }}', {
         method: 'POST',
@@ -115,7 +115,7 @@ function runUpdate() {
     .then(function(r) { return r.json(); })
     .then(function(d) {
         if (d.success) { location.reload(); }
-        else { alert(d.message || 'અપડેટ નિષ્ફળ'); btn.disabled = false; btn.innerHTML = '<i class="lni lni-download text-sm"></i> અપડેટ કરો'; }
+        else { alert(d.message || 'અપડેટ નિષ્ફળ'); btn.disabled = false; btn.innerHTML = '<i class="lni lni-download-1 text-sm"></i> અપડેટ કરો'; }
     });
 }
 </script>

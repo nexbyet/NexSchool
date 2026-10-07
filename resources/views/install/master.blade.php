@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Install — NexSchool</title>
-<link rel="stylesheet" href="{{ asset('css/app-1.1.6.css') }}">
-<link rel="stylesheet" href="https://cdn.lineicons.com/5.1/line/lineicons.css">
+<link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+<link rel="stylesheet" href="{{ asset('css/lineicons.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anek+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{font-family:'Inter','Anek Gujarati',sans-serif}
@@ -63,7 +63,7 @@ $currentStep = $stepMap[$routeName] ?? 0;
 <aside class="w-[270px] sb flex flex-col flex-shrink-0 p-7 min-h-screen max-md:hidden">
     <div class="flex items-center gap-3 mb-10 px-2">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/15">
-            <i class="lni lni-graduation text-lg text-white"></i>
+            <i class="lni lni-graduation-cap-1 text-lg text-white"></i>
         </div>
         <div>
             <div class="text-white font-bold text-sm tracking-tight">NexSchool</div>
@@ -74,7 +74,7 @@ $currentStep = $stepMap[$routeName] ?? 0;
         @foreach($stepNames as $i => $name)
         @php $state = $i < $currentStep ? 'done' : ($i == $currentStep ? 'active' : 'pend'); @endphp
         <div class="st {{ $state }}">
-            <div class="n">@if($state==='done')<i class="lni lni-checkmark text-xs"></i>@else{{ $i+1 }}@endif</div>
+            <div class="n">@if($state==='done')<i class="lni lni-check text-xs"></i>@else{{ $i+1 }}@endif</div>
             <div class="min-w-0">
                 <div class="l">{{ $stepLabels[$i] }}</div>
                 <div class="d">{{ $stepDescs[$i] }}</div>

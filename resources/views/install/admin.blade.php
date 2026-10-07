@@ -5,7 +5,7 @@
     <p class="text-gray-400 text-xs mt-1 mb-5">Create the super admin account.</p>
 
     @if($errors->any())
-    <div class="alert-e mb-4 flex items-start gap-2 text-sm"><i class="lni lni-warning mt-0.5"></i> {{ $errors->first() }}</div>
+    <div class="alert-e mb-4 flex items-start gap-2 text-sm"><i class="lni lni-ban-2 mt-0.5"></i> {{ $errors->first() }}</div>
     @endif
 
     <form method="POST" action="{{ route('install.admin.save') }}">@csrf

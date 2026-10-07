@@ -17,12 +17,12 @@
     @endif
 
     {{-- Local compiled Tailwind CSS + app JS (versioned static assets, no CDN/Node needed at runtime) --}}
-    <link rel="stylesheet" href="{{ asset('css/app-1.1.6.css') }}">
-    <script src="{{ asset('js/app-1.1.6.js') }}" defer>
-    {{-- Alpine.js for interactivity (sidebar toggle) --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    {{-- LineIcons 5.1 Free CDN --}}
-    <link rel="stylesheet" href="https://cdn.lineicons.com/5.1/line/lineicons.css">
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+    <script src="{{ asset('js/app-1.1.7.js') }}" defer></script>
+    {{-- Alpine.js (local, no CDN) for interactivity (sidebar dropdowns, modals, tabs) --}}
+    <script defer src="{{ asset('js/alpine.min.js') }}"></script>
+    {{-- LineIcons 5.1 Free (local, no CDN) --}}
+    <link rel="stylesheet" href="{{ asset('css/lineicons.css') }}">
     {{-- SortableJS for drag-and-drop reordering --}}
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 

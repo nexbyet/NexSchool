@@ -60,7 +60,7 @@
                 </div>
                 <div class="mt-6 pt-4 border-t border-gray-100 flex justify-end">
                     <button type="submit" id="theme-submit" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition flex items-center gap-2 text-sm">
-                        <i class="lni lni-save text-sm"></i> સાચવો
+                        <i class="lni lni-floppy-disk-1 text-sm"></i> સાચવો
                     </button>
                 </div>
             </form>
@@ -164,7 +164,7 @@
         .then(function(d){
             if(d.success){ NexSchool.alert.success(d.message); } else NexSchool.alert.danger(d.message || 'ભૂલ');
         }).catch(function(){ NexSchool.alert.danger('ભૂલ'); })
-        .finally(function(){ btn.disabled=false; btn.innerHTML = '<i class="lni lni-save text-sm"></i> સાચવો'; });
+        .finally(function(){ btn.disabled=false; btn.innerHTML = '<i class="lni lni-floppy-disk-1 text-sm"></i> સાચવો'; });
     });
 })();
 </script>
