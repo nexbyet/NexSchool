@@ -1,14 +1,13 @@
 {
-    "version": "1.1.7",
-    "requires": "1.1.6",
-    "migrations": [
-        "2026_10_06_110000_create_exam_pattern_tables",
-        "2026_10_06_120000_create_exam_marks_table",
-        "2026_10_06_130000_create_grade_tables"
-    ],
+    "version": "1.1.8",
+    "requires": "1.1.5",
+    "migrations": [],
     "delete_files": [
+        "public/css/app-1.1.7.css",
+        "public/js/app-1.1.7.js",
         "public/css/app-1.1.6.css",
-        "public/js/app-1.1.6.js"
+        "public/js/app-1.1.6.js",
+        "public/js/tailwind.js"
     ],
     "post_update_commands": [
         "php artisan optimize:clear",

@@ -127,8 +127,10 @@ class ExamReportController extends Controller
             $grandTotal += $hc['converted'];
         }
 
+        // અનબોર્ડ (is_registered = false) વિદ્યાર્થીઓ રિપોર્ટમાં ન આવે — એ શાળાના નોંધાયેલા વિદ્યાર્થી નથી
         $students = Student::where('current_standard_id', $data['standard_id'])
             ->where('current_class_id', $data['school_class_id'])
+            ->where('is_registered', true)
             ->where('status', '!=', 'alumni')
             ->defaultSort()
             ->get(['id', 'gr_number', 'full_name_gu', 'full_name_en']);

@@ -104,8 +104,8 @@
                 <tbody class="divide-y divide-gray-100">
                     @foreach($feeAssignments as $assignment)
                     <tr>
-                        <td class="py-2 px-3 text-gray-800">{{ optional(optional($assignment->feeStructure)->details->first())->feeHead?->name_gu ?? '—' }}</td>
-                        <td class="py-2 px-3 text-right text-gray-800">₹{{ number_format($assignment->feeStructure?->total_amount ?? 0) }}</td>
+                        <td class="py-2 px-3 text-gray-800">{{ optional(optional(optional($assignment->feeStructure)->details)->first())->feeHead?->name_gu ?? '—' }}</td>
+                        <td class="py-2 px-3 text-right text-gray-800">₹{{ number_format($assignment->net_amount ?? 0) }}</td>
                     </tr>
                     @endforeach
                 </tbody>

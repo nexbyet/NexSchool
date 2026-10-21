@@ -94,8 +94,10 @@ class ExamMarkController extends Controller
             return response()->json(['success' => false, 'message' => 'આ સત્રમાં કોઈ હેડ નથી.'], 422);
         }
 
+        // અનબોર્ડ (is_registered = false) વિદ્યાર્થીઓ પરીક્ષા આપતા નથી — ગુણ એન્ટ્રી ગ્રિડમાં ન દેખાય
         $students = Student::where('current_standard_id', $data['standard_id'])
             ->where('current_class_id', $data['school_class_id'])
+            ->where('is_registered', true)
             ->where('status', '!=', 'alumni')
             ->defaultSort()
             ->get(['id', 'gr_number', 'full_name_gu', 'full_name_en']);
@@ -157,8 +159,19 @@ class ExamMarkController extends Controller
         $saved = 0;
         $cleared = 0;
 
-        DB::transaction(function () use ($data, $validHeads, &$saved, &$cleared) {
+        // સલામતી: આ ધોરણ+વર્ગના નોંધાયેલા (registered) વિદ્યાર્થીઓ જ ગુણ સાચવી શકે.
+        // અનબોર્ડ વિદ્યાર્થીનો ગુણ (જૂનો/મેન્યુઅલ રિક્વેસ્ટ) સાચવવો નહીં.
+        $validStudentIds = Student::where('current_standard_id', $data['standard_id'])
+            ->where('current_class_id', $data['school_class_id'])
+            ->where('is_registered', true)
+            ->where('status', '!=', 'alumni')
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        DB::transaction(function () use ($data, $validHeads, $validStudentIds, &$saved, &$cleared) {
             foreach ($data['marks'] as $row) {
+                if (!in_array((int) $row['student_id'], $validStudentIds)) continue; // અનબોર્ડ/બીજા વર્ગનો વિદ્યાર્થી — skip
                 $head = $validHeads->get($row['head_id']);
                 if (!$head) continue; // biju sem/head — skip (safety)
                 if ($row['marks'] === null || $row['marks'] === '') {

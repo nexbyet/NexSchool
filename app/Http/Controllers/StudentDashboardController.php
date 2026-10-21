@@ -39,7 +39,7 @@ class StudentDashboardController extends Controller
                 ->get();
 
             $totalDue = $feeAssignments->sum(function ($a) {
-                return $a->feeStructure?->total_amount ?? 0;
+                return $a->net_amount ?? 0;
             });
 
             $totalPaid = $feePayments->sum('amount_paid');
