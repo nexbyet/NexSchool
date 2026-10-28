@@ -116,7 +116,7 @@ class DemoDataSeeder extends Seeder
         $payload = '*|2099-12-31|all';
         $licenseKey = base64_encode($payload . '||' . hash_hmac('sha256', $payload, $secret));
 
-        SchoolSetting::create([
+        $setting = SchoolSetting::create([
             'school_name_gu' => 'શ્રી સરસ્વતી વિદ્યાલય',
             'school_name_en' => 'Shri Saraswati Vidyalaya',
             'management_name_gu' => 'શ્રી સરસ્વતી શિક્ષણ ટ્રસ્ટ',
@@ -136,8 +136,14 @@ class DemoDataSeeder extends Seeder
             'licensee_name' => 'Shri Saraswati Vidyalaya (Demo)',
             'licensed_until' => '2099-12-31',
             'license_status' => 'active',
-            'app_version' => '1.1.7',
+            'app_version' => '1.1.9',
         ]);
+
+        // The app reads settings via SchoolSetting::find(1); MySQL auto-increment
+        // may not be 1 on a re-used database, so force the demo row to id 1.
+        if ($setting->id !== 1) {
+            DB::table('school_settings')->where('id', $setting->id)->update(['id' => 1]);
+        }
     }
 
     private function seedDropdowns(): void

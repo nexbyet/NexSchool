@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Install — NexSchool</title>
-<link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+<title>Install â€” NexSchool</title>
+<link rel="stylesheet" href="{{ asset('css/app-1.1.8.css') }}">
 <link rel="stylesheet" href="{{ asset('css/lineicons.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anek+Gujarati:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -83,7 +83,7 @@ $currentStep = $stepMap[$routeName] ?? 0;
         @endforeach
     </nav>
     <div class="pt-6 border-t border-white/[.04] mt-6">
-        <p class="text-[11px] text-gray-700">© {{ date('Y') }} NexSchool</p>
+        <p class="text-[11px] text-gray-700">Â© {{ date('Y') }} NexSchool</p>
     </div>
 </aside>
 

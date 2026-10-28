@@ -1,14 +1,8 @@
 {
-    "version": "1.1.8",
+    "version": "1.1.9",
     "requires": "1.1.5",
     "migrations": [],
-    "delete_files": [
-        "public/css/app-1.1.7.css",
-        "public/js/app-1.1.7.js",
-        "public/css/app-1.1.6.css",
-        "public/js/app-1.1.6.js",
-        "public/js/tailwind.js"
-    ],
+    "delete_files": [],
     "post_update_commands": [
         "php artisan optimize:clear",
         "php artisan view:cache"

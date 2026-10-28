@@ -1,6 +1,6 @@
 {{-- NexSchool Main Layout --}}
 {{-- Blade + Local Vite-built Tailwind + Alpine.js --}}
-{{-- ગુજરાતી: મુખ્ય લેઆઉટ જેમાં sidebar, header અને main content નો સમાવેશ થાય છે --}}
+{{-- àª—à«àªœàª°àª¾àª¤à«€: àª®à«àª–à«àª¯ àª²à«‡àª†àª‰àªŸ àªœà«‡àª®àª¾àª‚ sidebar, header àª…àª¨à«‡ main content àª¨à«‹ àª¸àª®àª¾àªµà«‡àª¶ àª¥àª¾àª¯ àª›à«‡ --}}
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="ltr">
@@ -17,8 +17,8 @@
     @endif
 
     {{-- Local compiled Tailwind CSS + app JS (versioned static assets, no CDN/Node needed at runtime) --}}
-    <link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
-    <script src="{{ asset('js/app-1.1.7.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.8.css') }}">
+    <script src="{{ asset('js/app-1.1.8.js') }}" defer></script>
     {{-- Alpine.js (local, no CDN) for interactivity (sidebar dropdowns, modals, tabs) --}}
     <script defer src="{{ asset('js/alpine.min.js') }}"></script>
     {{-- LineIcons 5.1 Free (local, no CDN) --}}
@@ -111,8 +111,8 @@
                     const g = grades[type]||grades.danger;
                     const ib = ibg[type]||ibg.danger;
                     const icn = ic[type]||ic.danger;
-                    const cl = confirmText||'હા, ખાતરી કરો';
-                    o.innerHTML = '<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 scale-95 opacity-0 transition-all duration-200"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 '+ib+' rounded-full flex items-center justify-center flex-shrink-0"><i class="lni lni-'+(icons[type]||'warning')+' text-2xl leading-none '+icn+'"></i></div><div><h3 class="text-lg font-semibold text-gray-900">'+title+'</h3><p class="text-sm text-gray-500 mt-1">'+message+'</p></div></div><div class="flex items-center justify-end gap-3 mt-6"><button class="cancel-btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">રદ કરો</button><button class="confirm-btn px-4 py-2 text-sm font-medium text-white rounded-lg focus:ring-4 focus:ring-indigo-200 transition bg-gradient-to-r '+g+' shadow-sm hover:shadow-md">'+cl+'</button></div></div>';
+                    const cl = confirmText||'àª¹àª¾, àª–àª¾àª¤àª°à«€ àª•àª°à«‹';
+                    o.innerHTML = '<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 scale-95 opacity-0 transition-all duration-200"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 '+ib+' rounded-full flex items-center justify-center flex-shrink-0"><i class="lni lni-'+(icons[type]||'warning')+' text-2xl leading-none '+icn+'"></i></div><div><h3 class="text-lg font-semibold text-gray-900">'+title+'</h3><p class="text-sm text-gray-500 mt-1">'+message+'</p></div></div><div class="flex items-center justify-end gap-3 mt-6"><button class="cancel-btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition">àª°àª¦ àª•àª°à«‹</button><button class="confirm-btn px-4 py-2 text-sm font-medium text-white rounded-lg focus:ring-4 focus:ring-indigo-200 transition bg-gradient-to-r '+g+' shadow-sm hover:shadow-md">'+cl+'</button></div></div>';
                     document.body.appendChild(o);
                     requestAnimationFrame(() => { o.style.opacity='1'; o.querySelector('div>div').style.transform='scale(1)'; o.querySelector('div>div').style.opacity='1'; });
                     const close = () => { o.style.opacity='0'; o.querySelector('div>div').style.transform='scale(95%)'; o.querySelector('div>div').style.opacity='0'; setTimeout(() => o.remove(), 200); };

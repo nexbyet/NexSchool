@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $school->school_name_gu ?? 'શાળા') — {{ $school->school_name_gu ?? '' }}</title>
     <meta name="description" content="@yield('meta_description', $school->school_name_gu ?? '')">
-    <link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.8.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/lineicons.css') }}">
     <script defer src="{{ asset('js/alpine.min.js') }}"></script>

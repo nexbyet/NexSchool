@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NexSchool - સ્કૂલ મેનેજમેન્ટ સિસ્ટમ</title>
-    <link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+    <title>NexSchool - àª¸à«àª•à«‚àª² àª®à«‡àª¨à«‡àªœàª®à«‡àª¨à«àªŸ àª¸àª¿àª¸à«àªŸàª®</title>
+    <link rel="stylesheet" href="{{ asset('css/app-1.1.8.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Anek+Gujarati:wght@300;400;500;600;700;800&family=Gabarito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,9 +24,9 @@
             <nav class="flex items-center gap-4">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ route('dashboard') }}" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium text-sm">ડેશબોર્ડ</a>
+                        <a href="{{ route('dashboard') }}" class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium text-sm">àª¡à«‡àª¶àª¬à«‹àª°à«àª¡</a>
                     @else
-                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-indigo-600 transition font-medium text-sm">લોગિન</a>
+                        <a href="{{ route('login') }}" class="text-gray-700 hover:text-indigo-600 transition font-medium text-sm">àª²à«‹àª—àª¿àª¨</a>
                     @endauth
                 @endif
             </nav>
@@ -38,14 +38,14 @@
                     <span class="text-white font-bold text-3xl">N</span>
                 </div>
                 <h1 class="text-5xl font-bold text-gray-900 mb-4">NexSchool</h1>
-                <p class="text-xl text-gray-600 mb-2">સ્માર્ટ સ્કૂલ મેનેજમેન્ટ સિસ્ટમ</p>
-                <p class="text-gray-500 mb-12 max-w-xl mx-auto">વિદ્યાર્થીઓ, શિક્ષકો, વર્ગો અને વિષયોનું સંચાલન કરો. સરળ, ઝડપી અને આધુનિક.</p>
+                <p class="text-xl text-gray-600 mb-2">àª¸à«àª®àª¾àª°à«àªŸ àª¸à«àª•à«‚àª² àª®à«‡àª¨à«‡àªœàª®à«‡àª¨à«àªŸ àª¸àª¿àª¸à«àªŸàª®</p>
+                <p class="text-gray-500 mb-12 max-w-xl mx-auto">àªµàª¿àª¦à«àª¯àª¾àª°à«àª¥à«€àª“, àª¶àª¿àª•à«àª·àª•à«‹, àªµàª°à«àª—à«‹ àª…àª¨à«‡ àªµàª¿àª·àª¯à«‹àª¨à«àª‚ àª¸àª‚àªšàª¾àª²àª¨ àª•àª°à«‹. àª¸àª°àª³, àªàª¡àªªà«€ àª…àª¨à«‡ àª†àª§à«àª¨àª¿àª•.</p>
 
                 <div class="flex items-center justify-center gap-4">
                     @auth
-                        <a href="{{ route('dashboard') }}" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium shadow-lg shadow-indigo-200">ડેશબોર્ડ પર જાઓ</a>
+                        <a href="{{ route('dashboard') }}" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium shadow-lg shadow-indigo-200">àª¡à«‡àª¶àª¬à«‹àª°à«àª¡ àªªàª° àªœàª¾àª“</a>
                     @else
-                        <a href="{{ route('login') }}" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium shadow-lg shadow-indigo-200">લોગિન કરો</a>
+                        <a href="{{ route('login') }}" class="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-medium shadow-lg shadow-indigo-200">àª²à«‹àª—àª¿àª¨ àª•àª°à«‹</a>
                     @endauth
                 </div>
             </div>
@@ -55,27 +55,27 @@
                     <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                         <i class="lni lni-user-multiple-4 text-2xl text-blue-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">વિદ્યાર્થી વ્યવસ્થાપન</h3>
-                    <p class="text-sm text-gray-500">વિદ્યાર્થીઓની માહિતી, હાજરી અને પ્રગતિ ટ્રેક કરો</p>
+                    <h3 class="font-semibold text-gray-900 mb-2">àªµàª¿àª¦à«àª¯àª¾àª°à«àª¥à«€ àªµà«àª¯àªµàª¸à«àª¥àª¾àªªàª¨</h3>
+                    <p class="text-sm text-gray-500">àªµàª¿àª¦à«àª¯àª¾àª°à«àª¥à«€àª“àª¨à«€ àª®àª¾àª¹àª¿àª¤à«€, àª¹àª¾àªœàª°à«€ àª…àª¨à«‡ àªªà«àª°àª—àª¤àª¿ àªŸà«àª°à«‡àª• àª•àª°à«‹</p>
                 </div>
                 <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                     <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                         <i class="lni lni-user-4 text-2xl text-green-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">શિક્ષક વ્યવસ્થાપન</h3>
-                    <p class="text-sm text-gray-500">શિક્ષકોની નિમણૂક, સમયપત્રક અને વિષયો</p>
+                    <h3 class="font-semibold text-gray-900 mb-2">àª¶àª¿àª•à«àª·àª• àªµà«àª¯àªµàª¸à«àª¥àª¾àªªàª¨</h3>
+                    <p class="text-sm text-gray-500">àª¶àª¿àª•à«àª·àª•à«‹àª¨à«€ àª¨àª¿àª®àª£à«‚àª•, àª¸àª®àª¯àªªàª¤à«àª°àª• àª…àª¨à«‡ àªµàª¿àª·àª¯à«‹</p>
                 </div>
                 <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                     <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                         <i class="lni lni-buildings-1 text-2xl text-purple-600"></i>
                     </div>
-                    <h3 class="font-semibold text-gray-900 mb-2">વર્ગ વ્યવસ્થાપન</h3>
-                    <p class="text-sm text-gray-500">વર્ગો, વિભાગો અને સમયપત્રક ગોઠવો</p>
+                    <h3 class="font-semibold text-gray-900 mb-2">àªµàª°à«àª— àªµà«àª¯àªµàª¸à«àª¥àª¾àªªàª¨</h3>
+                    <p class="text-sm text-gray-500">àªµàª°à«àª—à«‹, àªµàª¿àª­àª¾àª—à«‹ àª…àª¨à«‡ àª¸àª®àª¯àªªàª¤à«àª°àª• àª—à«‹àª àªµà«‹</p>
                 </div>
             </div>
 
             <div class="mt-16 text-center text-sm text-gray-400">
-                &copy; {{ date('Y') }} NexSchool. બધા હકો સુરક્ષિત.
+                &copy; {{ date('Y') }} NexSchool. àª¬àª§àª¾ àª¹àª•à«‹ àª¸à«àª°àª•à«àª·àª¿àª¤.
             </div>
         </main>
     </div>

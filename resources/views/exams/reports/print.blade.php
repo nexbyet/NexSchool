@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>રિપોર્ટ — પ્રિન્ટ</title>
-<link rel="stylesheet" href="{{ asset('css/app-1.1.7.css') }}">
+<link rel="stylesheet" href="{{ asset('css/app-1.1.8.css') }}">
 <style>
     @page { size: A4 landscape; margin: 8mm; }
     @font-face { font-family: 'Anek Gujarati'; font-style: normal; font-weight: 400; font-display: swap; src: url("{{ asset('fonts/anek/anek-gujarati-400.woff2') }}") format("woff2"); unicode-range: U+0951-0952, U+0964-0965, U+0A80-0AFF, U+200C-200D, U+20B9, U+25CC, U+A830-A839; }
