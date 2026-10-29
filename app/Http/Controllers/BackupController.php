@@ -15,7 +15,92 @@ class BackupController extends Controller
         $dbName = $connection->getDatabaseName();
         $isMysql = in_array($driver, ['mysql', 'mariadb'], true);
 
-        return view('settings.backup', compact('driver', 'dbName', 'isMysql'));
+        $publicDir = storage_path('app/public');
+        $hasFiles = is_dir($publicDir) && count(glob($publicDir . '/*')) > 0;
+
+        return view('settings.backup', compact('driver', 'dbName', 'isMysql', 'hasFiles'));
+    }
+
+    /**
+     * Create a tar.gz archive of storage/app/public (uploaded files) and download.
+     */
+    public function downloadFiles(Request $request)
+    {
+        @set_time_limit(0);
+        @ini_set('memory_limit', '512M');
+
+        $path = null;
+
+        try {
+            $publicDir = storage_path('app/public');
+            if (!is_dir($publicDir)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'storage/app/public folder nathi (koi uploaded files nathi).',
+                ], 422);
+            }
+
+            $dir = storage_path('app/backups');
+            \Illuminate\Support\Facades\File::ensureDirectoryExists($dir, 0755, true);
+
+            $baseName = 'nexschool-files-' . now()->format('Y-m-d_His');
+            $tarPath = $dir . DIRECTORY_SEPARATOR . $baseName . '.tar';
+            $gzPath = $tarPath . '.gz';
+            $filename = $baseName . '.tar.gz';
+
+            // clean up any leftover files from previous failed attempts
+            @unlink($tarPath);
+            @unlink($gzPath);
+
+            $phar = new \PharData($tarPath);
+            $phar->buildFromDirectory($publicDir);
+            $createdGz = $phar->compress(\Phar::GZ);
+            unset($phar);
+
+            // compress() returns the path of the compressed file
+            if (is_string($createdGz) && file_exists($createdGz)) {
+                $gzPath = $createdGz;
+            }
+
+            // clean up .tar if .gz exists
+            if (file_exists($gzPath)) {
+                @unlink($tarPath);
+            } elseif (file_exists($tarPath)) {
+                // compress failed, use .tar as fallback
+                $gzPath = $tarPath;
+                $filename = $baseName . '.tar';
+            }
+
+            $path = $gzPath;
+
+            $this->pruneFiles($dir, 5);
+
+            return response()
+                ->download($path, $filename, ['Content-Type' => 'application/gzip'])
+                ->deleteFileAfterSend(true);
+        } catch (\Throwable $e) {
+            if ($path && file_exists($path)) {
+                @unlink($path);
+            }
+            if ($path && file_exists($path . '.tar')) {
+                @unlink($path . '.tar');
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Files backup banavi shakayu nathi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function pruneFiles(string $dir, int $keep): void
+    {
+        $files = glob($dir . DIRECTORY_SEPARATOR . 'nexschool-files-*.tar.gz') ?: [];
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
+
+        foreach (array_slice($files, $keep) as $old) {
+            @unlink($old);
+        }
     }
 
     /**

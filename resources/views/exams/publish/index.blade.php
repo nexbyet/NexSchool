@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Result Publish')
+@section('title', 'પરિણામ પ્રકાશન')
 @section('content')
 <div class="p-4 md:p-6">
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 p-6 mb-6">
         <div class="relative z-10">
-            <h1 class="text-2xl font-bold text-white">Result Publish</h1>
-            <p class="text-amber-100 mt-1 text-sm">Admin: result publish/unpublish karo — students frontsite par GR + DOB thi joy sake chhe.</p>
+            <h1 class="text-2xl font-bold text-white">પરિણામ પ્રકાશન</h1>
+            <p class="text-amber-100 mt-1 text-sm">એડમિન: પરિણામ પ્રકાશિત/અપ્રકાશિત કરો - વિદ્યાર્થીઓ frontsite પર GR + DOB થી જોઈ શકે છે.</p>
         </div>
         <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
     </div>
@@ -45,36 +45,43 @@
             </div>
         </div>
         <div class="flex flex-wrap gap-3 mt-4">
-            <button onclick="doPublish(true)" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition">Publish</button>
-            <button onclick="doPublish(false)" class="px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition">Unpublish</button>
+            <button onclick="doPublish(true)" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition">પ્રકાશિત</button>
+            <button onclick="doPublish(false)" class="px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition">અપ્રકાશિત</button>
         </div>
         <div id="p-status" class="hidden mt-4 rounded-xl px-4 py-3 text-sm"></div>
     </div>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-        <h2 class="text-base font-bold text-gray-900 mb-3">Published Results</h2>
+        <h2 class="text-base font-bold text-gray-900 mb-3">પ્રકાશિત પરિણામો</h2>
         <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-50">
+            <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                <thead class="bg-gradient-to-r from-amber-50 to-orange-50">
                     <tr>
-                        <th class="px-3 py-2 text-left">વર્ષ</th>
-                        <th class="px-3 py-2 text-left">ધોરણ</th>
-                        <th class="px-3 py-2 text-left">વર્ગ</th>
-                        <th class="px-3 py-2 text-left">સત્ર</th>
-                        <th class="px-3 py-2 text-left">Published at</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700">વર્ષ</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700">ધોરણ</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700">વર્ગ</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700">સત્ર</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700">પ્રકાશન તારીખ</th>
+                        <th class="px-3 py-2.5 text-center font-semibold text-gray-700">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
                     @forelse ($publications as $pub)
-                        <tr class="border-t border-gray-100">
-                            <td class="px-3 py-2">{{ $pub->academicYear->year ?? '' }}</td>
-                            <td class="px-3 py-2">{{ $pub->standard->name ?? '—' }}</td>
-                            <td class="px-3 py-2">{{ $pub->schoolClass->name ?? '—' }}</td>
-                            <td class="px-3 py-2">{{ $pub->semester === 'both' ? 'બંને' : 'સત્ર '.$pub->semester }}</td>
-                            <td class="px-3 py-2 text-xs text-gray-500">{{ $pub->published_at }}</td>
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-3 py-2.5">{{ $pub->academicYear->year ?? '' }}</td>
+                            <td class="px-3 py-2.5">{{ $pub->standard->name ?? '—' }}</td>
+                            <td class="px-3 py-2.5">{{ $pub->schoolClass->name ?? '—' }}</td>
+                            <td class="px-3 py-2.5">{{ $pub->semester === 'both' ? 'બંને' : 'સત્ર '.$pub->semester }}</td>
+                            <td class="px-3 py-2.5 text-xs text-gray-500">{{ $pub->published_at }}</td>
+                            <td class="px-3 py-2.5 text-center">
+                                <button onclick="unpublishOne({{ $pub->academic_year_id }}, {{ $pub->standard_id }}, {{ $pub->school_class_id }}, '{{ $pub->semester }}')"
+                                    class="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition">
+                                    અપ્રકાશિત
+                                </button>
+                            </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-3 py-6 text-center text-gray-400">કોઈ published result નથી.</td></tr>
+                        <tr><td colspan="6" class="px-3 py-6 text-center text-gray-400">કોઈ પ્રકાશિત પરિણામ નથી.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -104,7 +111,7 @@
                     data.forEach(function (c) {
                         var opt = document.createElement('option');
                         opt.value = c.id;
-                        opt.textContent = c.name + ' (' + sid + ')';
+                        opt.textContent = c.name + ' (' + (c.standard_name || sid) + ')';
                         clsSelect.appendChild(opt);
                     });
                 });
@@ -113,11 +120,51 @@
 
     stdSelect.addEventListener('change', loadClasses);
 
+    function unpublishOne(yearId, stdId, classId, semester) {
+        if (!confirm('આ result અપ્રકાશિત karvu chhe?')) return;
+        var box = document.getElementById('p-status');
+        box.classList.remove('hidden');
+        box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-blue-50 border border-blue-200 text-blue-700';
+        box.innerHTML = '<i class="lni lni-spinner-3 mr-1 animate-spin"></i> પ્રોસેસિંગ...';
+
+        var payload = {
+            academic_year_id: yearId,
+            standard_id: stdId,
+            school_class_id: classId,
+            semester: semester,
+        };
+
+        fetch('{{ route("exams.publish.unpublish") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+            if (d.success) {
+                box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-emerald-50 border border-emerald-200 text-emerald-700';
+                box.innerHTML = '<i class="lni lni-check-circle-1 mr-1"></i> ' + d.message;
+                setTimeout(function () { location.reload(); }, 1000);
+            } else {
+                box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700';
+                box.innerHTML = '<i class="lni lni-ban-2 mr-1"></i> ' + (d.message || 'Error');
+            }
+        })
+        .catch(function (err) {
+            box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700';
+            box.innerHTML = '<i class="lni lni-ban-2 mr-1"></i> ' + (err.message || 'Error');
+        });
+    }
+
     function doPublish(isPublish) {
         var box = document.getElementById('p-status');
         box.classList.remove('hidden');
         box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-blue-50 border border-blue-200 text-blue-700';
-        box.innerHTML = '<i class="lni lni-spinner-3 mr-1 animate-spin"></i> Processing...';
+        box.innerHTML = '<i class="lni lni-spinner-3 mr-1 animate-spin"></i> પ્રોસેસિંગ...';
 
         var stdVals = selectedValues(stdSelect);
         var clsVals = selectedValues(clsSelect);

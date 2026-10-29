@@ -29,6 +29,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">જન્મ તારીખ (DDMMYYYY)</label>
                 <input type="text" name="dob" value="{{ old('dob') }}" required maxlength="8" pattern="\d{8}" placeholder="DDMMYYYY" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                <p class="text-xs text-gray-400 mt-1">ઉદાહરણ: 15 ઓગસ્ટ 2010 → <strong>15082010</strong> (DDMMYYYY). દિવસ-મહિનો-વર્ષ (8 અંક).</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">સત્ર</label>

@@ -301,7 +301,7 @@ $userRole = auth()->user()->role;
                 </a>
                 <a href="{{ route('exams.publish.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.publish*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.publish*')) bg-violet-500 @else bg-gray-300 @endif"></span>
-                    Result Publish
+                    પરિણામ પ્રકાશન
                 </a>
             </div>
         </div>

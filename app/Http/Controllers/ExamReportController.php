@@ -233,11 +233,9 @@ class ExamReportController extends Controller
             $pass = false;
             if ($hasAny && $gradedTotal > 0) {
                 $percent = round($obtained / $gradedTotal * 100, 2);
-                // Integer-style grade scale (0–34, 35–49...) — percentage nearest
-                // integer par round kariye, jethe 34.5% → 35% (D, pass) ganay.
-                if ($scale && $scale->isIntegerStyle()) {
-                    $percent = round($percent);
-                }
+                // Grade lookup mate integer-style scale ma round thay (34.5 -> 35 D pass),
+                // pan displayed percentage ane rank mate exact value (2 decimals) rakhiye
+                // jethi marks ma thodo farak hoy to pan percentage/rank alag aave.
                 $slab = $scale ? $scale->gradeFor($percent) : null;
                 $grade = $slab ? $slab->grade : null;
                 // કોઈ પણ ભરેલા વિષયમાં E (fail) હોય તો આખું પરિણામ નાપાસ.

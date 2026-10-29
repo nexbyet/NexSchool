@@ -53,10 +53,28 @@ class FrontsiteResultController extends Controller
             return back()->withErrors(['gr_number' => 'GR નંબર અથવા જન્મ તારીખ મેળ ખાતા નથી.'])->withInput();
         }
 
+        // Past-year accuracy: student's class may have changed. Look up the class
+        // from exam_marks for the selected academic year; fall back to current.
+        $standardId = $student->current_standard_id;
+        $classId = $student->current_class_id;
+
+        $mark = \App\Models\ExamMark::where('student_id', $student->id)
+            ->where('academic_year_id', $data['academic_year_id'])
+            ->first();
+        if ($mark) {
+            $apply = \App\Models\ExamPatternApply::where('exam_pattern_id', $mark->exam_pattern_id)
+                ->where('subject_id', $mark->subject_id)
+                ->first();
+            if ($apply) {
+                $standardId = $apply->standard_id;
+                $classId = $apply->school_class_id;
+            }
+        }
+
         $published = ResultPublication::isPublished(
             $data['academic_year_id'],
-            $student->current_standard_id,
-            $student->current_class_id,
+            $standardId,
+            $classId,
             $data['semester']
         );
 
@@ -66,8 +84,8 @@ class FrontsiteResultController extends Controller
 
         $report = (new \App\Http\Controllers\ExamReportController())->buildReport([
             'academic_year_id' => $data['academic_year_id'],
-            'standard_id' => $student->current_standard_id,
-            'school_class_id' => $student->current_class_id,
+            'standard_id' => $standardId,
+            'school_class_id' => $classId,
             'semester' => $data['semester'],
         ]);
 
@@ -76,8 +94,8 @@ class FrontsiteResultController extends Controller
             return (int) $r['id'] === (int) $student->id;
         }));
 
-        $std = \App\Models\Standard::find($student->current_standard_id);
-        $cls = \App\Models\SchoolClass::find($student->current_class_id);
+        $std = \App\Models\Standard::find($standardId);
+        $cls = \App\Models\SchoolClass::find($classId);
 
         return view('frontsite.result.show', array_merge($report, [
             'school' => $school,

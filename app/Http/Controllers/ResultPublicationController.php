@@ -23,7 +23,14 @@ class ResultPublicationController extends Controller
 
     public function classes(Standard $standard)
     {
-        return response()->json($standard->classes()->orderBy('name')->get(['id', 'name']));
+        return response()->json($standard->classes()->orderBy('name')->get(['id', 'name', 'standard_id'])->map(function ($c) use ($standard) {
+            return [
+                'id' => $c->id,
+                'name' => $c->name,
+                'standard_id' => $c->standard_id,
+                'standard_name' => $standard->name,
+            ];
+        }));
     }
 
     public function publish(Request $request)

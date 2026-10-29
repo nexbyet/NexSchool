@@ -446,9 +446,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     data.forEach(function (c) {
                         if (!seen[c.id]) {
                             seen[c.id] = true;
+                            const stdName = (document.querySelector('#standard_id option[value="' + stdId + '"]') || {}).textContent || '';
                             const opt = document.createElement('option');
                             opt.value = c.id;
-                            opt.textContent = c.name;
+                            opt.textContent = c.name + (stdName ? ' (' + stdName.trim() + ')' : '');
                             clsSelect.appendChild(opt);
                         }
                     });

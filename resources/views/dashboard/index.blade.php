@@ -535,6 +535,17 @@
                     <p class="text-xs text-gray-500">નવો વિષય ઉમેરો</p>
                 </div>
             </a>
+            @if(auth()->user()->role === 'admin')
+            <a href="{{ route('settings.backup.index') }}" class="flex items-center gap-4 p-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl hover:from-sky-100 hover:to-blue-100 transition group border border-sky-100">
+                <div class="w-11 h-11 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow transition">
+                    <i class="lni lni-database-2 text-lg text-white"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-700">ડેટાબેઝ બેકઅપ</p>
+                    <p class="text-xs text-gray-500">SQL backup download</p>
+                </div>
+            </a>
+            @endif
         </div>
     </div>
 </div>

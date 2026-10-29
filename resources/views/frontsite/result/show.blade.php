@@ -13,7 +13,7 @@
             @endif
             <h1 class="text-xl font-bold text-gray-900">{{ $school->school_name_gu ?? 'શાળા' }}</h1>
             <p class="text-xs text-gray-500">{{ $school->address ?? '' }}</p>
-            <h2 class="text-base font-bold mt-2 text-emerald-700">પરિણામ (Result) — {{ $academicYear->year ?? '' }}</h2>
+            <h2 class="text-base font-bold mt-2 text-emerald-700">પરિણામ - {{ $academicYear->year ?? '' }}</h2>
         </div>
 
         @if (!$r)

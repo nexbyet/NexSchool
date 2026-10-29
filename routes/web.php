@@ -246,6 +246,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/settings/backup', [BackupController::class, 'index'])->name('settings.backup.index');
         Route::post('/settings/backup/download', [BackupController::class, 'download'])->name('settings.backup.download');
+        Route::post('/settings/backup/files', [BackupController::class, 'downloadFiles'])->name('settings.backup.files');
     });
 
     // School Settings (Admin only)

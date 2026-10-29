@@ -40,17 +40,37 @@
                 <h2 class="text-base font-bold text-gray-900">SQL બેકઅપ ડાઉનલોડ કરો</h2>
                 <p class="text-sm text-gray-500 mt-1">બધા ટેબલ, સ્ટ્રક્ચર અને ડેટા એક જ <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs">.sql</code> ફાઇલમાં મળશે.</p>
             </div>
-            <button id="backup-btn" onclick="downloadBackup()" @if(!$isMysql) disabled @endif
-                class="px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="lni lni-download-1 text-sm"></i> બેકઅપ ડાઉનલોડ કરો
+            <button id="backup-btn" onclick="downloadBackup()"
+                class="px-6 py-3 bg-blue-600 text-white text-base font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-2 shadow-md">
+                <i class="lni lni-download-1 text-lg"></i> બેકઅપ ડાઉનલોડ કરો
             </button>
         </div>
+        <p class="text-xs text-gray-400 mt-3">બટન ન દેખાય તો પેજ refresh કરો (Ctrl+F5). Download પછી ફાઇલ સુરક્ષિત જગ્યાએ સાચવો.</p>
 
         <div id="backup-status" class="hidden mt-4 rounded-xl px-4 py-3 text-sm"></div>
 
         <p class="text-[11px] text-gray-400 mt-3">
             મોટા ડેટાબેઝમાં થોડી સેકંડ લાગી શકે — ડાઉનલોડ પૂરું ન થાય ત્યાં સુધી પેજ બંધ ન કરો.
         </p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-base font-bold text-gray-900">Uploaded Files Backup</h2>
+                <p class="text-sm text-gray-500 mt-1">Logos, photos, documents (storage/app/public) — <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs">.tar.gz</code> archive.</p>
+            </div>
+            @if($hasFiles)
+                <button id="files-btn" onclick="downloadFiles()"
+                    style="background-color:#059669;color:#ffffff;font-weight:700;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.1);"
+                    class="flex items-center gap-2 text-base">
+                    <i class="lni lni-download-1 text-lg" style="color:#ffffff;"></i> Files Backup Download
+                </button>
+            @else
+                <span class="text-sm text-gray-400">No uploaded files found.</span>
+            @endif
+        </div>
+        <div id="files-status" class="hidden mt-4 rounded-xl px-4 py-3 text-sm"></div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -139,6 +159,65 @@ function downloadBackup() {
     .finally(function() {
         btn.disabled = false;
         btn.innerHTML = '<i class="lni lni-download-1 text-sm"></i> બેકઅપ ડાઉનલોડ કરો';
+    });
+}
+
+function downloadFiles() {
+    var btn = document.getElementById('files-btn');
+    var box = document.getElementById('files-status');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="lni lni-spinner-3 text-sm animate-spin" style="color:#ffffff;"></i> Creating archive...';
+    box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-blue-50 border border-blue-200 text-blue-700';
+    box.classList.remove('hidden');
+    box.innerHTML = '<i class="lni lni-spinner-3 mr-1 animate-spin"></i> Uploading files archiving...';
+
+    fetch('{{ route("settings.backup.files") }}', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(function(res) {
+        var type = res.headers.get('content-type') || '';
+        if (!res.ok || type.indexOf('application/json') !== -1) {
+            return res.json().then(function(d) {
+                throw new Error(d.message || 'Files backup failed.');
+            }).catch(function(err) {
+                if (err instanceof Error) throw err;
+                throw new Error('Files backup failed.');
+            });
+        }
+        if (type.indexOf('application/gzip') === -1 && type.indexOf('application/x-gzip') === -1 && type.indexOf('application/octet-stream') === -1) {
+            throw new Error('Files backup download failed — session expired.');
+        }
+
+        var disposition = res.headers.get('content-disposition') || '';
+        var match = disposition.match(/filename\\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+        var filename = match ? decodeURIComponent(match[1]) : 'nexschool-files.tar.gz';
+
+        return res.blob().then(function(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+
+            box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-emerald-50 border border-emerald-200 text-emerald-700';
+            box.innerHTML = '<i class="lni lni-check-circle-1 mr-1"></i> Files backup downloaded: <strong>' + filename + '</strong>';
+        });
+    })
+    .catch(function(err) {
+        box.className = 'mt-4 rounded-xl px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700';
+        box.innerHTML = '<i class="lni lni-ban-2 mr-1"></i> ' + (err.message || 'Files backup failed.');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="lni lni-download-1 text-sm" style="color:#ffffff;"></i> Files Backup Download';
     });
 }
 </script>
