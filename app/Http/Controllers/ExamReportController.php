@@ -53,9 +53,18 @@ class ExamReportController extends Controller
 
     // Combined report: head-wise columns (subject groups) + subject totals + overall.
     // semester = 1 | 2 | both (banne = annual)
-    private function buildReport(array $data)
+    public function buildReport(array $data)
     {
         $sems = $data['semester'] === 'both' ? [1, 2] : [(int) $data['semester']];
+
+        // અનબોર્ડ (is_registered = false) વિદ્યાર્થીઓ રિપોર્ટમાં ન આવે — એ શાળાના નોંધાયેલા વિદ્યાર્થી નથી
+        $students = Student::where('current_standard_id', $data['standard_id'])
+            ->where('current_class_id', $data['school_class_id'])
+            ->where('is_registered', true)
+            ->where('status', '!=', 'alumni')
+            ->defaultSort()
+            ->get(['id', 'gr_number', 'full_name_gu', 'full_name_en']);
+        $studentIds = $students->pluck('id');
 
         // std+class ne lagtu applies (year na patterns purtu)
         $applies = ExamPatternApply::with(['subject', 'pattern'])
@@ -80,11 +89,43 @@ class ExamReportController extends Controller
             }
             $bySubject[$sid]['patterns'][] = $a->pattern;
         }
+        // કઈ pattern હેઠળ માર્ક્સ ભરાયા છે — report એ એ જ pattern વાપરવો જોઈએ.
+        // નહીં તો active pattern બદલાયા પછી જૂના marks report માં ખાલી દેખાય
+        // અને overall ખોટો નાપાસ આવે.
+        $markPatterns = ExamMark::whereIn('student_id', $studentIds)
+            ->where('academic_year_id', $data['academic_year_id'])
+            ->whereIn('semester', $sems)
+            ->select('subject_id', 'exam_pattern_id', \DB::raw('COUNT(*) as cnt'))
+            ->groupBy('subject_id', 'exam_pattern_id')
+            ->orderByDesc('cnt')
+            ->get()
+            ->groupBy('subject_id');
+
+        $pickPattern = function ($sid, array $patterns) use ($markPatterns) {
+            $pats = collect($patterns);
+            $active = $pats->firstWhere('is_active', true);
+            $used = $markPatterns->get($sid, collect());
+
+            // સૌથી વધુ marks ધરાવતો pattern; સરખા count હોય તો active પસંદ.
+            $top = $used->sortByDesc('cnt')->first();
+            if ($top) {
+                $match = $pats->firstWhere('id', $top->exam_pattern_id);
+                if ($match) {
+                    $activeUsed = $active ? $used->firstWhere('exam_pattern_id', $active->id) : null;
+                    if ($activeUsed && (int) $activeUsed->cnt >= (int) $top->cnt) {
+                        return $active;
+                    }
+                    return $match;
+                }
+            }
+
+            return $active ?: $pats->sortByDesc('id')->first();
+        };
+
         $subjects = [];
         foreach ($subjectOrder as $sid) {
             if (!isset($bySubject[$sid])) continue;
-            $pats = collect($bySubject[$sid]['patterns']);
-            $subjects[] = ['subject' => $bySubject[$sid]['subject'], 'pattern' => $pats->firstWhere('is_active', true) ?: $pats->sortByDesc('id')->first()];
+            $subjects[] = ['subject' => $bySubject[$sid]['subject'], 'pattern' => $pickPattern($sid, $bySubject[$sid]['patterns'])];
         }
         foreach ($bySubject as $sid => $row) {
             $found = false;
@@ -92,8 +133,7 @@ class ExamReportController extends Controller
                 if ($s['subject']->id == $sid) { $found = true; break; }
             }
             if ($found) continue;
-            $pats = collect($row['patterns']);
-            $subjects[] = ['subject' => $row['subject'], 'pattern' => $pats->firstWhere('is_active', true) ?: $pats->sortByDesc('id')->first()];
+            $subjects[] = ['subject' => $row['subject'], 'pattern' => $pickPattern($sid, $row['patterns'])];
         }
 
         // Head-wise columns: darek vishay na pasand semester(s) na heads
@@ -120,22 +160,10 @@ class ExamReportController extends Controller
 
         $scale = GradeScale::activeForYear($data['academic_year_id']);
 
-        // Grand total: badha vishayona badha heads (darek vidyarthi mate sarkhu).
-        // Taka hamesha aa kul gun mathi — fakt entry thayela vishayomathi NAHI.
-        $grandTotal = 0;
-        foreach ($headCols as $hc) {
-            $grandTotal += $hc['converted'];
-        }
+        // ટકા/ગ્રેડ ફક્ત એ વિષયો પરથી ગણાય જેમાં વિદ્યાર્થીના માર્ક્સ ભરેલા છે.
+        // ખાલી (બાકી) વિષય overall માં 0 તરીકે ન ગણાય — નહીં તો બધા ભરેલા
+        // વિષયો A/B/C/D હોવા છતાં overall E (fail) આવે.
 
-        // અનબોર્ડ (is_registered = false) વિદ્યાર્થીઓ રિપોર્ટમાં ન આવે — એ શાળાના નોંધાયેલા વિદ્યાર્થી નથી
-        $students = Student::where('current_standard_id', $data['standard_id'])
-            ->where('current_class_id', $data['school_class_id'])
-            ->where('is_registered', true)
-            ->where('status', '!=', 'alumni')
-            ->defaultSort()
-            ->get(['id', 'gr_number', 'full_name_gu', 'full_name_en']);
-
-        $studentIds = $students->pluck('id');
         $allMarks = ExamMark::whereIn('student_id', $studentIds)
             ->where('academic_year_id', $data['academic_year_id'])
             ->whereIn('semester', $sems)
@@ -165,7 +193,9 @@ class ExamReportController extends Controller
             $subs = [];
             $obtained = 0;
             $hasAny = false;
+            $hasAll = true; // pattern ના બધા વિષયોમાં marks છે કે નહીં
             $allPass = true;
+            $gradedTotal = 0; // ફક્ત ભરેલા વિષયોનો કુલ (overall % માટે)
             foreach ($subjects as $sub) {
                 $subTotal = 0;
                 $subObt = 0;
@@ -180,9 +210,11 @@ class ExamReportController extends Controller
                 }
                 if ($entered === 0) {
                     $subs[] = null; // bilkul entry nahi — blank (0 nahi)
+                    $hasAll = false;
                     continue;
                 }
                 $hasAny = true;
+                $gradedTotal += $subTotal;
                 $pct = $subTotal > 0 ? $subObt / $subTotal * 100 : 0;
                 $slab = $scale ? $scale->gradeFor($pct) : null;
                 $pass = $slab ? (bool) $slab->is_pass : true;
@@ -199,11 +231,19 @@ class ExamReportController extends Controller
             $percent = null;
             $grade = null;
             $pass = false;
-            if ($hasAny && $grandTotal > 0) {
-                $percent = round($obtained / $grandTotal * 100, 2);
+            if ($hasAny && $gradedTotal > 0) {
+                $percent = round($obtained / $gradedTotal * 100, 2);
+                // Integer-style grade scale (0–34, 35–49...) — percentage nearest
+                // integer par round kariye, jethe 34.5% → 35% (D, pass) ganay.
+                if ($scale && $scale->isIntegerStyle()) {
+                    $percent = round($percent);
+                }
                 $slab = $scale ? $scale->gradeFor($percent) : null;
                 $grade = $slab ? $slab->grade : null;
-                $pass = $allPass && (!$slab || (bool) $slab->is_pass);
+                // કોઈ પણ ભરેલા વિષયમાં E (fail) હોય તો આખું પરિણામ નાપાસ.
+                // બાકી (ખાલી) વિષયો overall માં ગણાતા નથી.
+                // pattern ના બધા વિષયો ભરાયા ન હોય તો pass/fail નહીં — બાકી.
+                $pass = $hasAll && $allPass && (!$slab || (bool) $slab->is_pass);
             }
 
             $rows[] = [
@@ -212,24 +252,26 @@ class ExamReportController extends Controller
                 'name' => $st->full_name_gu ?: $st->full_name_en,
                 'cells' => $cells,
                 'subs' => $subs,
-                'total_marks' => round($grandTotal, 2),
+                'total_marks' => round($gradedTotal, 2),
                 'obtained' => round($obtained, 2),
                 'percent' => $percent,
                 'grade' => $grade,
                 'pass' => $pass,
                 'has_any' => $hasAny,
+                'has_all' => $hasAll,
                 'rank' => null,
             ];
         }
 
-        // Rank: fakt pass vidyarthio, percent mujab (sarkha % = same rank)
+        // Rank: fakt pass vidyarthio, percent mujab (sarkha % = same rank).
+        // Dense ranking: 1,2,3,3,4 (Excel-style 1,2,3,3,5 na badle).
         $passRows = array_filter($rows, function ($r) { return $r['pass'] && $r['percent'] !== null; });
         usort($passRows, function ($a, $b) { return $b['percent'] <=> $a['percent']; });
         $rank = 0;
         $prevPct = null;
-        foreach ($passRows as $i => $pr) {
+        foreach ($passRows as $pr) {
             if ($prevPct === null || $pr['percent'] < $prevPct) {
-                $rank = $i + 1; // standard competition ranking (1,2,2,4)
+                $rank++; // dense rank: next distinct percent gets +1
             }
             $prevPct = $pr['percent'];
             foreach ($rows as &$r) {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class GradeScale extends Model
 {
@@ -20,21 +21,57 @@ class GradeScale extends Model
         return $this->hasMany(GradeSlab::class)->orderBy('sort_order');
     }
 
+    // Slabs ek j var load kariye — report ma darek student × subject mate
+    // fari fari query na thay.
+    private function slabCollection(): Collection
+    {
+        return $this->relationLoaded('slabs') ? $this->slabs : $this->slabs()->get();
+    }
+
+    // Integer-style scale = badha slab bounds purna ank ma (e.g. 0–34, 35–49).
+    // Avi scale ma percentage nearest integer par round thay (34.5 → 35).
+    public function isIntegerStyle(): bool
+    {
+        return $this->isIntegerSlabs($this->slabCollection());
+    }
+
+    private function isIntegerSlabs(Collection $slabs): bool
+    {
+        if ($slabs->isEmpty()) {
+            return false;
+        }
+
+        return $slabs->every(function (GradeSlab $slab) {
+            return (float) $slab->min_percent == (int) $slab->min_percent
+                && (float) $slab->max_percent == (int) $slab->max_percent;
+        });
+    }
+
     // percent (0-100) -> slab lookup. Result/report phase aahi vaparshe.
     // percent = melvel_marks / total_marks * 100
     public function gradeFor($percent)
     {
         $percent = max(0, min(100, (float) $percent));
-        $exact = $this->slabs()
-            ->where('min_percent', '<=', $percent)
-            ->where('max_percent', '>=', $percent)
-            ->orderBy('sort_order')
-            ->first();
-        if ($exact) return $exact;
-        // integer-style 1% gap ma (e.g. 20.5) — najik no niche no slab
-        return $this->slabs()
-            ->where('min_percent', '<=', $percent)
-            ->orderByDesc('min_percent')
+        $slabs = $this->slabCollection();
+
+        // Integer-style slabs (0–34, 35–49...) ma 34.5% ne 35% ganaviye,
+        // nahi to E (fail) ma fall thay — client school ni rule mujab.
+        if ($this->isIntegerSlabs($slabs)) {
+            $percent = round($percent);
+        }
+
+        $exact = $slabs->first(function (GradeSlab $slab) use ($percent) {
+            return (float) $slab->min_percent <= $percent
+                && (float) $slab->max_percent >= $percent;
+        });
+        if ($exact) {
+            return $exact;
+        }
+
+        // Gap (e.g. 34 → 35) ma najik no niche no slab
+        return $slabs
+            ->filter(fn (GradeSlab $slab) => (float) $slab->min_percent <= $percent)
+            ->sortByDesc('min_percent')
             ->first();
     }
 

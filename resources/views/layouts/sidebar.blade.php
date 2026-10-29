@@ -299,6 +299,10 @@ $userRole = auth()->user()->role;
                     <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.reports*')) bg-violet-500 @else bg-gray-300 @endif"></span>
                     રિપોર્ટ
                 </a>
+                <a href="{{ route('exams.publish.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 @if(request()->routeIs('exams.publish*')) bg-violet-50 text-violet-700 @else text-gray-500 hover:bg-gray-100 hover:text-gray-700 @endif">
+                    <span class="w-1.5 h-1.5 rounded-full @if(request()->routeIs('exams.publish*')) bg-violet-500 @else bg-gray-300 @endif"></span>
+                    Result Publish
+                </a>
             </div>
         </div>
 
@@ -329,6 +333,10 @@ $userRole = auth()->user()->role;
         <a href="{{ route('settings.updates.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.updates*')) bg-emerald-50 text-emerald-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
             <span class="flex items-center justify-center w-5 h-5"><i class="lni lni-cloud-2 text-lg @if(request()->routeIs('settings.updates*')) text-emerald-600 @endif"></i></span>
             અપડેટ્સ
+        </a>
+        <a href="{{ route('settings.backup.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @if(request()->routeIs('settings.backup*')) bg-blue-50 text-blue-700 shadow-sm @else text-gray-600 hover:bg-gray-100 hover:text-gray-800 @endif">
+            <span class="flex items-center justify-center w-5 h-5"><i class="lni lni-database-2 text-lg @if(request()->routeIs('settings.backup*')) text-blue-600 @endif"></i></span>
+            ડેટાબેઝ બેકઅપ
         </a>
 
 @elseif($userRole === 'teacher')

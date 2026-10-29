@@ -36,6 +36,7 @@ use App\Http\Controllers\ExamPatternController;
 use App\Http\Controllers\ExamMarkController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ExamReportController;
+use App\Http\Controllers\ResultPublicationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\NoticeController;
@@ -49,6 +50,7 @@ use App\Http\Controllers\DropdownOptionController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\SiteSettingController;
 use App\Http\Controllers\FrontsiteNoticeController;
+use App\Http\Controllers\FrontsiteResultController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\LCController;
@@ -59,6 +61,7 @@ use App\Http\Controllers\BusAttendanceController;
 use App\Http\Controllers\BusOnlyStudentController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\TeacherDashboardController;
 use App\Http\Controllers\StudentDashboardController;
 
@@ -239,6 +242,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/reports/custom/download-pdf', [CustomReportController::class, 'downloadPdf'])->name('custom-report.download-pdf');
     });
 
+    // Database Backup (admin only, license-free — data safety must never be blocked)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/settings/backup', [BackupController::class, 'index'])->name('settings.backup.index');
+        Route::post('/settings/backup/download', [BackupController::class, 'download'])->name('settings.backup.download');
+    });
+
     // School Settings (Admin only)
     Route::middleware(['role:admin', 'license'])->group(function () {
         Route::get('/settings/school-info', [SchoolSettingController::class, 'edit'])->name('settings.school-info');
@@ -351,6 +360,14 @@ Route::middleware('auth')->group(function () {
         Route::get('grades/{id}', [GradeController::class, 'show'])->name('grades.show');
         Route::post('grades/update/{id}', [GradeController::class, 'update'])->name('grades.update');
         Route::post('grades/delete/{id}', [GradeController::class, 'destroy'])->name('grades.destroy');
+
+        // Result Publication (admin only)
+        Route::middleware('role:admin')->group(function () {
+            Route::get('publish', [ResultPublicationController::class, 'index'])->name('publish.index');
+            Route::get('publish/classes/{standard}', [ResultPublicationController::class, 'classes'])->name('publish.classes');
+            Route::post('publish', [ResultPublicationController::class, 'publish'])->name('publish.publish');
+            Route::post('publish/unpublish', [ResultPublicationController::class, 'unpublish'])->name('publish.unpublish');
+        });
     });
 
     // Transport Module
@@ -446,4 +463,6 @@ Route::get('/admission', [FrontsiteAdmissionController::class, 'form'])->name('f
 Route::post('/admission/submit', [FrontsiteAdmissionController::class, 'submit'])->name('frontsite.admission.submit');
 Route::get('/notices', [FrontsiteNoticeController::class, 'index'])->name('frontsite.notices.index');
 Route::get('/notice/{id}', [FrontsiteNoticeController::class, 'show'])->name('frontsite.notices.show');
+Route::get('/result', [FrontsiteResultController::class, 'index'])->name('frontsite.result.index');
+Route::post('/result', [FrontsiteResultController::class, 'show'])->name('frontsite.result.show');
 Route::get('/{slug}', [FrontsiteController::class, 'page'])->name('frontsite.page')->where('slug', '[a-z0-9\-]+');

@@ -83,7 +83,7 @@
                 <tbody id="report-body"></tbody>
             </table>
         </div>
-        <p class="text-[11px] text-gray-400 mt-2">હેડર પર ક્લિકથી સોર્ટ થાય · <kbd class="bg-gray-100 px-1 rounded">Ctrl+P</kbd> પ્રિન્ટ · ક્રમ ફક્ત પાસ વિદ્યાર્થીઓને · ખાલી = એન્ટ્રી બાકી</p>
+        <p class="text-[11px] text-gray-400 mt-2">હેડર પર ક્લિકથી સોર્ટ થાય · <kbd class="bg-gray-100 px-1 rounded">Ctrl+P</kbd> પ્રિન્ટ · ક્રમ ફક્ત પાસ વિદ્યાર્થીઓને · ટકા/ગ્રેડ ફક્ત ભરેલા વિષયો પરથી · બાકી = બધા વિષયોના માર્ક્સ ભરાયા નથી</p>
     </div>
 
     <div id="report-empty" class="text-center py-16 bg-white rounded-xl border border-gray-200">
@@ -223,9 +223,6 @@
             var sid0 = headCols[th0].subject_id;
             subTotals[sid0] = (subTotals[sid0] || 0) + headCols[th0].converted;
         }
-        var grandTotal = 0;
-        for (var gk in subTotals) { grandTotal += subTotals[gk]; }
-
         // Group header: subject groups
         var g = '<th rowspan="2" class="px-3 py-3 text-left font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-r border-gray-200 sticky left-0 z-20 min-w-[200px]">ક્રમ · <span class="cursor-pointer hover:text-violet-700" onclick="setSort(\'gr\')">GR' + sortArrow('gr') + '</span> · <span class="cursor-pointer hover:text-violet-700" onclick="setSort(\'name\')">નામ' + sortArrow('name') + '</span></th>';
         var subIdx = {};
@@ -237,7 +234,7 @@
             subIdx[subjects[s].id] = s;
             g += '<th colspan="' + (nHeads + 2) + '" class="px-2 py-2 text-center font-bold text-violet-800 text-xs uppercase bg-violet-50 border-b border-l border-gray-200">' + subjects[s].name + '</th>';
         }
-        g += '<th rowspan="2" class="px-3 py-3 text-center font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-gray-200 cursor-pointer hover:text-violet-700" onclick="setSort(\'total\')">કુલ / ' + Math.round(grandTotal) + sortArrow('total') + '</th>' +
+        g += '<th rowspan="2" class="px-3 py-3 text-center font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-gray-200 cursor-pointer hover:text-violet-700" onclick="setSort(\'total\')">કુલ' + sortArrow('total') + '</th>' +
             '<th rowspan="2" class="px-3 py-3 text-center font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-gray-200 cursor-pointer hover:text-violet-700" onclick="setSort(\'percent\')">ટકા' + sortArrow('percent') + '</th>' +
             '<th rowspan="2" class="px-3 py-3 text-center font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-gray-200">ગ્રેડ</th>' +
             '<th rowspan="2" class="px-3 py-3 text-center font-semibold text-gray-600 text-xs uppercase bg-violet-50 border-b border-gray-200">પાસ?</th>' +
@@ -261,7 +258,7 @@
         var list = sortedRows();
         for (var i = 0; i < list.length; i++) {
             var r = list[i];
-            var rowBg = r.pass ? '' : (r.has_any ? 'bg-red-50/50' : 'bg-gray-50/50');
+            var rowBg = !r.has_all ? 'bg-gray-50/50' : (r.pass ? '' : 'bg-red-50/50');
             b += '<tr class="hover:bg-violet-50/40 transition ' + rowBg + '">';
             b += '<td class="px-3 py-2 bg-white border-r border-gray-100 sticky left-0 z-10"><span class="text-xs text-gray-400 mr-1">' + (i + 1) + '</span><span class="font-medium text-gray-900">' + (r.name || '') + '</span> <span class="text-[10px] text-gray-400 font-mono">GR:' + r.gr_number + '</span></td>';
             for (var c = 0; c < headCols.length; c++) {
@@ -287,10 +284,10 @@
                     }
                 }
             }
-            b += '<td class="px-3 py-2 text-center font-bold text-gray-900">' + (r.has_any ? Math.round(r.obtained) : '—') + '</td>';
+            b += '<td class="px-3 py-2 text-center font-bold text-gray-900">' + (r.has_any ? Math.round(r.obtained) + ' / ' + Math.round(r.total_marks) : '—') + '</td>';
             b += '<td class="px-3 py-2 text-center font-bold ' + (r.pass ? 'text-emerald-700' : (r.has_any ? 'text-red-600' : 'text-gray-400')) + '">' + (r.percent === null ? '—' : r.percent.toFixed(2) + '%') + '</td>';
             b += '<td class="px-3 py-2 text-center font-bold text-gray-900">' + (r.grade || '—') + '</td>';
-            b += '<td class="px-3 py-2 text-center">' + (!r.has_any ? '<span class="text-[11px] text-gray-400">બાકી</span>' : (r.pass ? '<span class="text-[11px] font-bold text-emerald-700">પાસ</span>' : '<span class="text-[11px] font-bold text-red-600">નાપાસ</span>')) + '</td>';
+            b += '<td class="px-3 py-2 text-center">' + (!r.has_all ? '<span class="text-[11px] text-gray-400">બાકી</span>' : (r.pass ? '<span class="text-[11px] font-bold text-emerald-700">પાસ</span>' : '<span class="text-[11px] font-bold text-red-600">નાપાસ</span>')) + '</td>';
             b += '<td class="px-3 py-2 text-center font-bold ' + (r.rank ? 'text-violet-700' : 'text-gray-300') + '">' + (r.rank || '—') + '</td>';
             b += '</tr>';
         }

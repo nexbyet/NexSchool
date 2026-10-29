@@ -42,6 +42,10 @@
                     @endforeach
                 </nav>
 
+                <a href="{{ url('/result') }}" class="hidden lg:flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-[var(--theme-primary)] hover:bg-gray-100 rounded-lg transition">
+                    <i class="lni lni-bar-chart-4 text-sm"></i>
+                    પરિણામ
+                </a>
                 <div class="hidden lg:flex items-center ml-2 pl-2 border-l border-gray-200">
                     @auth
                     <a href="{{ route('dashboard') }}" class="btn-primary flex items-center gap-2 px-3 py-2 text-sm shadow-sm">
@@ -115,6 +119,10 @@
                 લોગિન
             </a>
             @endauth
+            <a href="{{ url('/result') }}" class="flex items-center justify-center gap-3 px-4 py-3 text-base bg-white border border-gray-200 rounded-xl transition font-medium shadow-sm w-full text-gray-700 hover:bg-gray-50 mt-2">
+                <i class="lni lni-bar-chart-4 text-sm"></i>
+                પરિણામ
+            </a>
         </div>
     </div>
 </div>

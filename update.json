@@ -1,7 +1,9 @@
 {
-    "version": "1.1.9",
+    "version": "1.1.10",
     "requires": "1.1.5",
-    "migrations": [],
+    "migrations": [
+        "2026_10_29_120000_create_result_publications_table"
+    ],
     "delete_files": [],
     "post_update_commands": [
         "php artisan optimize:clear",

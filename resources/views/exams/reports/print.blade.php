@@ -42,7 +42,6 @@
     } catch (\Exception $e) {}
     $subHeadCounts = [];
     $subTotals = [];
-    $grandTotal = 0;
     foreach ($subjects as $s) {
         $n = 0;
         $t = 0;
@@ -51,7 +50,6 @@
         }
         $subHeadCounts[$s['id']] = $n;
         $subTotals[$s['id']] = $t;
-        $grandTotal += $t;
     }
 @endphp
 
@@ -70,7 +68,7 @@
             @foreach($subjects as $s)
             <th colspan="{{ $subHeadCounts[$s['id']] + 2 }}">{{ $s['name'] }}</th>
             @endforeach
-            <th rowspan="2" class="vcol"><div class="vhead">કુલ / {{ number_format($grandTotal, 0) }}</div></th>
+            <th rowspan="2" class="vcol"><div class="vhead">કુલ</div></th>
             <th rowspan="2">ટકા</th>
             <th rowspan="2">ગ્રેડ</th>
             <th rowspan="2">પાસ?</th>
@@ -115,15 +113,17 @@
                 <td style="text-align:center;font-weight:bold;">@if(!$sub) — @else {{ $sub['grade'] ?? '' }} @endif</td>
             @endif
             @endforeach
-            <td style="text-align:center;font-weight:bold;">@if($r['has_any']) {{ number_format($r['obtained'], 0) }} @else — @endif</td>
+            <td style="text-align:center;font-weight:bold;">@if($r['has_any']) {{ number_format($r['obtained'], 0) }} / {{ number_format($r['total_marks'], 0) }} @else — @endif</td>
             <td style="text-align:center;font-weight:bold;">@if($r['percent'] === null) — @else {{ number_format($r['percent'], 2) }}% @endif</td>
             <td style="text-align:center;font-weight:bold;">{{ $r['grade'] ?? '—' }}</td>
-            <td style="text-align:center;">@if(!$r['has_any']) બાકી @elseif($r['pass']) પાસ @else નાપાસ @endif</td>
+            <td style="text-align:center;">@if(!$r['has_all']) બાકી @elseif($r['pass']) પાસ @else નાપાસ @endif</td>
             <td style="text-align:center;font-weight:bold;">{{ $r['rank'] ?? '—' }}</td>
         </tr>
         @endforeach
     </tbody>
 </table>
+
+<p class="text-[10px] text-gray-500 mb-2">ટકા/ગ્રેડ ફક્ત ભરેલા વિષયો પરથી ગણાયેલા છે; ખાલી વિષય overall માં ગણાતા નથી. બાકી = બધા વિષયોના માર્ક્સ ભરાયા નથી. કોઈ પણ વિષયમાં નાપાસ હોય તો આખું પરિણામ નાપાસ.</p>
 
 <div class="flex justify-between mt-8 text-xs">
     <span>વર્ગશિક્ષકની સહી: _______________</span>

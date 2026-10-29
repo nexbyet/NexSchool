@@ -136,7 +136,7 @@ class DemoDataSeeder extends Seeder
             'licensee_name' => 'Shri Saraswati Vidyalaya (Demo)',
             'licensed_until' => '2099-12-31',
             'license_status' => 'active',
-            'app_version' => '1.1.9',
+            'app_version' => '1.1.10',
         ]);
 
         // The app reads settings via SchoolSetting::find(1); MySQL auto-increment
