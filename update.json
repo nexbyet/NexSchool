@@ -1,6 +1,6 @@
 {
-    "version": "1.2.0",
-    "requires": "1.1.5",
+    "version": "1.2.1",
+    "requires": "1.2.0",
     "migrations": [
         "2026_10_29_120000_create_result_publications_table"
     ],

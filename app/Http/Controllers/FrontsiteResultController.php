@@ -53,23 +53,11 @@ class FrontsiteResultController extends Controller
             return back()->withErrors(['gr_number' => 'GR નંબર અથવા જન્મ તારીખ મેળ ખાતા નથી.'])->withInput();
         }
 
-        // Past-year accuracy: student's class may have changed. Look up the class
-        // from exam_marks for the selected academic year; fall back to current.
+        // Use student's current standard/class (original behavior).
+        // The past-year accuracy fix (exam_marks lookup) was causing wrong
+        // standard/class because ExamPatternApply has multiple rows per pattern.
         $standardId = $student->current_standard_id;
         $classId = $student->current_class_id;
-
-        $mark = \App\Models\ExamMark::where('student_id', $student->id)
-            ->where('academic_year_id', $data['academic_year_id'])
-            ->first();
-        if ($mark) {
-            $apply = \App\Models\ExamPatternApply::where('exam_pattern_id', $mark->exam_pattern_id)
-                ->where('subject_id', $mark->subject_id)
-                ->first();
-            if ($apply) {
-                $standardId = $apply->standard_id;
-                $classId = $apply->school_class_id;
-            }
-        }
 
         $published = ResultPublication::isPublished(
             $data['academic_year_id'],

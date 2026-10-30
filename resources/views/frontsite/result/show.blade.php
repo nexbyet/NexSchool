@@ -64,7 +64,6 @@
                             <td colspan="2" class="px-3 py-2 text-right">કુલ</td>
                             <td class="px-3 py-2 text-center">{{ $r['has_any'] ? number_format($r['obtained'], 0) : '—' }}</td>
                             <td class="px-3 py-2 text-center">{{ $r['has_any'] ? number_format($r['total_marks'], 0) : '—' }}</td>
-                            <td class="px-3 py-2 text-center">{{ $r['percent'] === null ? '—' : number_format($r['percent'], 2) . '%' }}</td>
                             <td class="px-3 py-2 text-center">{{ $r['grade'] ?? '—' }}</td>
                             <td class="px-3 py-2 text-center">
                                 @if (!$r['has_all'])
