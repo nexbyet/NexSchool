@@ -41,8 +41,9 @@
                 <p class="text-sm text-gray-500 mt-1">બધા ટેબલ, સ્ટ્રક્ચર અને ડેટા એક જ <code class="px-1.5 py-0.5 bg-gray-100 rounded text-xs">.sql</code> ફાઇલમાં મળશે.</p>
             </div>
             <button id="backup-btn" onclick="downloadBackup()"
-                class="px-6 py-3 bg-blue-600 text-white text-base font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-2 shadow-md">
-                <i class="lni lni-download-1 text-lg"></i> બેકઅપ ડાઉનલોડ કરો
+                style="background-color:#2563eb;color:#ffffff;font-weight:700;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.1);"
+                class="flex items-center gap-2 text-base">
+                <i class="lni lni-download-1 text-lg" style="color:#ffffff;"></i> બેકઅપ ડાઉનલોડ કરો
             </button>
         </div>
         <p class="text-xs text-gray-400 mt-3">બટન ન દેખાય તો પેજ refresh કરો (Ctrl+F5). Download પછી ફાઇલ સુરક્ષિત જગ્યાએ સાચવો.</p>

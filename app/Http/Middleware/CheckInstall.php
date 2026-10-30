@@ -15,13 +15,22 @@ class CheckInstall
             config(['app.key' => 'base64:MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=']);
         }
 
+        // Force file session driver everywhere — cPanel/shared hosting may not
+        // have the sessions table or redis available, causing 419 "page expired".
+        config(['session.driver' => 'file']);
+
+        // Ensure sessions directory exists and is writable
+        $sessionPath = storage_path('framework/sessions');
+        if (!is_dir($sessionPath)) {
+            @mkdir($sessionPath, 0755, true);
+        }
+
         $isInstalled = file_exists(base_path('.env')) && file_exists(storage_path('installed.lock'));
         $isInstallRoute = $request->routeIs('install.*');
         $isCompleteRoute = $request->routeIs('install.complete');
 
         // install.complete is read-only — always allow (safe after install)
         if ($isCompleteRoute) {
-            config(['session.driver' => 'file']);
             return $next($request);
         }
 
@@ -30,7 +39,6 @@ class CheckInstall
             if ($isInstalled) {
                 abort(404);
             }
-            config(['session.driver' => 'file']);
             return $next($request);
         }
 

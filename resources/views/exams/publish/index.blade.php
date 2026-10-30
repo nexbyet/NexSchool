@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="flex flex-wrap gap-3 mt-4">
-            <button onclick="doPublish(true)" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition">પ્રકાશિત</button>
+            <button onclick="doPublish(true)" style="background-color:#059669;color:#ffffff;font-weight:500;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;" class="text-sm">પ્રકાશિત</button>
             <button onclick="doPublish(false)" class="px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition">અપ્રકાશિત</button>
         </div>
         <div id="p-status" class="hidden mt-4 rounded-xl px-4 py-3 text-sm"></div>
